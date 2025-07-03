@@ -1,2 +1,2 @@
-# mrqx`s Slashblade Core
-A mod designed to develop attachments for Slashblade: Resharped.
+# True POWER of Maid
+A mod designed to enhance the maid's ability to use SlashBlade for combat.
