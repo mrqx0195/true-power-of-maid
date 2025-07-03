@@ -1,0 +1,18 @@
+{
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "mixins": [
+    "MixinEntityMaid",
+    "MixinSlashArts",
+    "MixinSlashBladeCompat",
+    "MixinTargetSelector"
+  ],
+  "package": "net.mrqx.slashblade.maidpower.mixin",
+  "refmap": "true_power_of_maid.refmap.json",
+  "required": true,
+  "client": [
+    "MixinEntityMaidRenderer",
+    "MixinGeckoEntityMaidRenderer",
+    "MixinSlashBladeRender"
+  ]
+}
