@@ -1,6 +1,7 @@
 package net.mrqx.slashblade.maidpower.util;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import mods.flammpfeil.slashblade.capability.inputstate.InputStateCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraftforge.common.MinecraftForge;
-import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeAttack;
 import net.mrqx.slashblade.maidpower.event.ChargeActionHandler;
 import net.mrqx.slashblade.maidpower.event.MaidProgressComboEvent;
@@ -27,13 +27,22 @@ import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 public class MaidSlashBladeAttackUtils {
+    public static final BiFunction<EntityMaid, ISlashBladeState, Boolean> TRY_AERIAL_CLEAVE = (maid, state) -> {
+        if (maid.onGround() || !MaidItems.SlashBladeMaidBauble.ComboC.checkBauble(maid)) {
+            return false;
+        }
+        state.updateComboSeq(maid, ComboStateRegistry.AERIAL_CLEAVE.getId());
+        return true;
+    };
+
     public static final BiConsumer<EntityMaid, ISlashBladeState> GROUND_ATTACK = (maid, state) -> {
         if (maid.onGround()) {
             state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1.getId());
         } else {
-            state.updateComboSeq(maid, ComboStateRegistry.AERIAL_CLEAVE.getId());
+            TRY_AERIAL_CLEAVE.apply(maid, state);
         }
     };
 
@@ -98,7 +107,8 @@ public class MaidSlashBladeAttackUtils {
 
     public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> VOID_SLASH = (maid, state, target) -> {
         MaidSlashBladeMovementUtils.TRY_TRICK_TO_TARGET.accept(maid, target);
-        state.updateComboSeq(maid, TruePowerComboStateRegistry.VOID_SLASH.getId());
+        maid.getCapability(InputStateCapabilityProvider.INPUT_STATE).ifPresent(input ->
+                input.getScheduler().schedule("maid_void_slash", 2, (livingEntity, queue, now) -> state.updateComboSeq(maid, TruePowerComboStateRegistry.VOID_SLASH.getId())));
     };
 
     public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> NORMAL_SLASHBLADE_ATTACK = (maid, state, target) -> {
@@ -128,7 +138,6 @@ public class MaidSlashBladeAttackUtils {
                 }
             } else {
                 if (!nextLoc.equals(currentLoc)) {
-                    TruePowerOfMaid.LOGGER.debug("awa");
                     MaidProgressComboEvent event = new MaidProgressComboEvent(maid, target, currentLoc, nextLoc);
                     MinecraftForge.EVENT_BUS.post(event);
                     if (!event.isCanceled()) {
