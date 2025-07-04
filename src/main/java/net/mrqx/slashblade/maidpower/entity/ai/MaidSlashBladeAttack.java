@@ -37,12 +37,15 @@ public class MaidSlashBladeAttack {
                                 }
                                 MaidSlashBladeAttackUtils.NORMAL_SLASHBLADE_ATTACK.accept(maid, state, target);
                             } else {
+                                if (!maid.onGround() && maid.getY() - target.getY() > 5) {
+                                    MaidSlashBladeAttackUtils.TRY_AERIAL_CLEAVE.apply(maid, state);
+                                }
                                 if (MaidItems.SlashBladeMaidBauble.RapidSlash.checkBauble(maid)) {
                                     trackerMemoryAccessor.set(new EntityTracker(target, true));
-                                    if (MaidItems.SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
-                                        MaidSlashBladeAttackUtils.JUDGEMENT_CUT.accept(maid, state, target);
-                                    }
                                     MaidSlashBladeAttackUtils.RAPID_SLASH_ATTACK.accept(maid, state, target);
+                                } else if (MaidItems.SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
+                                    trackerMemoryAccessor.set(new EntityTracker(target, true));
+                                    MaidSlashBladeAttackUtils.TRY_JUDGEMENT_CUT.apply(maid, state, target);
                                 }
                             }
                         });

@@ -2,9 +2,13 @@ package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.api.event.MaidTickEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import mods.flammpfeil.slashblade.SlashBladeConfig;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
+import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
+import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
+import mods.flammpfeil.slashblade.registry.ModAttributes;
 import mods.flammpfeil.slashblade.registry.combo.ComboState;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import mods.flammpfeil.slashblade.util.TargetSelector;
@@ -142,11 +146,31 @@ public class MaidTickHandler {
         }
         AttributeModifier followRangeBonus = new AttributeModifier(UUID.fromString("5a138a12-3f1a-40ab-98cf-9532bd9881ce"),
                 "Maid SlashBlade Bonus", radius, AttributeModifier.Operation.ADDITION);
-        AttributeInstance attributeInstance = maid.getAttribute(Attributes.FOLLOW_RANGE);
-        if (attributeInstance == null) {
+        AttributeInstance followRangeAttributeInstance = maid.getAttribute(Attributes.FOLLOW_RANGE);
+        if (followRangeAttributeInstance == null) {
             return;
         }
-        attributeInstance.removeModifier(followRangeBonus);
-        attributeInstance.addPermanentModifier(followRangeBonus);
+        followRangeAttributeInstance.removeModifier(followRangeBonus);
+        followRangeAttributeInstance.addPermanentModifier(followRangeBonus);
+
+        IConcentrationRank.ConcentrationRanks rankBonus = maid
+                .getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
+                .map(rp -> rp.getRank(maid.getCommandSenderWorld().getGameTime()))
+                .orElse(IConcentrationRank.ConcentrationRanks.NONE);
+        float rankDamageBonus = rankBonus.level / 2.0f;
+        if (IConcentrationRank.ConcentrationRanks.S.level <= rankBonus.level) {
+            int refine = maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map(ISlashBladeState::getRefine).orElse(0);
+            int level = (int) Math.floor((double) maid.getExperience() / 120);
+            rankDamageBonus = (float) Math.max(rankDamageBonus, Math.min(level, refine) * SlashBladeConfig.REFINE_DAMAGE_MULTIPLIER.get());
+        }
+
+        AttributeModifier slashbladeDamageBonus = new AttributeModifier(UUID.fromString("5e800b9e-f7ba-4f48-a018-2acfe422dce6"),
+                "Maid SlashBlade Bonus", rankDamageBonus, AttributeModifier.Operation.ADDITION);
+        AttributeInstance slashbladeDamageAttributeInstance = maid.getAttribute(ModAttributes.SLASHBLADE_DAMAGE.get());
+        if (slashbladeDamageAttributeInstance == null) {
+            return;
+        }
+        slashbladeDamageAttributeInstance.removeModifier(slashbladeDamageBonus);
+        slashbladeDamageAttributeInstance.addPermanentModifier(slashbladeDamageBonus);
     }
 }
