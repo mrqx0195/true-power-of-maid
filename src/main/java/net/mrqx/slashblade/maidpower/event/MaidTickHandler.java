@@ -23,7 +23,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidMirageBladeBehavior;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
-import net.mrqx.slashblade.maidpower.item.MaidItems;
+import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 import net.mrqx.truepower.util.JustSlashArtManager;
@@ -40,15 +40,15 @@ public class MaidTickHandler {
             maidTickCounter(maid);
             maidBonus(maid);
             maid.getMainHandItem().inventoryTick(maid.level(), maid, 0, true);
-            boolean truePower = MaidItems.SlashBladeMaidBauble.TruePower.checkBauble(maid);
+            boolean truePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
             if (truePower) {
                 maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT).ifPresent(rank -> rank.setRawRankPoint(Math.max(rank.getRankPoint(maid.level().getGameTime()), 2300)));
             }
             ComboState current = ComboStateRegistry.REGISTRY.get().getValue(state.resolvCurrentComboState(maid));
             CompoundTag data = maid.getPersistentData();
-            boolean canTrick = MaidItems.SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
+            boolean canTrick = SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
             Entity target = state.getTargetEntity(maid.level());
-            boolean canAirTrick = canTrick && MaidItems.SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
+            boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
             if (target != null) {
                 canAirTrick &= target.isAlive();
                 if (target instanceof LivingEntity living) {
@@ -73,7 +73,7 @@ public class MaidTickHandler {
                 MaidSlashBladeMovementUtils.TRY_TRICK_DODGE.accept(maid);
                 data.putBoolean(MaidGuardHandler.IS_PRE_ESCAPING, false);
             }
-            if (MaidItems.SlashBladeMaidBauble.Health.checkBauble(maid) && maid.getHealth() < maid.getMaxHealth()) {
+            if (SlashBladeMaidBauble.Health.checkBauble(maid) && maid.getHealth() < maid.getMaxHealth()) {
                 int favorabilityLevel = maid.getFavorabilityManager().getLevel();
                 int soulCost = Math.max(0, 4 - favorabilityLevel);
                 if (state.getProudSoulCount() >= soulCost) {
@@ -86,7 +86,7 @@ public class MaidTickHandler {
                 }
             }
             if (state.isBroken()) {
-                if (MaidItems.SlashBladeMaidBauble.Exp.checkBauble(maid)) {
+                if (SlashBladeMaidBauble.Exp.checkBauble(maid)) {
                     int favorabilityLevel = Math.max(1, maid.getFavorabilityManager().getLevel() + 1);
                     int expCost = Math.max(0, 4 - favorabilityLevel);
                     if (maid.getExperience() >= expCost) {
@@ -111,7 +111,7 @@ public class MaidTickHandler {
 
     public static void maidTickCounter(EntityMaid maid) {
         CompoundTag data = maid.getPersistentData();
-        int truePower = MaidItems.SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 2 : 1;
+        int truePower = SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 2 : 1;
         int favorabilityLevel = maid.getFavorabilityManager().getLevel() + 1;
 
         data.putInt(MaidMirageBladeBehavior.HEAVY_RAIN_SWORD_COUNTER_KEY, Math.max(0, data.getInt(MaidMirageBladeBehavior.HEAVY_RAIN_SWORD_COUNTER_KEY) - favorabilityLevel * truePower));
@@ -141,7 +141,7 @@ public class MaidTickHandler {
     public static void maidBonus(EntityMaid maid) {
         double radius = TargetSelector.getResolvedReach(maid) * 2;
         radius *= radius;
-        if (MaidItems.SlashBladeMaidBauble.MirageBlade.checkBauble(maid) || MaidItems.SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
+        if (SlashBladeMaidBauble.MirageBlade.checkBauble(maid) || SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
             radius *= 3;
         }
         AttributeModifier followRangeBonus = new AttributeModifier(UUID.fromString("5a138a12-3f1a-40ab-98cf-9532bd9881ce"),

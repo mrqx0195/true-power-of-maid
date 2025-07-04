@@ -52,5 +52,5 @@
   "task.true_power_of_maid.slashblade_attack.desc": "Maid will use SlashBlade to attack surrounding hostile mobs",
   "task.true_power_of_maid.slashblade_attack.condition.has_slashblade": "Mainhand holds a SlashBlade",
   "task.true_power_of_maid.slashblade_attack.condition.souls": "",
-  "itemGroup.true_power_of_maid": "TLM:True POWER"
+  "item_group.true_power_of_maid": "TLM: True POWER"
 }

@@ -52,5 +52,5 @@
   "task.true_power_of_maid.slashblade_attack.desc": "女仆会主动用拔刀剑攻击周围的敌对生物\n部分技能冷却速度会随好感度上升而加快\n评价机制：女仆连续攻击会增加评价，高评价会增加伤害，女仆受到攻击会降低评价",
   "task.true_power_of_maid.slashblade_attack.condition.has_slashblade": "主手持有拔刀剑",
   "task.true_power_of_maid.slashblade_attack.condition.souls": "可以在女仆的饰品栏中装备特殊的拔刀剑饰品以解锁更多技能",
-  "itemGroup.true_power_of_maid": "TLM：真正的力量"
+  "item_group.true_power_of_maid": "TLM：真正的力量"
 }
