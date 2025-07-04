@@ -14,7 +14,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.mrqx.sbr_core.utils.MrqxSummonedSwordArts;
 import net.mrqx.slashblade.maidpower.event.MaidGuardHandler;
-import net.mrqx.slashblade.maidpower.item.MaidItems;
+import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +37,7 @@ public class MaidMirageBladeBehavior extends Behavior<EntityMaid> {
         Optional<LivingEntity> memory = pOwner.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET);
         if (memory.isPresent()) {
             LivingEntity target = memory.get();
-            return MaidSlashBladeAttackUtils.isHoldingSlashBlade(pOwner) && MaidItems.SlashBladeMaidBauble.MirageBlade.checkBauble(pOwner) && pOwner.canSee(target);
+            return MaidSlashBladeAttackUtils.isHoldingSlashBlade(pOwner) && SlashBladeMaidBauble.MirageBlade.checkBauble(pOwner) && pOwner.canSee(target);
         }
         return false;
     }
@@ -54,7 +54,7 @@ public class MaidMirageBladeBehavior extends Behavior<EntityMaid> {
                     if (MaidGuardHandler.isGuarding(pOwner)) {
                         return;
                     }
-                    int powerLevel = (pOwner.getMainHandItem().getEnchantmentLevel(Enchantments.POWER_ARROWS) + pOwner.getFavorabilityManager().getLevel() + 1) * (MaidItems.SlashBladeMaidBauble.TruePower.checkBauble(pOwner) ? 2 : 1);
+                    int powerLevel = (pOwner.getMainHandItem().getEnchantmentLevel(Enchantments.POWER_ARROWS) + pOwner.getFavorabilityManager().getLevel() + 1) * (SlashBladeMaidBauble.TruePower.checkBauble(pOwner) ? 2 : 1);
                     CompoundTag data = pOwner.getPersistentData();
                     switch (pOwner.getFavorabilityManager().getLevel()) {
                         case 3:

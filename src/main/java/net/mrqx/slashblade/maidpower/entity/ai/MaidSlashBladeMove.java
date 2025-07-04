@@ -13,7 +13,7 @@ import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.mrqx.sbr_core.utils.MrqxSlayerStyleArts;
 import net.mrqx.slashblade.maidpower.event.MaidGuardHandler;
-import net.mrqx.slashblade.maidpower.item.MaidItems;
+import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 
 import java.util.Optional;
@@ -25,12 +25,12 @@ public class MaidSlashBladeMove {
             LivingEntity target = mobInstance.get(livingEntityMemoryAccessor);
             Optional<NearestVisibleLivingEntities> optional = mobInstance.tryGet(visibleLivingEntitiesMemoryAccessor);
             if (mob instanceof EntityMaid maid
-                    && !MaidGuardHandler.isGuarding(maid)) {
+                && !MaidGuardHandler.isGuarding(maid)) {
                 float distance = maid.distanceTo(target);
                 double reach = TargetSelector.getResolvedReach(maid);
                 CompoundTag data = maid.getPersistentData();
-                boolean canTrick = MaidItems.SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
-                boolean canAirTrick = canTrick && MaidItems.SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
+                boolean canTrick = SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
+                boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
                 boolean hasTrick = false;
                 if (optional.isPresent() && optional.get().contains(target) && distance > reach * reach) {
                     if (!canAirTrick) {

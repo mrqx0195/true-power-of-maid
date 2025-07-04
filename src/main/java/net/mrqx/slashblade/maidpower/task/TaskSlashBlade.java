@@ -27,7 +27,7 @@ import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidMirageBladeBehavior;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeAttack;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
-import net.mrqx.slashblade.maidpower.item.MaidItems;
+import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -98,13 +98,13 @@ public class TaskSlashBlade implements IAttackTask {
         if (!target.isAlive()) {
             return true;
         } else {
-            if (MaidItems.SlashBladeMaidBauble.MirageBlade.checkBauble(maid) && MaidItems.SlashBladeMaidBauble.Trick.checkBauble(maid)) {
+            if (SlashBladeMaidBauble.MirageBlade.checkBauble(maid) && SlashBladeMaidBauble.Trick.checkBauble(maid)) {
                 return false;
             }
             boolean enable = maid.isHomeModeEnable();
             double radius = TargetSelector.getResolvedReach(maid) * 2;
             radius *= radius;
-            if (MaidItems.SlashBladeMaidBauble.MirageBlade.checkBauble(maid) || MaidItems.SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
+            if (SlashBladeMaidBauble.MirageBlade.checkBauble(maid) || SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
                 radius *= 3;
             }
             if (!enable && maid.getOwner() != null) {

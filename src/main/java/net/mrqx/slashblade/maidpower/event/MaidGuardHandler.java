@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.mrqx.sbr_core.utils.MrqxSlayerStyleArts;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidMirageBladeBehavior;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
-import net.mrqx.slashblade.maidpower.item.MaidItems;
+import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 
@@ -34,7 +34,7 @@ public class MaidGuardHandler {
     public void onLivingAttackEvent(LivingAttackEvent event) {
         if (event.getEntity() instanceof EntityMaid maid) {
             maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
-                if (!MaidItems.SlashBladeMaidBauble.Guard.checkBauble(maid)) {
+                if (!SlashBladeMaidBauble.Guard.checkBauble(maid)) {
                     return;
                 }
                 if (event.getSource().getEntity() instanceof LivingEntity living) {
@@ -77,8 +77,8 @@ public class MaidGuardHandler {
         }
         maid.setTarget(target);
         CompoundTag data = maid.getPersistentData();
-        boolean canTrick = MaidItems.SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
-        boolean canAirTrick = canTrick && MaidItems.SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
+        boolean canTrick = SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
+        boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
         if (canAirTrick) {
             if (!MrqxSlayerStyleArts.AIR_TRICK.apply(maid, true)) {
                 MaidSlashBladeMovementUtils.TRY_TRICK_TO_TARGET.accept(maid, target);
@@ -93,7 +93,7 @@ public class MaidGuardHandler {
     }
 
     public static boolean isGuarding(EntityMaid maid) {
-        return maid.getPersistentData().getFloat(GUARD_DAMAGE) > 0 && MaidItems.SlashBladeMaidBauble.Guard.checkBauble(maid);
+        return maid.getPersistentData().getFloat(GUARD_DAMAGE) > 0 && SlashBladeMaidBauble.Guard.checkBauble(maid);
     }
 
     public static void guardRefreshMaidTickCounter(EntityMaid maid) {

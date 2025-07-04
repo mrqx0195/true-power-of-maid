@@ -59,8 +59,8 @@ public class MaidSlashBladeMovementUtils {
                 double y = target.getY();
                 double z = target.getZ() + (random.nextDouble() - 0.5) * reach * 0.8;
                 if (maid.randomTeleport(x, y, z, false)
-                        && MrqxSlayerStyleArts.TRICK_DODGE.apply(maid, true, false, maid.position())
-                        && TargetSelector.getTargettableEntitiesWithinAABB(maid.level(), maid).contains(target)) {
+                    && MrqxSlayerStyleArts.TRICK_DODGE.apply(maid, true, false, maid.position())
+                    && TargetSelector.getTargettableEntitiesWithinAABB(maid.level(), maid).contains(target)) {
                     maid.level().broadcastEntityEvent(maid, (byte) 46);
                     break;
                 } else {
