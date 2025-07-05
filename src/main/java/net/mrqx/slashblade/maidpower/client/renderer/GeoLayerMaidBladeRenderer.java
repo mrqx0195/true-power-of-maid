@@ -34,6 +34,7 @@ import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import org.joml.Matrix4f;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRenderer<T>> extends GeoLayerRenderer<T, R> {
     final LazyOptional<MmdPmdModelMc> bladeholder = LazyOptional.of(() -> {
@@ -76,13 +77,13 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
                 ComboState combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(s.getComboSeq()) != null ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(s.getComboSeq()) : ComboStateRegistry.NONE.get();
                 double time;
                 if (combo != null) {
-                    for (time = TimeValueHelper.getMSecFromTicks((float) Math.max(0L, entity.level().getGameTime() - s.getLastActionTime()) + partialTicks); combo != ComboStateRegistry.NONE.get() && (double) combo.getTimeoutMS() < time; combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity)) != null ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity)) : ComboStateRegistry.NONE.get()) {
+                    for (time = TimeValueHelper.getMSecFromTicks((float) Math.max(0L, entity.level().getGameTime() - s.getLastActionTime()) + partialTicks); combo != ComboStateRegistry.NONE.get() && (double) Objects.requireNonNull(combo).getTimeoutMS() < time; combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity)) != null ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity)) : ComboStateRegistry.NONE.get()) {
                         time -= combo.getTimeoutMS();
                     }
                     if (combo == ComboStateRegistry.NONE.get()) {
                         combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(s.getComboRoot()) != null ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(s.getComboRoot()) : ComboStateRegistry.STANDBY.get();
                     }
-                    MmdVmdMotionMc motion = BladeMotionManager.getInstance().getMotion(combo.getMotionLoc());
+                    MmdVmdMotionMc motion = BladeMotionManager.getInstance().getMotion(Objects.requireNonNull(combo).getMotionLoc());
                     double maxSeconds = 0.0F;
                     try {
                         mmp.setVmd(motion);

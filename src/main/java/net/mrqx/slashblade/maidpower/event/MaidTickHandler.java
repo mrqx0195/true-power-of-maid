@@ -130,7 +130,7 @@ public class MaidTickHandler {
 
         long cooldown = JustSlashArtManager.getJustCooldown(maid);
         if (cooldown > 0) {
-            cooldown--;
+            cooldown -= truePower;
             JustSlashArtManager.setJustCooldown(maid, cooldown);
             if (cooldown == 0) {
                 JustSlashArtManager.resetJustCount(maid);

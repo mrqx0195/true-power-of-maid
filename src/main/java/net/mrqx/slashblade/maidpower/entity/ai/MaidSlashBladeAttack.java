@@ -24,10 +24,10 @@ public class MaidSlashBladeAttack {
                 mobInstance.group(mobInstance.registered(MemoryModuleType.LOOK_TARGET), mobInstance.present(MemoryModuleType.ATTACK_TARGET), mobInstance.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)).apply(mobInstance, (trackerMemoryAccessor, targetMemoryAccessor, livingEntitiesMemoryAccessor) -> (serverLevel, mob, l) -> {
                     LivingEntity target = mobInstance.get(targetMemoryAccessor);
                     if (mob instanceof EntityMaid maid
-                        && maid.level().getGameTime() % 4 == 0
-                        && MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid)
-                        && mobInstance.get(livingEntitiesMemoryAccessor).contains(target)
-                        && !MaidGuardHandler.isGuarding(maid)) {
+                            && maid.level().getGameTime() % 4 == 0
+                            && MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid)
+                            && mobInstance.get(livingEntitiesMemoryAccessor).contains(target)
+                            && !MaidGuardHandler.isGuarding(maid)) {
                         maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
                             state.setTargetEntityId(maid.getTarget());
                             if (maid.distanceTo(target) <= TargetSelector.getResolvedReach(maid)) {
@@ -95,7 +95,10 @@ public class MaidSlashBladeAttack {
                 ComboStateRegistry.RAPID_SLASH_QUICK.get(),
                 ComboStateRegistry.RAPID_SLASH_END2.get(),
                 ComboStateRegistry.RISING_STAR_END.get(),
-                TruePowerComboStateRegistry.VOID_SLASH_SHEATH.get()
+                TruePowerComboStateRegistry.VOID_SLASH_SHEATH.get(),
+                ComboStateRegistry.JUDGEMENT_CUT_SHEATH.get(),
+                ComboStateRegistry.JUDGEMENT_CUT_SHEATH_AIR.get(),
+                ComboStateRegistry.JUDGEMENT_CUT_SHEATH_JUST.get()
         );
     }
 }

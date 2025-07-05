@@ -36,13 +36,10 @@ public class ChargeActionHandler {
 
     public static boolean isJudgementCut(ResourceLocation combo) {
         return combo.equals(ComboStateRegistry.JUDGEMENT_CUT.getId())
-               || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH.getId())
-               || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_AIR.getId())
-               || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST.getId())
-               || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST2.getId())
-               || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SHEATH.getId())
-               || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SHEATH_AIR.getId())
-               || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SHEATH_JUST.getId())
-               || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_END.getId());
+                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH.getId())
+                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_AIR.getId())
+                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST.getId())
+                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST2.getId())
+                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_END.getId());
     }
 }

@@ -72,19 +72,14 @@ repositories {
             includeGroup "maven.modrinth"
         }
     }
-    maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
 }
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation fg.deobf("maven.modrinth:slashblade-resharped:${slash_blade_version}")
-    implementation fg.deobf('curse.maven:touhou-little-maid-355044:6613821-sources-6613853')
+    // Touhou Little Maid
+    implementation fg.deobf("maven.modrinth:R0bDWFAW:${maid_version}-forge,${minecraft_version}")
 
     implementation fg.deobf("libs:mrqxs_Slashblade_Core-${minecraft_version}:${mrqx_slash_blade_core_version}")
     implementation fg.deobf("libs:True_POWER-${minecraft_version}:${true_power_version}")
