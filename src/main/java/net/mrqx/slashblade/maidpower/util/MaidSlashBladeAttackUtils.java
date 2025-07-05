@@ -79,12 +79,12 @@ public class MaidSlashBladeAttackUtils {
         ComboState current = ComboStateRegistry.REGISTRY.get().getValue(currentLoc);
         maid.lookAt(EntityAnchorArgument.Anchor.FEET, target.position());
         if (current != null && !ChargeActionHandler.isJudgementCut(currentLoc)) {
-            state.doChargeAction(maid, SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? 10 : 20);
+            state.doChargeAction(maid, SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? 10 : 50);
         }
     };
 
     public static final TriFunction<EntityMaid, ISlashBladeState, LivingEntity, Boolean> TRY_JUDGEMENT_CUT = (maid, state, target) -> {
-        if (JustSlashArtManager.addJustCount(maid) > 3 || JustSlashArtManager.getJustCooldown(maid) > 0) {
+        if (JustSlashArtManager.getJustCooldown(maid) > 0) {
             return false;
         }
         ResourceLocation currentLoc = state.resolvCurrentComboState(maid);

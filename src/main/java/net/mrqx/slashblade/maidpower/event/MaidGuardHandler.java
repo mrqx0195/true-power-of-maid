@@ -31,7 +31,7 @@ public class MaidGuardHandler {
     public static final String GUARD_DAMAGE = "truePowerOfMaid.guardDamage";
 
     @SubscribeEvent
-    public void onLivingAttackEvent(LivingAttackEvent event) {
+    public static void onLivingAttackEvent(LivingAttackEvent event) {
         if (event.getEntity() instanceof EntityMaid maid) {
             maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
                 if (!SlashBladeMaidBauble.Guard.checkBauble(maid)) {
