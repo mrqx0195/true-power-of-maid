@@ -36,6 +36,8 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class MaidTickHandler {
+    public static final String TRUE_POWER_RANK = "truePowerOfMaid.truePowerRank";
+
     @SubscribeEvent
     public static void onMaidTickEvent(MaidTickEvent event) {
         EntityMaid maid = event.getMaid();
@@ -45,6 +47,7 @@ public class MaidTickHandler {
 
     private static void handleMaidTick(EntityMaid maid, ISlashBladeState state) {
         boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
+        CompoundTag data = maid.getPersistentData();
 
         maidTickCounter(maid, hasTruePower);
         maidBonus(maid, hasTruePower);
@@ -52,11 +55,14 @@ public class MaidTickHandler {
 
         if (hasTruePower) {
             maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                    .ifPresent(rank -> rank.setRawRankPoint(Math.max(rank.getRankPoint(maid.level().getGameTime()), 2300)));
+                    .ifPresent(rank -> {
+                        long rankPoint = Math.max(rank.getRankPoint(maid.level().getGameTime()), data.getLong(TRUE_POWER_RANK));
+                        rank.setRawRankPoint(rankPoint);
+                        data.putLong(TRUE_POWER_RANK, rankPoint);
+                    });
         }
 
         ComboState currentState = ComboStateRegistry.REGISTRY.get().getValue(state.resolvCurrentComboState(maid));
-        CompoundTag data = maid.getPersistentData();
         boolean canTrick = MaidSlashBladeMovementUtils.canTrick(maid);
         Entity target = state.getTargetEntity(maid.level());
         boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
@@ -177,6 +183,11 @@ public class MaidTickHandler {
                 Math.max(0, data.getInt(MaidGuardHandler.PRE_ESCAPE_COUNTER) - truePower));
         data.putInt(MaidGuardHandler.GUARD_COOL_DOWN,
                 Math.max(0, data.getInt(MaidGuardHandler.GUARD_COOL_DOWN) - truePower));
+
+        if (!data.contains(TRUE_POWER_RANK)) {
+            data.putLong(TRUE_POWER_RANK, 2300);
+        }
+        data.putLong(TRUE_POWER_RANK, Math.min(2400, data.getLong(TRUE_POWER_RANK) + 1));
 
         long cooldown = JustSlashArtManager.getJustCooldown(maid);
         if (cooldown > 0) {

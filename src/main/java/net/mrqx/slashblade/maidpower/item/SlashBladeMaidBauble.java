@@ -1,12 +1,16 @@
 package net.mrqx.slashblade.maidpower.item;
 
 import com.github.tartaricacid.touhoulittlemaid.api.bauble.IMaidBauble;
+import com.github.tartaricacid.touhoulittlemaid.api.event.MaidDeathEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.inventory.handler.BaubleItemHandler;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.mrqx.slashblade.maidpower.event.MaidTickHandler;
 import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
 
 public class SlashBladeMaidBauble implements IMaidBauble {
@@ -245,6 +249,20 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         public static void onPowerBladeEvent(SlashBladeEvent.PowerBladeEvent event) {
             if (event.getUser() instanceof EntityMaid maid && checkBauble(maid)) {
                 event.setPowered(true);
+            }
+        }
+
+        @SubscribeEvent(priority = EventPriority.HIGH)
+        public void onMaidDeathEvent(MaidDeathEvent event) {
+            if (checkBauble(event.getMaid())) {
+                CompoundTag data = event.getMaid().getPersistentData();
+                if (data.getLong(MaidTickHandler.TRUE_POWER_RANK) > 0) {
+                    data.putLong(MaidTickHandler.TRUE_POWER_RANK, data.getLong(MaidTickHandler.TRUE_POWER_RANK) - 300);
+                    if (data.getLong(MaidTickHandler.TRUE_POWER_RANK) > 0) {
+                        event.setCanceled(true);
+                        event.getMaid().setHealth(event.getMaid().getMaxHealth());
+                    }
+                }
             }
         }
 
