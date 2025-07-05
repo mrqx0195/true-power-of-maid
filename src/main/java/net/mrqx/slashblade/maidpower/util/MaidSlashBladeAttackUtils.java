@@ -18,7 +18,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraftforge.common.MinecraftForge;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeAttack;
 import net.mrqx.slashblade.maidpower.event.ChargeActionHandler;
-import net.mrqx.slashblade.maidpower.event.MaidProgressComboEvent;
+import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.truepower.registry.TruePowerComboStateRegistry;
 import net.mrqx.truepower.util.JustSlashArtManager;
@@ -30,23 +30,39 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 public class MaidSlashBladeAttackUtils {
-    public static final BiFunction<EntityMaid, ISlashBladeState, Boolean> TRY_AERIAL_CLEAVE = (maid, state) -> {
+    public static final String VOID_SLASH_COUNTER_KEY = "truePowerOfMaid.voidSlashCounter";
+    public static final String SUPER_JUDGEMENT_CUT_COUNTER_KEY = "truePowerOfMaid.superJudgementCutCounter";
+
+    public static final BiFunction<EntityMaid, ISlashBladeState, Boolean> TRY_AERIAL_CLEAVE = MaidSlashBladeAttackUtils::tryAerialCleave;
+    public static final BiConsumer<EntityMaid, ISlashBladeState> GROUND_ATTACK = MaidSlashBladeAttackUtils::groundAttack;
+    public static final BiConsumer<EntityMaid, ISlashBladeState> AIR_ATTACK = MaidSlashBladeAttackUtils::airAttack;
+    public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> RAPID_SLASH_ATTACK = MaidSlashBladeAttackUtils::rapidSlashAttack;
+    public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> JUDGEMENT_CUT = MaidSlashBladeAttackUtils::judgementCut;
+    public static final TriFunction<EntityMaid, ISlashBladeState, LivingEntity, Boolean> TRY_JUDGEMENT_CUT = MaidSlashBladeAttackUtils::tryJudgementCut;
+    public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> VOID_SLASH = MaidSlashBladeAttackUtils::voidSlash;
+    public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> NORMAL_SLASHBLADE_ATTACK = MaidSlashBladeAttackUtils::normalSlashBladeAttack;
+
+    public static boolean isHoldingSlashBlade(Mob mob) {
+        return mob.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).isPresent();
+    }
+
+    private static boolean tryAerialCleave(EntityMaid maid, ISlashBladeState state) {
         if (maid.onGround() || !SlashBladeMaidBauble.ComboC.checkBauble(maid)) {
             return false;
         }
         state.updateComboSeq(maid, ComboStateRegistry.AERIAL_CLEAVE.getId());
         return true;
-    };
+    }
 
-    public static final BiConsumer<EntityMaid, ISlashBladeState> GROUND_ATTACK = (maid, state) -> {
+    private static void groundAttack(EntityMaid maid, ISlashBladeState state) {
         if (maid.onGround()) {
             state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1.getId());
         } else {
             TRY_AERIAL_CLEAVE.apply(maid, state);
         }
-    };
+    }
 
-    public static final BiConsumer<EntityMaid, ISlashBladeState> AIR_ATTACK = (maid, state) -> {
+    private static void airAttack(EntityMaid maid, ISlashBladeState state) {
         if (!state.resolvCurrentComboState(maid).equals(ComboStateRegistry.UPPERSLASH.getId())) {
             if (maid.onGround()) {
                 if (SlashBladeMaidBauble.RapidSlash.checkBauble(maid)) {
@@ -58,9 +74,9 @@ public class MaidSlashBladeAttackUtils {
                 state.updateComboSeq(maid, ComboStateRegistry.AERIAL_RAVE_A1.getId());
             }
         }
-    };
+    }
 
-    public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> RAPID_SLASH_ATTACK = (maid, state, target) -> {
+    private static void rapidSlashAttack(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
         ResourceLocation currentLoc = state.resolvCurrentComboState(maid);
         ComboState current = ComboStateRegistry.REGISTRY.get().getValue(currentLoc);
         maid.lookAt(EntityAnchorArgument.Anchor.FEET, target.position());
@@ -72,18 +88,18 @@ public class MaidSlashBladeAttackUtils {
                 }
             }
         }
-    };
+    }
 
-    public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> JUDGEMENT_CUT = (maid, state, target) -> {
+    private static void judgementCut(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
         ResourceLocation currentLoc = state.resolvCurrentComboState(maid);
         ComboState current = ComboStateRegistry.REGISTRY.get().getValue(currentLoc);
         maid.lookAt(EntityAnchorArgument.Anchor.FEET, target.position());
         if (current != null && !ChargeActionHandler.isJudgementCut(currentLoc)) {
-            state.doChargeAction(maid, SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? 10 : 50);
+            state.doChargeAction(maid, SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? 10 : 20);
         }
-    };
+    }
 
-    public static final TriFunction<EntityMaid, ISlashBladeState, LivingEntity, Boolean> TRY_JUDGEMENT_CUT = (maid, state, target) -> {
+    private static Boolean tryJudgementCut(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
         if (JustSlashArtManager.getJustCooldown(maid) > 0) {
             return false;
         }
@@ -93,25 +109,28 @@ public class MaidSlashBladeAttackUtils {
             ComboState next = ComboStateRegistry.REGISTRY.get().getValue(current.getNextOfTimeout(maid));
             boolean just = SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid);
             if (just && MaidSlashBladeAttack.QUICK_CHARGE_COMBO.contains(current)) {
-                MaidSlashBladeAttackUtils.JUDGEMENT_CUT.accept(maid, state, target);
+                JUDGEMENT_CUT.accept(maid, state, target);
                 return true;
             } else if (MaidSlashBladeAttack.CHARGE_COMBO.contains(current)) {
-                MaidSlashBladeAttackUtils.JUDGEMENT_CUT.accept(maid, state, target);
+                JUDGEMENT_CUT.accept(maid, state, target);
                 return true;
             } else {
                 return just && MaidSlashBladeAttack.QUICK_CHARGE_COMBO.contains(next);
             }
         }
         return false;
-    };
+    }
 
-    public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> VOID_SLASH = (maid, state, target) -> {
+    private static void voidSlash(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
         MaidSlashBladeMovementUtils.TRY_TRICK_TO_TARGET.accept(maid, target);
         maid.getCapability(InputStateCapabilityProvider.INPUT_STATE).ifPresent(input ->
-                input.getScheduler().schedule("maid_void_slash", 2, (livingEntity, queue, now) -> state.updateComboSeq(maid, TruePowerComboStateRegistry.VOID_SLASH.getId())));
-    };
+                input.getScheduler().schedule("maid_void_slash", 2, (livingEntity, queue, now) ->
+                        state.updateComboSeq(maid, TruePowerComboStateRegistry.VOID_SLASH.getId())
+                )
+        );
+    }
 
-    public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> NORMAL_SLASHBLADE_ATTACK = (maid, state, target) -> {
+    private static void normalSlashBladeAttack(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
         ResourceLocation currentLoc = state.resolvCurrentComboState(maid);
         ComboState current = ComboStateRegistry.REGISTRY.get().getValue(currentLoc);
         CompoundTag data = maid.getPersistentData();
@@ -120,9 +139,9 @@ public class MaidSlashBladeAttackUtils {
             ResourceLocation nextLoc = current.getNext(maid);
             if (currentLoc.equals(ComboStateRegistry.NONE.getId()) || nextLoc.equals(ComboStateRegistry.NONE.getId())) {
                 JustSlashArtManager.resetJustCount(maid);
-                if (SlashBladeMaidBauble.VoidSlash.checkBauble(maid) && data.getInt(MaidSlashBladeAttackUtils.VOID_SLASH_COUNTER_KEY) <= 0) {
+                if (SlashBladeMaidBauble.VoidSlash.checkBauble(maid) && data.getInt(VOID_SLASH_COUNTER_KEY) <= 0) {
                     VOID_SLASH.accept(maid, state, target);
-                    data.putInt(MaidSlashBladeAttackUtils.VOID_SLASH_COUNTER_KEY, 1000);
+                    data.putInt(VOID_SLASH_COUNTER_KEY, 1000);
                 } else {
                     if (SlashBladeMaidBauble.AirCombo.checkBauble(maid)) {
                         AIR_ATTACK.accept(maid, state);
@@ -146,12 +165,5 @@ public class MaidSlashBladeAttackUtils {
                 }
             }
         }
-    };
-
-    public static final String VOID_SLASH_COUNTER_KEY = "truePowerOfMaid.voidSlashCounter";
-    public static final String SUPER_JUDGEMENT_CUT_COUNTER_KEY = "truePowerOfMaid.superJudgementCutCounter";
-
-    public static boolean isHoldingSlashBlade(Mob pMob) {
-        return pMob.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).isPresent();
     }
 }

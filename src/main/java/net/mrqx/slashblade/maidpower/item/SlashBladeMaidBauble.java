@@ -7,7 +7,7 @@ import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.mrqx.slashblade.maidpower.event.MaidProgressComboEvent;
+import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
 
 public class SlashBladeMaidBauble implements IMaidBauble {
     @Mod.EventBusSubscriber

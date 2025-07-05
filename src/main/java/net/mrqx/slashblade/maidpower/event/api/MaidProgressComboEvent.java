@@ -1,4 +1,4 @@
-package net.mrqx.slashblade.maidpower.event;
+package net.mrqx.slashblade.maidpower.event.api;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import net.minecraft.resources.ResourceLocation;

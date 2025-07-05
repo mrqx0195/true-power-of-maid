@@ -1,6 +1,7 @@
 package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import net.minecraft.nbt.CompoundTag;
@@ -21,53 +22,59 @@ import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 public class MaidGuardHandler {
     public static final String GUARD_DAMAGE_COUNTER = "truePowerOfMaid.guardDamageCounter";
     public static final String GUARD_TOTAL_DAMAGE_COUNTER = "truePowerOfMaid.guardTotalDamageCounter";
-
     public static final String GUARD_ESCAPE_COUNTER = "truePowerOfMaid.guardEscapeCounter";
     public static final String PRE_ESCAPE_COUNTER = "truePowerOfMaid.preEscapeCounter";
     public static final String GUARD_COOL_DOWN = "truePowerOfMaid.guardCooldown";
-
     public static final String IS_PRE_ESCAPING = "truePowerOfMaid.isPreEscaping";
-
     public static final String GUARD_DAMAGE = "truePowerOfMaid.guardDamage";
 
     @SubscribeEvent
     public static void onLivingAttackEvent(LivingAttackEvent event) {
-        if (event.getEntity() instanceof EntityMaid maid) {
-            maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
-                if (!SlashBladeMaidBauble.Guard.checkBauble(maid)) {
-                    return;
-                }
-                if (event.getSource().getEntity() instanceof LivingEntity living) {
-                    trickToTarget(maid, living);
-                } else if (event.getSource().getEntity() instanceof OwnableEntity ownable) {
-                    trickToTarget(maid, ownable.getOwner());
-                }
-                CompoundTag data = maid.getPersistentData();
-                if (!isGuarding(maid)) {
-                    data.putInt(GUARD_DAMAGE_COUNTER, data.getInt(GUARD_DAMAGE_COUNTER) + 150);
-                    data.putFloat(GUARD_TOTAL_DAMAGE_COUNTER, data.getFloat(GUARD_TOTAL_DAMAGE_COUNTER) + event.getAmount());
-                    boolean shouldGuard = data.getInt(GUARD_DAMAGE_COUNTER) > 500 || data.getFloat(GUARD_TOTAL_DAMAGE_COUNTER) > maid.getMaxHealth() * 0.2F;
-                    if (shouldGuard && data.getInt(GUARD_COOL_DOWN) <= 0) {
-                        data.putInt(GUARD_DAMAGE_COUNTER, 0);
-                        data.putFloat(GUARD_TOTAL_DAMAGE_COUNTER, 0);
-                        data.putInt(GUARD_ESCAPE_COUNTER, 100);
-                        data.putFloat(GUARD_DAMAGE, maid.getMaxHealth() * 0.2F);
-                    }
-                } else {
-                    float guardDamage = data.getFloat(GUARD_DAMAGE);
-                    if (guardDamage >= event.getAmount()) {
-                        data.putFloat(GUARD_DAMAGE, data.getFloat(GUARD_DAMAGE) - event.getAmount());
-                        state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1_END2.getId());
-                    } else {
-                        data.putFloat(GUARD_DAMAGE, 0);
-                        data.putInt(GUARD_COOL_DOWN, 300);
-                        state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1.getId());
-                        data.putInt(PRE_ESCAPE_COUNTER, 5);
-                        data.putBoolean(IS_PRE_ESCAPING, true);
-                    }
-                    event.setCanceled(true);
-                }
-            });
+        if (!(event.getEntity() instanceof EntityMaid maid)) {
+            return;
+        }
+        maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
+                .ifPresent(state -> handleGuardAttack(event, maid, state));
+    }
+
+    private static void handleGuardAttack(LivingAttackEvent event, EntityMaid maid, ISlashBladeState state) {
+        if (!SlashBladeMaidBauble.Guard.checkBauble(maid)) {
+            return;
+        }
+        LivingEntity attacker = null;
+        if (event.getSource().getEntity() instanceof LivingEntity living) {
+            attacker = living;
+        } else if (event.getSource().getEntity() instanceof OwnableEntity ownable) {
+            attacker = ownable.getOwner();
+        }
+        if (attacker != null) {
+            trickToTarget(maid, attacker);
+        }
+        CompoundTag data = maid.getPersistentData();
+        if (!isGuarding(maid)) {
+            data.putInt(GUARD_DAMAGE_COUNTER, data.getInt(GUARD_DAMAGE_COUNTER) + 150);
+            data.putFloat(GUARD_TOTAL_DAMAGE_COUNTER, data.getFloat(GUARD_TOTAL_DAMAGE_COUNTER) + event.getAmount());
+            boolean shouldGuard = data.getInt(GUARD_DAMAGE_COUNTER) > 500
+                                  || data.getFloat(GUARD_TOTAL_DAMAGE_COUNTER) > maid.getMaxHealth() * 0.2F;
+            if (shouldGuard && data.getInt(GUARD_COOL_DOWN) <= 0) {
+                data.putInt(GUARD_DAMAGE_COUNTER, 0);
+                data.putFloat(GUARD_TOTAL_DAMAGE_COUNTER, 0);
+                data.putInt(GUARD_ESCAPE_COUNTER, 100);
+                data.putFloat(GUARD_DAMAGE, maid.getMaxHealth() * 0.2F);
+            }
+        } else {
+            float guardDamage = data.getFloat(GUARD_DAMAGE);
+            if (guardDamage >= event.getAmount()) {
+                data.putFloat(GUARD_DAMAGE, guardDamage - event.getAmount());
+                state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1_END2.getId());
+            } else {
+                data.putFloat(GUARD_DAMAGE, 0);
+                data.putInt(GUARD_COOL_DOWN, 300);
+                state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1.getId());
+                data.putInt(PRE_ESCAPE_COUNTER, 5);
+                data.putBoolean(IS_PRE_ESCAPING, true);
+            }
+            event.setCanceled(true);
         }
     }
 
@@ -77,7 +84,8 @@ public class MaidGuardHandler {
         }
         maid.setTarget(target);
         CompoundTag data = maid.getPersistentData();
-        boolean canTrick = SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
+        boolean canTrick = SlashBladeMaidBauble.Trick.checkBauble(maid)
+                           && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
         boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
         if (canAirTrick) {
             if (!MrqxSlayerStyleArts.AIR_TRICK.apply(maid, true)) {
@@ -93,7 +101,8 @@ public class MaidGuardHandler {
     }
 
     public static boolean isGuarding(EntityMaid maid) {
-        return maid.getPersistentData().getFloat(GUARD_DAMAGE) > 0 && SlashBladeMaidBauble.Guard.checkBauble(maid);
+        return maid.getPersistentData().getFloat(GUARD_DAMAGE) > 0
+               && SlashBladeMaidBauble.Guard.checkBauble(maid);
     }
 
     public static void guardRefreshMaidTickCounter(EntityMaid maid) {
@@ -105,9 +114,9 @@ public class MaidGuardHandler {
         data.putInt(MaidMirageBladeBehavior.BASE_SUMMONED_SWORD_COUNTER_KEY, 0);
         data.putInt(MaidSlashBladeAttackUtils.VOID_SLASH_COUNTER_KEY, 0);
 
-        data.putInt(MaidGuardHandler.GUARD_DAMAGE_COUNTER, 0);
-        data.putInt(MaidGuardHandler.GUARD_ESCAPE_COUNTER, 0);
-        data.putInt(MaidGuardHandler.PRE_ESCAPE_COUNTER, 0);
-        data.putInt(MaidGuardHandler.GUARD_COOL_DOWN, 0);
+        data.putInt(GUARD_DAMAGE_COUNTER, 0);
+        data.putInt(GUARD_ESCAPE_COUNTER, 0);
+        data.putInt(PRE_ESCAPE_COUNTER, 0);
+        data.putInt(GUARD_COOL_DOWN, 0);
     }
 }
