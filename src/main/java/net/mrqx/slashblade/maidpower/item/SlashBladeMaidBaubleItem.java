@@ -25,18 +25,17 @@ public class SlashBladeMaidBaubleItem extends Item {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void appendHoverText(@NotNull ItemStack pStack, @Nullable Level pLevel, @NotNull List<Component> pTooltipComponents, @NotNull TooltipFlag pIsAdvanced) {
-        int i = 1;
-        do {
-            String s = this.getDescriptionId() + ".tooltips." + i;
-            String s1 = Component.translatable(s).getString();
-            if (!s1.toLowerCase(Locale.ROOT).equals(s)) {
-                pTooltipComponents.add(Component.translatable(s));
-                i++;
+    public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltip, @NotNull TooltipFlag flag) {
+        int index = 1;
+        while (true) {
+            String key = this.getDescriptionId() + ".tooltips." + index;
+            String translated = Component.translatable(key).getString();
+            if (!translated.toLowerCase(Locale.ENGLISH).equals(key)) {
+                tooltip.add(Component.translatable(key));
+                index++;
             } else {
-                break;
+                return;
             }
-        } while (true);
-        super.appendHoverText(pStack, pLevel, pTooltipComponents, pIsAdvanced);
+        }
     }
 }
