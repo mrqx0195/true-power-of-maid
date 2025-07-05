@@ -3,11 +3,15 @@ package net.mrqx.slashblade.maidpower;
 import com.github.tartaricacid.touhoulittlemaid.api.ILittleMaid;
 import com.github.tartaricacid.touhoulittlemaid.api.LittleMaidExtension;
 import com.github.tartaricacid.touhoulittlemaid.client.renderer.entity.EntityMaidRenderer;
+import com.github.tartaricacid.touhoulittlemaid.client.renderer.entity.GeckoEntityMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.entity.task.TaskManager;
+import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.GeoLayerRenderer;
 import com.github.tartaricacid.touhoulittlemaid.item.bauble.BaubleManager;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.world.entity.Mob;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.mrqx.slashblade.maidpower.client.renderer.GeoLayerMaidBladeRenderer;
 import net.mrqx.slashblade.maidpower.client.renderer.LayerMaidBladeRenderer;
 import net.mrqx.slashblade.maidpower.init.ModItems;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
@@ -37,6 +41,13 @@ public class LittleMaidImpl implements ILittleMaid {
         manager.bind(ModItems.SOUL_OF_HEALTH.get(), new SlashBladeMaidBauble.Health());
         manager.bind(ModItems.SOUL_OF_EXP.get(), new SlashBladeMaidBauble.Exp());
         manager.bind(ModItems.SOUL_OF_TRUE_POWER.get(), new SlashBladeMaidBauble.TruePower());
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("all")
+    public void addAdditionGeckoMaidLayer(GeckoEntityMaidRenderer<? extends Mob> renderer, EntityRendererProvider.Context context) {
+        renderer.addLayer((GeoLayerRenderer) new GeoLayerMaidBladeRenderer<>(renderer));
     }
 
     @Override
