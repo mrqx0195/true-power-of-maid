@@ -63,7 +63,7 @@ public class TaskSlashBlade implements IAttackTask {
     public @NotNull List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createBrainTasks(@NotNull EntityMaid maid) {
         BehaviorControl<EntityMaid> supplementedTask = StartAttacking.create(MaidSlashBladeAttackUtils::isHoldingSlashBlade, IRangedAttackTask::findFirstValidAttackTarget);
         BehaviorControl<EntityMaid> findTargetTask = StopAttackingIfTargetInvalid.create((target) -> !MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid) || farAway(target, maid));
-        BehaviorControl<Mob> moveToTargetTask = MaidSlashBladeMove.create(1);
+        BehaviorControl<Mob> moveToTargetTask = MaidSlashBladeMove.create(0.6F);
         BehaviorControl<Mob> attackTargetTask = MaidSlashBladeAttack.create();
         BehaviorControl<EntityMaid> mirageBladeTask = new MaidMirageBladeBehavior();
         return Lists.newArrayList(
@@ -102,16 +102,21 @@ public class TaskSlashBlade implements IAttackTask {
                 return false;
             }
             boolean enable = maid.isHomeModeEnable();
-            double radius = TargetSelector.getResolvedReach(maid) * 2;
-            radius *= radius;
-            if (SlashBladeMaidBauble.MirageBlade.checkBauble(maid) || SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
-                radius *= 3;
-            }
+            double radius = getRadius(maid);
             if (!enable && maid.getOwner() != null) {
                 return maid.getOwner().distanceTo(target) > radius;
             } else {
                 return maid.distanceTo(target) > radius;
             }
         }
+    }
+
+    public static double getRadius(EntityMaid maid) {
+        double radius = TargetSelector.getResolvedReach(maid) * 2;
+        radius *= radius;
+        if (SlashBladeMaidBauble.MirageBlade.checkBauble(maid) || SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
+            radius *= 3;
+        }
+        return radius;
     }
 }

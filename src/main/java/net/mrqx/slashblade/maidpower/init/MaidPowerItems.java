@@ -7,7 +7,7 @@ import net.minecraftforge.registries.RegistryObject;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBaubleItem;
 
-public class ModItems {
+public class MaidPowerItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, TruePowerOfMaid.MODID);
 
     public static final RegistryObject<Item> SOUL_OF_COMBO_B = ITEMS.register("soul_of_combo_b", SlashBladeMaidBaubleItem::new);

@@ -2,6 +2,7 @@ package net.mrqx.slashblade.maidpower.mixin;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
+import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,12 +19,18 @@ public class MixinSlashArts {
             at = @At(value = "INVOKE", target = "Lmods/flammpfeil/slashblade/slasharts/SlashArts;getComboStateJust(Lnet/minecraft/world/entity/LivingEntity;)Lnet/minecraft/resources/ResourceLocation;"),
             cancellable = true, remap = false)
     private void injectDoArts(SlashArts.ArtsType type, LivingEntity user, CallbackInfoReturnable<ResourceLocation> cir) {
-        if (type == SlashArts.ArtsType.Jackpot && user instanceof EntityMaid maid) {
-            int count = JustSlashArtManager.addJustCount(user);
-            int maxCount = SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? (SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 8 : 6) : 2;
-            if (count > maxCount || JustSlashArtManager.getJustCooldown(user) > 0) {
-                JustSlashArtManager.setJustCooldown(user, 240);
-                cir.setReturnValue(ComboStateRegistry.NONE.getId());
+        if (user instanceof EntityMaid maid) {
+            if (type == SlashArts.ArtsType.Jackpot) {
+                int count = JustSlashArtManager.addJustCount(user);
+                int maxCount = SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? (SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 5 : 3) : 1;
+                // 为啥这玩意会计数两次？明明在玩家身上是正常的
+                if (count > maxCount * 2 || JustSlashArtManager.getJustCooldown(user) > 0) {
+                    JustSlashArtManager.setJustCooldown(user, 240);
+                    cir.setReturnValue(ComboStateRegistry.NONE.getId());
+                }
+            }
+            if (!((SlashArts) (Object) this).getDescriptionId().contains("slashblade.judgement_cut")) {
+                cir.setReturnValue(SlashArtsRegistry.JUDGEMENT_CUT.get().doArts(type, user));
             }
         }
     }

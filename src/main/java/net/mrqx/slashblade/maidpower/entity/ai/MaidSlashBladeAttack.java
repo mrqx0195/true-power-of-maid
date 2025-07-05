@@ -24,6 +24,9 @@ import net.mrqx.truepower.registry.TruePowerComboStateRegistry;
 import java.util.Set;
 
 public class MaidSlashBladeAttack {
+    /**
+     * 可以后接次元斩的 Combo
+     */
     public static final Set<ComboState> CHARGE_COMBO = Set.of(
             ComboStateRegistry.COMBO_C.get(),
             ComboStateRegistry.COMBO_A4.get(),
@@ -40,6 +43,9 @@ public class MaidSlashBladeAttack {
             TruePowerComboStateRegistry.VOID_SLASH_SHEATH.get()
     );
 
+    /**
+     * 可以后接完美次元斩的 Combo
+     */
     public static final Set<ComboState> QUICK_CHARGE_COMBO = Set.of(
             ComboStateRegistry.COMBO_A1_END.get(),
             ComboStateRegistry.COMBO_A2_END.get(),
@@ -67,6 +73,57 @@ public class MaidSlashBladeAttack {
             ComboStateRegistry.JUDGEMENT_CUT_SHEATH_JUST.get()
     );
 
+    /**
+     * 不应被打断的 Combo
+     */
+    public static final Set<ComboState> UNINTERRUPTIBLE_COMBO = Set.of(
+            ComboStateRegistry.COMBO_A1.get(),
+            ComboStateRegistry.COMBO_A2.get(),
+            ComboStateRegistry.COMBO_C.get(),
+            ComboStateRegistry.COMBO_A3.get(),
+            ComboStateRegistry.COMBO_A4.get(),
+            ComboStateRegistry.COMBO_A4_EX.get(),
+            ComboStateRegistry.COMBO_A5.get(),
+            ComboStateRegistry.COMBO_B1.get(),
+            ComboStateRegistry.COMBO_B7.get(),
+            ComboStateRegistry.COMBO_B_END2.get(),
+            ComboStateRegistry.AERIAL_RAVE_A1.get(),
+            ComboStateRegistry.AERIAL_RAVE_A2.get(),
+            ComboStateRegistry.AERIAL_RAVE_A3.get(),
+            ComboStateRegistry.AERIAL_RAVE_B3.get(),
+            ComboStateRegistry.AERIAL_RAVE_B4.get(),
+            ComboStateRegistry.UPPERSLASH.get(),
+            ComboStateRegistry.UPPERSLASH_JUMP.get(),
+            ComboStateRegistry.AERIAL_CLEAVE.get(),
+            ComboStateRegistry.RAPID_SLASH.get(),
+            ComboStateRegistry.RISING_STAR.get(),
+            ComboStateRegistry.JUDGEMENT_CUT.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_SLASH.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_SLASH_AIR.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST2.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_END.get(),
+            TruePowerComboStateRegistry.VOID_SLASH.get()
+    );
+
+    /**
+     * 【女仆之荣耀 - 真正的力量】生效时，不应被打断的 Combo
+     */
+    public static final Set<ComboState> TRUE_POWER_UNINTERRUPTIBLE_COMBO = Set.of(
+            ComboStateRegistry.COMBO_C.get(),
+            ComboStateRegistry.COMBO_A4_EX.get(),
+            ComboStateRegistry.COMBO_A5.get(),
+            ComboStateRegistry.COMBO_B7.get(),
+            ComboStateRegistry.COMBO_B_END2.get(),
+            ComboStateRegistry.AERIAL_RAVE_B3.get(),
+            ComboStateRegistry.UPPERSLASH.get(),
+            ComboStateRegistry.AERIAL_CLEAVE.get(),
+            ComboStateRegistry.RISING_STAR.get(),
+            ComboStateRegistry.JUDGEMENT_CUT.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_END.get(),
+            TruePowerComboStateRegistry.VOID_SLASH.get()
+    );
+
     public static OneShot<Mob> create() {
         return BehaviorBuilder.create(instance -> instance.group(
                         instance.registered(MemoryModuleType.LOOK_TARGET),
@@ -89,6 +146,7 @@ public class MaidSlashBladeAttack {
             return false;
         }
         if (maid.level().getGameTime() % 4 != 0) {
+//            我也不知道这玩意存在的意义是啥，但不加这个某些动作会出现异常
             return false;
         }
         if (!MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid)) {
@@ -114,7 +172,7 @@ public class MaidSlashBladeAttack {
                 if (!maid.onGround() && maid.getY() - target.getY() > 5) {
                     MaidSlashBladeAttackUtils.TRY_AERIAL_CLEAVE.apply(maid, state);
                 }
-                if (SlashBladeMaidBauble.RapidSlash.checkBauble(maid)) {
+                if (SlashBladeMaidBauble.RapidSlash.checkBauble(maid) && MaidSlashBladeAttackUtils.canInterruptCombo(maid)) {
                     lookTargetAccessor.set(new EntityTracker(target, true));
                     MaidSlashBladeAttackUtils.RAPID_SLASH_ATTACK.accept(maid, state, target);
                 } else if (SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {

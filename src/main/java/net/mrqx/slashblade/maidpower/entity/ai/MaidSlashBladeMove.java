@@ -59,7 +59,9 @@ public class MaidSlashBladeMove {
             float distance = maid.distanceTo(target);
             double reach = TargetSelector.getResolvedReach(maid);
             CompoundTag data = maid.getPersistentData();
-            boolean canTrick = SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(TRICK_COOL_DOWN) <= 0;
+            boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
+
+            boolean canTrick = MaidSlashBladeMovementUtils.canTrick(maid);
             boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
             boolean hasTrick = false;
 
@@ -71,7 +73,7 @@ public class MaidSlashBladeMove {
                 }
             } else {
                 lookTargetAccessor.set(new EntityTracker(target, true));
-                walkTargetAccessor.set(new WalkTarget(new EntityTracker(target, false), speedModifier.apply(mob), 0));
+                walkTargetAccessor.set(new WalkTarget(new EntityTracker(target, false), speedModifier.apply(mob) * (hasTruePower ? 2 : 1), 0));
             }
 
             if (canAirTrick && distance > reach) {

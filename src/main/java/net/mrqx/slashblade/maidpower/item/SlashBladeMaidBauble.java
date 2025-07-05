@@ -249,6 +249,9 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
+            if (maid.getFavorabilityManager().getLevel() < 3) {
+                return false;
+            }
             BaubleItemHandler handler = maid.getMaidBauble();
 
             int count = 0;

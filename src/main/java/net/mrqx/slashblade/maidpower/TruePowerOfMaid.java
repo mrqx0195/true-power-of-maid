@@ -5,8 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.mrqx.slashblade.maidpower.init.ModCreativeTab;
-import net.mrqx.slashblade.maidpower.init.ModItems;
+import net.mrqx.slashblade.maidpower.init.MaidPowerCreativeTab;
+import net.mrqx.slashblade.maidpower.init.MaidPowerItems;
 import org.slf4j.Logger;
 
 @Mod(TruePowerOfMaid.MODID)
@@ -16,8 +16,8 @@ public class TruePowerOfMaid {
 
     public TruePowerOfMaid() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        ModItems.ITEMS.register(modEventBus);
-        ModCreativeTab.CREATIVE_MODE_TABS.register(modEventBus);
+        MaidPowerItems.ITEMS.register(modEventBus);
+        MaidPowerCreativeTab.CREATIVE_MODE_TABS.register(modEventBus);
     }
 
     public static ResourceLocation prefix(String path) {

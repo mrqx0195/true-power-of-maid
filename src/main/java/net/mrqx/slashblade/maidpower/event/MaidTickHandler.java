@@ -10,6 +10,7 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import mods.flammpfeil.slashblade.registry.ModAttributes;
 import mods.flammpfeil.slashblade.registry.combo.ComboState;
+import mods.flammpfeil.slashblade.slasharts.JudgementCut;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.nbt.CompoundTag;
@@ -19,11 +20,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidMirageBladeBehavior;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
+import net.mrqx.slashblade.maidpower.task.TaskSlashBlade;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 import net.mrqx.truepower.util.JustSlashArtManager;
@@ -41,11 +44,12 @@ public class MaidTickHandler {
     }
 
     private static void handleMaidTick(EntityMaid maid, ISlashBladeState state) {
-        maidTickCounter(maid);
-        maidBonus(maid);
+        boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
+
+        maidTickCounter(maid, hasTruePower);
+        maidBonus(maid, hasTruePower);
         maid.getMainHandItem().inventoryTick(maid.level(), maid, 0, true);
 
-        boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
         if (hasTruePower) {
             maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
                     .ifPresent(rank -> rank.setRawRankPoint(Math.max(rank.getRankPoint(maid.level().getGameTime()), 2300)));
@@ -53,7 +57,7 @@ public class MaidTickHandler {
 
         ComboState currentState = ComboStateRegistry.REGISTRY.get().getValue(state.resolvCurrentComboState(maid));
         CompoundTag data = maid.getPersistentData();
-        boolean canTrick = SlashBladeMaidBauble.Trick.checkBauble(maid) && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0;
+        boolean canTrick = MaidSlashBladeMovementUtils.canTrick(maid);
         Entity target = state.getTargetEntity(maid.level());
         boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
 
@@ -87,23 +91,25 @@ public class MaidTickHandler {
     }
 
     private static void handleHealthAndExp(EntityMaid maid, ISlashBladeState state, boolean hasTruePower) {
+        int favorabilityLevel = Math.max(1, maid.getFavorabilityManager().getLevel() + 1);
+        int cost = Math.max(1, Math.max(0, 4 - favorabilityLevel) / (hasTruePower ? 2 : 1));
         if (SlashBladeMaidBauble.Health.checkBauble(maid) && maid.getHealth() < maid.getMaxHealth()) {
-            int favorabilityLevel = maid.getFavorabilityManager().getLevel();
-            int soulCost = Math.max(0, 4 - favorabilityLevel);
-            if (state.getProudSoulCount() >= soulCost) {
-                state.setProudSoulCount(state.getProudSoulCount() - soulCost);
+            boolean isGuarding = MaidGuardHandler.isGuarding(maid);
+            if (!hasTruePower && !isGuarding && maid.level().getGameTime() % 10 != 0) {
+                return;
+            }
+            if (state.getProudSoulCount() >= cost) {
+                state.setProudSoulCount(state.getProudSoulCount() - cost);
                 if (hasTruePower) {
-                    maid.setHealth(Math.max(maid.getHealth() + favorabilityLevel, maid.getMaxHealth()));
+                    maid.setHealth(Math.max(maid.getHealth() + favorabilityLevel * (isGuarding ? 2 : 1), maid.getMaxHealth()));
                 } else {
                     maid.heal(favorabilityLevel * 0.5F);
                 }
             }
         }
         if (state.isBroken() && SlashBladeMaidBauble.Exp.checkBauble(maid)) {
-            int favorabilityLevel = Math.max(1, maid.getFavorabilityManager().getLevel() + 1);
-            int expCost = Math.max(0, 4 - favorabilityLevel);
-            if (maid.getExperience() >= expCost) {
-                maid.setExperience(maid.getExperience() - expCost);
+            if (maid.getExperience() >= cost) {
+                maid.setExperience(maid.getExperience() - cost);
                 state.setDamage(state.getDamage() - favorabilityLevel);
                 if (state.getDamage() <= 0) {
                     state.setBroken(false);
@@ -117,15 +123,32 @@ public class MaidTickHandler {
             Map.Entry<Integer, ResourceLocation> currentLoc = state.resolvCurrentComboStateTicks(maid);
             ResourceLocation csLoc = state.getSlashArts().doArts(SlashArts.ArtsType.Super, maid);
             if (csLoc != ComboStateRegistry.NONE.getId() && !currentLoc.getValue().equals(csLoc)) {
-                state.updateComboSeq(maid, csLoc);
+                AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
+                if (entityReachAttributeInstance == null) {
+                    return;
+                }
+
+                double radius = TaskSlashBlade.getRadius(maid);
+                int rank = maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
+                        .map(cr -> cr.getRank(maid.level().getGameTime()))
+                        .orElse(IConcentrationRank.ConcentrationRanks.NONE).level;
+                double bonus = radius / Math.max(TargetSelector.getResolvedReach(maid), 1) * rank / 7;
+
+                AttributeModifier entityReachBonus = new AttributeModifier(
+                        UUID.fromString("a7333e5f-d97e-465c-98c7-281a82396d6b"),
+                        "Maid SuperJudgementCut Transient Bonus", bonus, AttributeModifier.Operation.MULTIPLY_TOTAL);
+
+                entityReachAttributeInstance.addTransientModifier(entityReachBonus);
+                JudgementCut.doJudgementCutSuper(maid);
+                entityReachAttributeInstance.removeModifier(entityReachBonus);
                 data.putInt(MaidSlashBladeAttackUtils.SUPER_JUDGEMENT_CUT_COUNTER_KEY, 2400);
             }
         }
     }
 
-    public static void maidTickCounter(EntityMaid maid) {
+    public static void maidTickCounter(EntityMaid maid, boolean hasTruePower) {
         CompoundTag data = maid.getPersistentData();
-        int truePower = SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 2 : 1;
+        int truePower = hasTruePower ? 2 : 1;
         int favorabilityLevel = maid.getFavorabilityManager().getLevel() + 1;
         int decrement = favorabilityLevel * truePower;
 
@@ -165,7 +188,7 @@ public class MaidTickHandler {
         }
     }
 
-    public static void maidBonus(EntityMaid maid) {
+    public static void maidBonus(EntityMaid maid, boolean hasTruePower) {
         double radius = TargetSelector.getResolvedReach(maid) * 2;
         radius *= radius;
         if (SlashBladeMaidBauble.MirageBlade.checkBauble(maid) || SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
@@ -206,5 +229,15 @@ public class MaidTickHandler {
         }
         slashbladeDamageAttributeInstance.removeModifier(slashbladeDamageBonus);
         slashbladeDamageAttributeInstance.addPermanentModifier(slashbladeDamageBonus);
+
+        AttributeModifier entityReachBonus = new AttributeModifier(
+                UUID.fromString("5dd047e5-bb60-4ebf-93ba-34a1ece10128"),
+                "Maid SlashBlade Bonus", hasTruePower ? 2.5 : 0.5, AttributeModifier.Operation.ADDITION);
+        AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
+        if (entityReachAttributeInstance == null) {
+            return;
+        }
+        entityReachAttributeInstance.removeModifier(entityReachBonus);
+        entityReachAttributeInstance.addPermanentModifier(entityReachBonus);
     }
 }

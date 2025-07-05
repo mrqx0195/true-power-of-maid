@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.mrqx.slashblade.maidpower.client.renderer.GeoLayerMaidBladeRenderer;
 import net.mrqx.slashblade.maidpower.client.renderer.LayerMaidBladeRenderer;
-import net.mrqx.slashblade.maidpower.init.ModItems;
+import net.mrqx.slashblade.maidpower.init.MaidPowerItems;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.task.TaskSlashBlade;
 
@@ -27,20 +27,20 @@ public class LittleMaidImpl implements ILittleMaid {
 
     @Override
     public void bindMaidBauble(BaubleManager manager) {
-        manager.bind(ModItems.SOUL_OF_COMBO_B.get(), new SlashBladeMaidBauble.ComboB());
-        manager.bind(ModItems.SOUL_OF_COMBO_C.get(), new SlashBladeMaidBauble.ComboC());
-        manager.bind(ModItems.SOUL_OF_RAPID_SLASH.get(), new SlashBladeMaidBauble.RapidSlash());
-        manager.bind(ModItems.SOUL_OF_AIR_COMBO.get(), new SlashBladeMaidBauble.AirCombo());
-        manager.bind(ModItems.SOUL_OF_MIRAGE_BLADE.get(), new SlashBladeMaidBauble.MirageBlade());
-        manager.bind(ModItems.SOUL_OF_TRICK.get(), new SlashBladeMaidBauble.Trick());
-        manager.bind(ModItems.SOUL_OF_POWER.get(), new SlashBladeMaidBauble.Power());
-        manager.bind(ModItems.SOUL_OF_JUDGEMENT_CUT.get(), new SlashBladeMaidBauble.JudgementCut());
-        manager.bind(ModItems.SOUL_OF_JUST_JUDGEMENT_CUT.get(), new SlashBladeMaidBauble.JustJudgementCut());
-        manager.bind(ModItems.SOUL_OF_VOID_SLASH.get(), new SlashBladeMaidBauble.VoidSlash());
-        manager.bind(ModItems.SOUL_OF_GUARD.get(), new SlashBladeMaidBauble.Guard());
-        manager.bind(ModItems.SOUL_OF_HEALTH.get(), new SlashBladeMaidBauble.Health());
-        manager.bind(ModItems.SOUL_OF_EXP.get(), new SlashBladeMaidBauble.Exp());
-        manager.bind(ModItems.SOUL_OF_TRUE_POWER.get(), new SlashBladeMaidBauble.TruePower());
+        manager.bind(MaidPowerItems.SOUL_OF_COMBO_B.get(), new SlashBladeMaidBauble.ComboB());
+        manager.bind(MaidPowerItems.SOUL_OF_COMBO_C.get(), new SlashBladeMaidBauble.ComboC());
+        manager.bind(MaidPowerItems.SOUL_OF_RAPID_SLASH.get(), new SlashBladeMaidBauble.RapidSlash());
+        manager.bind(MaidPowerItems.SOUL_OF_AIR_COMBO.get(), new SlashBladeMaidBauble.AirCombo());
+        manager.bind(MaidPowerItems.SOUL_OF_MIRAGE_BLADE.get(), new SlashBladeMaidBauble.MirageBlade());
+        manager.bind(MaidPowerItems.SOUL_OF_TRICK.get(), new SlashBladeMaidBauble.Trick());
+        manager.bind(MaidPowerItems.SOUL_OF_POWER.get(), new SlashBladeMaidBauble.Power());
+        manager.bind(MaidPowerItems.SOUL_OF_JUDGEMENT_CUT.get(), new SlashBladeMaidBauble.JudgementCut());
+        manager.bind(MaidPowerItems.SOUL_OF_JUST_JUDGEMENT_CUT.get(), new SlashBladeMaidBauble.JustJudgementCut());
+        manager.bind(MaidPowerItems.SOUL_OF_VOID_SLASH.get(), new SlashBladeMaidBauble.VoidSlash());
+        manager.bind(MaidPowerItems.SOUL_OF_GUARD.get(), new SlashBladeMaidBauble.Guard());
+        manager.bind(MaidPowerItems.SOUL_OF_HEALTH.get(), new SlashBladeMaidBauble.Health());
+        manager.bind(MaidPowerItems.SOUL_OF_EXP.get(), new SlashBladeMaidBauble.Exp());
+        manager.bind(MaidPowerItems.SOUL_OF_TRUE_POWER.get(), new SlashBladeMaidBauble.TruePower());
     }
 
     @Override

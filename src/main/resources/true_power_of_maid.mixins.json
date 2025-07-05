@@ -5,7 +5,8 @@
     "MixinEntityMaid",
     "MixinSlashArts",
     "MixinSlashBladeCompat",
-    "MixinTargetSelector"
+    "MixinTargetSelector",
+    "MixinTruePowerVoidSlash"
   ],
   "package": "net.mrqx.slashblade.maidpower.mixin",
   "refmap": "true_power_of_maid.refmap.json",

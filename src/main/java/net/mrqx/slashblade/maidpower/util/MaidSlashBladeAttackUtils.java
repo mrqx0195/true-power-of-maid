@@ -1,7 +1,6 @@
 package net.mrqx.slashblade.maidpower.util;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
-import mods.flammpfeil.slashblade.capability.inputstate.InputStateCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
@@ -44,6 +43,21 @@ public class MaidSlashBladeAttackUtils {
 
     public static boolean isHoldingSlashBlade(Mob mob) {
         return mob.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).isPresent();
+    }
+
+    public static boolean canInterruptCombo(EntityMaid maid) {
+        return maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map(state -> {
+            ResourceLocation currentLoc = state.resolvCurrentComboState(maid);
+            ComboState current = ComboStateRegistry.REGISTRY.get().getValue(currentLoc);
+            if (current != null) {
+                ComboState next = ComboStateRegistry.REGISTRY.get().getValue(current.getNextOfTimeout(maid));
+                if (SlashBladeMaidBauble.TruePower.checkBauble(maid)) {
+                    return !MaidSlashBladeAttack.TRUE_POWER_UNINTERRUPTIBLE_COMBO.contains(current) && !MaidSlashBladeAttack.TRUE_POWER_UNINTERRUPTIBLE_COMBO.contains(next);
+                }
+                return !MaidSlashBladeAttack.UNINTERRUPTIBLE_COMBO.contains(current) && !MaidSlashBladeAttack.UNINTERRUPTIBLE_COMBO.contains(next);
+            }
+            return true;
+        }).orElse(true);
     }
 
     private static boolean tryAerialCleave(EntityMaid maid, ISlashBladeState state) {
@@ -100,7 +114,7 @@ public class MaidSlashBladeAttackUtils {
     }
 
     private static Boolean tryJudgementCut(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
-        if (JustSlashArtManager.getJustCooldown(maid) > 0) {
+        if (!SlashBladeMaidBauble.JudgementCut.checkBauble(maid) || JustSlashArtManager.getJustCooldown(maid) > 0) {
             return false;
         }
         ResourceLocation currentLoc = state.resolvCurrentComboState(maid);
@@ -123,11 +137,7 @@ public class MaidSlashBladeAttackUtils {
 
     private static void voidSlash(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
         MaidSlashBladeMovementUtils.TRY_TRICK_TO_TARGET.accept(maid, target);
-        maid.getCapability(InputStateCapabilityProvider.INPUT_STATE).ifPresent(input ->
-                input.getScheduler().schedule("maid_void_slash", 2, (livingEntity, queue, now) ->
-                        state.updateComboSeq(maid, TruePowerComboStateRegistry.VOID_SLASH.getId())
-                )
-        );
+        state.updateComboSeq(maid, TruePowerComboStateRegistry.VOID_SLASH.getId());
     }
 
     private static void normalSlashBladeAttack(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
@@ -149,7 +159,7 @@ public class MaidSlashBladeAttackUtils {
                         GROUND_ATTACK.accept(maid, state);
                     }
                 }
-            } else if (current.equals(ComboStateRegistry.RAPID_SLASH.get()) && SlashBladeMaidBauble.AirCombo.checkBauble(maid)) {
+            } else if (current.equals(ComboStateRegistry.RAPID_SLASH.get()) && SlashBladeMaidBauble.AirCombo.checkBauble(maid) && canInterruptCombo(maid)) {
                 List<Entity> hits = AttackManager.areaAttack(maid, KnockBacks.toss.action, 0.44f, true, true, true);
                 if (!hits.isEmpty()) {
                     state.updateComboSeq(maid, ComboStateRegistry.RISING_STAR.getId());
