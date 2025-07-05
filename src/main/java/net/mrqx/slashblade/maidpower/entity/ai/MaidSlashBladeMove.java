@@ -55,11 +55,14 @@ public class MaidSlashBladeMove {
         LivingEntity target = instance.get(attackTargetAccessor);
         Optional<NearestVisibleLivingEntities> visibleEntitiesOpt = instance.tryGet(visibleEntitiesAccessor);
 
-        if (mob instanceof EntityMaid maid && !MaidGuardHandler.isGuarding(maid)) {
+        if (mob instanceof EntityMaid maid) {
             float distance = maid.distanceTo(target);
             double reach = TargetSelector.getResolvedReach(maid);
             CompoundTag data = maid.getPersistentData();
             boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
+            if (MaidGuardHandler.isGuarding(maid) && !hasTruePower) {
+                return false;
+            }
 
             boolean canTrick = MaidSlashBladeMovementUtils.canTrick(maid);
             boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
@@ -92,7 +95,8 @@ public class MaidSlashBladeMove {
                     maid.level().broadcastEntityEvent(maid, (byte) 46);
                 }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 }

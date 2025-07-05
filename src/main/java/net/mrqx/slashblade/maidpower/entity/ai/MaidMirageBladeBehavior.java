@@ -42,32 +42,33 @@ public class MaidMirageBladeBehavior extends Behavior<EntityMaid> {
         }
         LivingEntity target = targetOpt.get();
         return MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid)
-               && SlashBladeMaidBauble.MirageBlade.checkBauble(maid)
-               && maid.canSee(target);
+                && SlashBladeMaidBauble.MirageBlade.checkBauble(maid)
+                && maid.canSee(target);
     }
 
     @Override
     public boolean canStillUse(@NotNull ServerLevel level, EntityMaid maid, long gameTime) {
         return maid.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET)
-               && checkExtraStartConditions(level, maid);
+                && checkExtraStartConditions(level, maid);
     }
 
     @Override
     public void tick(@NotNull ServerLevel level, @NotNull EntityMaid maid, long gameTime) {
         LivingEntity target = maid.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
+        boolean truePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
         if (target == null) {
             return;
         }
         if (!maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).isPresent()) {
             return;
         }
-        if (MaidGuardHandler.isGuarding(maid)) {
+        if (MaidGuardHandler.isGuarding(maid) && !truePower) {
             return;
         }
 
         int favorLevel = maid.getFavorabilityManager().getLevel();
         int enchantPower = maid.getMainHandItem().getEnchantmentLevel(Enchantments.POWER_ARROWS);
-        int powerLevel = (enchantPower + favorLevel + 1) * (SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 2 : 1);
+        int powerLevel = (enchantPower + favorLevel + 1) * (truePower ? 2 : 1);
         CompoundTag data = maid.getPersistentData();
 
         switch (favorLevel) {

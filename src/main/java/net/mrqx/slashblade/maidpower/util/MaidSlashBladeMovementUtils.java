@@ -34,8 +34,10 @@ public class MaidSlashBladeMovementUtils {
      * 尝试使用 隔空瞬步
      */
     private static Boolean airTrickCheck(EntityMaid maid, Float distance, Double reach) {
-        if (distance > reach && !MaidGuardHandler.isGuarding(maid)) {
-            return MrqxSlayerStyleArts.AIR_TRICK.apply(maid, true);
+        if (distance > reach) {
+            if (!MaidGuardHandler.isGuarding(maid) || SlashBladeMaidBauble.TruePower.checkBauble(maid)) {
+                return MrqxSlayerStyleArts.AIR_TRICK.apply(maid, true);
+            }
         }
         return false;
     }
@@ -44,9 +46,11 @@ public class MaidSlashBladeMovementUtils {
      * 尝试使用 瞬步退行
      */
     private static void trickDownCheck(EntityMaid maid) {
-        if (maid.fallDistance > 2 && !MaidGuardHandler.isGuarding(maid)) {
-            maid.fallDistance = 0;
-            MrqxSlayerStyleArts.TRICK_DOWN.apply(maid, true);
+        if (maid.fallDistance > 2) {
+            if (!MaidGuardHandler.isGuarding(maid) || SlashBladeMaidBauble.TruePower.checkBauble(maid)) {
+                maid.fallDistance = 0;
+                MrqxSlayerStyleArts.TRICK_DOWN.apply(maid, true);
+            }
         }
     }
 

@@ -129,6 +129,8 @@ public class MaidTickHandler {
             Map.Entry<Integer, ResourceLocation> currentLoc = state.resolvCurrentComboStateTicks(maid);
             ResourceLocation csLoc = state.getSlashArts().doArts(SlashArts.ArtsType.Super, maid);
             if (csLoc != ComboStateRegistry.NONE.getId() && !currentLoc.getValue().equals(csLoc)) {
+                data.putInt(MaidSlashBladeAttackUtils.SUPER_JUDGEMENT_CUT_COUNTER_KEY, 2400);
+
                 AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
                 if (entityReachAttributeInstance == null) {
                     return;
@@ -147,7 +149,6 @@ public class MaidTickHandler {
                 entityReachAttributeInstance.addTransientModifier(entityReachBonus);
                 JudgementCut.doJudgementCutSuper(maid);
                 entityReachAttributeInstance.removeModifier(entityReachBonus);
-                data.putInt(MaidSlashBladeAttackUtils.SUPER_JUDGEMENT_CUT_COUNTER_KEY, 2400);
             }
         }
     }
@@ -187,7 +188,7 @@ public class MaidTickHandler {
         if (!data.contains(TRUE_POWER_RANK)) {
             data.putLong(TRUE_POWER_RANK, 2300);
         }
-        data.putLong(TRUE_POWER_RANK, Math.min(2400, data.getLong(TRUE_POWER_RANK) + 1));
+        data.putLong(TRUE_POWER_RANK, Math.min(2400, data.getLong(TRUE_POWER_RANK) + decrement));
 
         long cooldown = JustSlashArtManager.getJustCooldown(maid);
         if (cooldown > 0) {
@@ -228,7 +229,7 @@ public class MaidTickHandler {
                     .orElse(0);
             int expLevel = (int) Math.floor((double) maid.getExperience() / 120);
             rankDamageBonus = (float) Math.max(rankDamageBonus,
-                    Math.min(expLevel, refine) * SlashBladeConfig.REFINE_DAMAGE_MULTIPLIER.get());
+                    hasTruePower ? refine : Math.min(expLevel, refine) * SlashBladeConfig.REFINE_DAMAGE_MULTIPLIER.get());
         }
 
         AttributeModifier slashbladeDamageBonus = new AttributeModifier(

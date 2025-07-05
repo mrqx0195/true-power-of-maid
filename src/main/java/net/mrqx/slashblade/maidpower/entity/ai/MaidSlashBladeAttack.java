@@ -95,7 +95,6 @@ public class MaidSlashBladeAttack {
             ComboStateRegistry.UPPERSLASH.get(),
             ComboStateRegistry.UPPERSLASH_JUMP.get(),
             ComboStateRegistry.AERIAL_CLEAVE.get(),
-            ComboStateRegistry.RAPID_SLASH.get(),
             ComboStateRegistry.RISING_STAR.get(),
             ComboStateRegistry.JUDGEMENT_CUT.get(),
             ComboStateRegistry.JUDGEMENT_CUT_SLASH.get(),
@@ -153,10 +152,11 @@ public class MaidSlashBladeAttack {
             return false;
         }
         NearestVisibleLivingEntities visibleEntities = instance.get(visibleEntitiesAccessor);
+        boolean truePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
         if (!visibleEntities.contains(target)) {
             return false;
         }
-        if (MaidGuardHandler.isGuarding(maid)) {
+        if (MaidGuardHandler.isGuarding(maid) && !truePower) {
             return false;
         }
 

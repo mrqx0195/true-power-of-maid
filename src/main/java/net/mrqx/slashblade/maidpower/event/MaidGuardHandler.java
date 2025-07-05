@@ -1,14 +1,19 @@
 package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import mods.flammpfeil.slashblade.ability.Untouchable;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.mrqx.sbr_core.utils.MrqxSlayerStyleArts;
@@ -28,7 +33,7 @@ public class MaidGuardHandler {
     public static final String IS_PRE_ESCAPING = "truePowerOfMaid.isPreEscaping";
     public static final String GUARD_DAMAGE = "truePowerOfMaid.guardDamage";
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onLivingAttackEvent(LivingAttackEvent event) {
         if (!(event.getEntity() instanceof EntityMaid maid)) {
             return;
@@ -50,6 +55,7 @@ public class MaidGuardHandler {
         if (!SlashBladeMaidBauble.Guard.checkBauble(maid)) {
             return;
         }
+        boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
         CompoundTag data = maid.getPersistentData();
         if (!isGuarding(maid)) {
             data.putInt(GUARD_DAMAGE_COUNTER, data.getInt(GUARD_DAMAGE_COUNTER) + 150);
@@ -60,22 +66,32 @@ public class MaidGuardHandler {
                 data.putInt(GUARD_DAMAGE_COUNTER, 0);
                 data.putFloat(GUARD_TOTAL_DAMAGE_COUNTER, 0);
                 data.putInt(GUARD_ESCAPE_COUNTER, 100);
-                data.putFloat(GUARD_DAMAGE, maid.getMaxHealth() * 0.2F);
+                data.putFloat(GUARD_DAMAGE, maid.getMaxHealth() * (hasTruePower ? 1 : 0.2F));
             }
         } else {
-            float guardDamage = data.getFloat(GUARD_DAMAGE);
-            if (guardDamage >= event.getAmount()) {
-                data.putFloat(GUARD_DAMAGE, guardDamage - event.getAmount());
-                state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1_END2.getId());
-            } else {
-                data.putFloat(GUARD_DAMAGE, 0);
-                data.putInt(GUARD_COOL_DOWN, 600);
-                state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1.getId());
-                data.putInt(PRE_ESCAPE_COUNTER, 5);
-                data.putBoolean(IS_PRE_ESCAPING, true);
-            }
-            if (SlashBladeMaidBauble.Health.checkBauble(maid)) {
-                maid.heal((float) Math.min(maid.getMaxHealth() * 0.1, event.getAmount() * 0.1));
+            boolean isProjectile = event.getSource().is(DamageTypeTags.IS_PROJECTILE)
+                    || event.getSource().getDirectEntity() instanceof Projectile;
+            if (!isProjectile) {
+                int soulSpeedLevel = maid.getMainHandItem().getEnchantmentLevel(Enchantments.SOUL_SPEED);
+                int justAcceptancePeriod = 3 + soulSpeedLevel;
+                if (hasTruePower && maid.level().getGameTime() - data.getLong(DoSlashHandler.LAST_DO_SLASH_TIME) < justAcceptancePeriod) {
+                    Untouchable.setUntouchable(maid, 10);
+                } else {
+                    float guardDamage = data.getFloat(GUARD_DAMAGE);
+                    if (guardDamage >= event.getAmount()) {
+                        data.putFloat(GUARD_DAMAGE, guardDamage - event.getAmount());
+                        state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1_END2.getId());
+                    } else {
+                        data.putFloat(GUARD_DAMAGE, 0);
+                        data.putInt(GUARD_COOL_DOWN, 600);
+                        state.updateComboSeq(maid, ComboStateRegistry.COMBO_A1.getId());
+                        data.putInt(PRE_ESCAPE_COUNTER, 5);
+                        data.putBoolean(IS_PRE_ESCAPING, true);
+                    }
+                    if (SlashBladeMaidBauble.Health.checkBauble(maid)) {
+                        maid.heal((float) Math.min(maid.getMaxHealth() * 0.1, event.getAmount() * 0.1));
+                    }
+                }
             }
             event.setCanceled(true);
         }
@@ -119,6 +135,7 @@ public class MaidGuardHandler {
 
         data.putInt(MaidSlashBladeMove.TRICK_COOL_DOWN, 0);
 
+        data.putInt(GUARD_DAMAGE, 0);
         data.putInt(GUARD_DAMAGE_COUNTER, 0);
         data.putInt(GUARD_ESCAPE_COUNTER, 0);
         data.putInt(PRE_ESCAPE_COUNTER, 0);
