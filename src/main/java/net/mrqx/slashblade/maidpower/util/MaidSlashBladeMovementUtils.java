@@ -26,6 +26,7 @@ public class MaidSlashBladeMovementUtils {
     public static boolean canTrick(EntityMaid maid) {
         CompoundTag data = maid.getPersistentData();
         return SlashBladeMaidBauble.Trick.checkBauble(maid)
+                && !MaidGuardHandler.isGuarding(maid)
                 && data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) <= 0
                 && MaidSlashBladeAttackUtils.canInterruptCombo(maid);
     }
@@ -35,9 +36,7 @@ public class MaidSlashBladeMovementUtils {
      */
     private static Boolean airTrickCheck(EntityMaid maid, Float distance, Double reach) {
         if (distance > reach) {
-            if (!MaidGuardHandler.isGuarding(maid) || SlashBladeMaidBauble.TruePower.checkBauble(maid)) {
-                return MrqxSlayerStyleArts.AIR_TRICK.apply(maid, true);
-            }
+            return MrqxSlayerStyleArts.AIR_TRICK.apply(maid, true);
         }
         return false;
     }
@@ -47,10 +46,8 @@ public class MaidSlashBladeMovementUtils {
      */
     private static void trickDownCheck(EntityMaid maid) {
         if (maid.fallDistance > 2) {
-            if (!MaidGuardHandler.isGuarding(maid) || SlashBladeMaidBauble.TruePower.checkBauble(maid)) {
-                maid.fallDistance = 0;
-                MrqxSlayerStyleArts.TRICK_DOWN.apply(maid, true);
-            }
+            maid.fallDistance = 0;
+            MrqxSlayerStyleArts.TRICK_DOWN.apply(maid, true);
         }
     }
 

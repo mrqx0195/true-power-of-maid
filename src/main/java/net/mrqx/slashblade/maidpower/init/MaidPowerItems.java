@@ -7,9 +7,12 @@ import net.minecraftforge.registries.RegistryObject;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBaubleItem;
 
+import java.util.List;
+
 public class MaidPowerItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, TruePowerOfMaid.MODID);
 
+    public static final RegistryObject<Item> UNAWAKENED_SOUL = ITEMS.register("unawakened_soul", SlashBladeMaidBaubleItem::new);
     public static final RegistryObject<Item> SOUL_OF_COMBO_B = ITEMS.register("soul_of_combo_b", SlashBladeMaidBaubleItem::new);
     public static final RegistryObject<Item> SOUL_OF_COMBO_C = ITEMS.register("soul_of_combo_c", SlashBladeMaidBaubleItem::new);
     public static final RegistryObject<Item> SOUL_OF_RAPID_SLASH = ITEMS.register("soul_of_rapid_slash", SlashBladeMaidBaubleItem::new);
@@ -24,4 +27,18 @@ public class MaidPowerItems {
     public static final RegistryObject<Item> SOUL_OF_HEALTH = ITEMS.register("soul_of_health", SlashBladeMaidBaubleItem::new);
     public static final RegistryObject<Item> SOUL_OF_EXP = ITEMS.register("soul_of_exp", SlashBladeMaidBaubleItem::new);
     public static final RegistryObject<Item> SOUL_OF_TRUE_POWER = ITEMS.register("soul_of_true_power", SlashBladeMaidBaubleItem::new);
+
+    public static final List<RegistryObject<Item>> SOUL_AWAKENED_LIST = List.of(
+            SOUL_OF_COMBO_B,
+            SOUL_OF_COMBO_C,
+            SOUL_OF_RAPID_SLASH,
+            SOUL_OF_AIR_COMBO,
+            SOUL_OF_MIRAGE_BLADE,
+            SOUL_OF_TRICK,
+            SOUL_OF_JUDGEMENT_CUT,
+            SOUL_OF_VOID_SLASH,
+            SOUL_OF_GUARD,
+            SOUL_OF_HEALTH,
+            SOUL_OF_EXP
+    );
 }

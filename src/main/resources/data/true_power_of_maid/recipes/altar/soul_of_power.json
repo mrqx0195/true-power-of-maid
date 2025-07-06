@@ -1,0 +1,33 @@
+{
+  "type": "touhou_little_maid:altar_crafting",
+  "output": {
+    "type": "minecraft:item",
+    "nbt": {
+      "Item": {
+        "id": "true_power_of_maid:soul_of_power",
+        "Count": 1
+      }
+    }
+  },
+  "power": 1,
+  "ingredients": [
+    {
+      "item": "touhou_little_maid:power_point"
+    },
+    {
+      "item": "true_power_of_maid:proudsoul_crystal"
+    },
+    {
+      "item": "touhou_little_maid:power_point"
+    },
+    {
+      "item": "true_power_of_maid:proudsoul_crystal"
+    },
+    {
+      "item": "touhou_little_maid:power_point"
+    },
+    {
+      "item": "true_power_of_maid:proudsoul_crystal"
+    }
+  ]
+}

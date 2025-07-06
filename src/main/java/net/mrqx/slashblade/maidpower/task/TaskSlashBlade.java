@@ -1,9 +1,11 @@
 package net.mrqx.slashblade.maidpower.task;
 
+import com.github.tartaricacid.touhoulittlemaid.api.bauble.IMaidBauble;
 import com.github.tartaricacid.touhoulittlemaid.api.task.IAttackTask;
 import com.github.tartaricacid.touhoulittlemaid.api.task.IRangedAttackTask;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.init.InitSounds;
+import com.github.tartaricacid.touhoulittlemaid.inventory.handler.BaubleItemHandler;
 import com.github.tartaricacid.touhoulittlemaid.util.SoundUtil;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -34,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 public class TaskSlashBlade implements IAttackTask {
     public static final ResourceLocation UID = TruePowerOfMaid.prefix("slashblade_attack");
@@ -92,6 +95,22 @@ public class TaskSlashBlade implements IAttackTask {
     @Override
     public boolean isWeapon(@NotNull EntityMaid maid, ItemStack stack) {
         return stack.getCapability(ItemSlashBlade.BLADESTATE).isPresent();
+    }
+
+    private boolean hasSouls(EntityMaid maid) {
+        BaubleItemHandler handler = maid.getMaidBauble();
+        for (int i = 0; i < handler.getSlots(); ++i) {
+            IMaidBauble baubleIn = handler.getBaubleInSlot(i);
+            if (baubleIn instanceof SlashBladeMaidBauble) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public @NotNull List<Pair<String, Predicate<EntityMaid>>> getConditionDescription(@NotNull EntityMaid maid) {
+        return Lists.newArrayList(Pair.of("has_slashblade", MaidSlashBladeAttackUtils::isHoldingSlashBlade), Pair.of("souls", this::hasSouls));
     }
 
     public static boolean farAway(LivingEntity target, EntityMaid maid) {

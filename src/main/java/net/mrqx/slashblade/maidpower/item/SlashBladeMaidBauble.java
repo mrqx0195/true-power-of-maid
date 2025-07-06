@@ -7,13 +7,48 @@ import com.github.tartaricacid.touhoulittlemaid.inventory.handler.BaubleItemHand
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.mrqx.slashblade.maidpower.event.MaidTickHandler;
 import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
+import net.mrqx.slashblade.maidpower.init.MaidPowerItems;
 
 public class SlashBladeMaidBauble implements IMaidBauble {
+    @Mod.EventBusSubscriber
+    public static class UnawakenedSoul extends SlashBladeMaidBauble {
+        @SubscribeEvent
+        public static void onLivingDeathEvent(LivingDeathEvent event) {
+            if (event.getSource().getEntity() instanceof EntityMaid maid) {
+                BaubleItemHandler handler = maid.getMaidBauble();
+                RandomSource random = maid.level().getRandom();
+                int exp = event.getEntity().getExperienceReward();
+                if (random.nextDouble() < (double) (exp * exp * exp * exp) / 1000000) {
+                    int i = random.nextInt(handler.getSlots());
+                    IMaidBauble baubleIn = handler.getBaubleInSlot(i);
+                    if (baubleIn instanceof UnawakenedSoul && random.nextDouble() < (double) (exp * exp * exp * exp) / 1000000) {
+                        handler.setStackInSlot(i, new ItemStack(MaidPowerItems.SOUL_AWAKENED_LIST.get(random.nextInt(MaidPowerItems.SOUL_AWAKENED_LIST.size())).get()));
+                    }
+                }
+            }
+        }
+
+        public static boolean checkBauble(EntityMaid maid) {
+            BaubleItemHandler handler = maid.getMaidBauble();
+
+            for (int i = 0; i < handler.getSlots(); ++i) {
+                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
+                if (baubleIn instanceof UnawakenedSoul) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
     @Mod.EventBusSubscriber
     public static class ComboB extends SlashBladeMaidBauble {
         @SubscribeEvent

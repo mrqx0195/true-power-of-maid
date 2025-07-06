@@ -42,7 +42,7 @@ public class MaidSlashBladeAttackUtils {
     public static final TriConsumer<EntityMaid, ISlashBladeState, LivingEntity> NORMAL_SLASHBLADE_ATTACK = MaidSlashBladeAttackUtils::normalSlashBladeAttack;
 
     public static boolean isHoldingSlashBlade(Mob mob) {
-        return mob.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).isPresent();
+        return !mob.getMainHandItem().isEmpty() && mob.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).isPresent();
     }
 
     public static boolean canInterruptCombo(EntityMaid maid) {

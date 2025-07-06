@@ -15,6 +15,7 @@ public class MaidPowerCreativeTab {
             .title(Component.translatable("item_group.true_power_of_maid"))
             .icon(() -> new ItemStack(MaidPowerItems.SOUL_OF_COMBO_B.get()))
             .displayItems((features, output) -> {
+                output.accept(MaidPowerItems.UNAWAKENED_SOUL.get());
                 output.accept(MaidPowerItems.SOUL_OF_COMBO_B.get());
                 output.accept(MaidPowerItems.SOUL_OF_COMBO_C.get());
                 output.accept(MaidPowerItems.SOUL_OF_RAPID_SLASH.get());

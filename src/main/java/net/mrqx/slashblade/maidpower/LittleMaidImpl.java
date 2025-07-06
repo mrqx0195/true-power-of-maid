@@ -27,6 +27,7 @@ public class LittleMaidImpl implements ILittleMaid {
 
     @Override
     public void bindMaidBauble(BaubleManager manager) {
+        manager.bind(MaidPowerItems.UNAWAKENED_SOUL.get(), new SlashBladeMaidBauble.UnawakenedSoul());
         manager.bind(MaidPowerItems.SOUL_OF_COMBO_B.get(), new SlashBladeMaidBauble.ComboB());
         manager.bind(MaidPowerItems.SOUL_OF_COMBO_C.get(), new SlashBladeMaidBauble.ComboC());
         manager.bind(MaidPowerItems.SOUL_OF_RAPID_SLASH.get(), new SlashBladeMaidBauble.RapidSlash());

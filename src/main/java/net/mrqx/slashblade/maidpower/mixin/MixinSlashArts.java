@@ -23,8 +23,7 @@ public class MixinSlashArts {
             if (type == SlashArts.ArtsType.Jackpot) {
                 int count = JustSlashArtManager.addJustCount(user);
                 int maxCount = SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? (SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 5 : 3) : 1;
-                // 为啥这玩意会计数两次？明明在玩家身上是正常的
-                if (count > maxCount * 2 || JustSlashArtManager.getJustCooldown(user) > 0) {
+                if (count > maxCount || JustSlashArtManager.getJustCooldown(user) > 0) {
                     JustSlashArtManager.setJustCooldown(user, 240);
                     cir.setReturnValue(ComboStateRegistry.NONE.getId());
                 }

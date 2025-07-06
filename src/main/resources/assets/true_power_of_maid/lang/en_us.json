@@ -1,4 +1,7 @@
 {
+  "item.true_power_of_maid.unawakened_soul": "Unawakened Soul",
+  "item.true_power_of_maid.unawakened_soul.tooltips.1": "Slightly increases §eProudSoul§f gained by maid when killing enemies",
+  "item.true_power_of_maid.unawakened_soul.tooltips.2": "When maid kills enemies with SlashBlade, this accessory has a chance to transform into a special §eSoul of Maid§r§f accessory",
   "item.true_power_of_maid.soul_of_combo_b": "Soul of Maid - Combo B",
   "item.true_power_of_maid.soul_of_combo_b.tooltips.1": "While attacking with SlashBlade, the maid prioritizes §bCombo B§r§f for normal attacks. If equipped with §eSoul of Maid - Aerial Rave§r§f, she will use §bAerial Rave B§r§f in mid-air.",
   "item.true_power_of_maid.soul_of_combo_b.tooltips.2": "§bCombo B§r§f: Four consecutive slashes followed by rapid strikes after a brief pause. The final hit launches enemies.",
@@ -63,7 +66,7 @@
   "item.true_power_of_maid.soul_of_true_power.tooltips.14": "§dImmune to SlashBlade-induced stun.§r",
   "item.true_power_of_maid.soul_of_true_power.tooltips.15": "§dAlways considered in §ePower§r§d state.§r",
   "item.true_power_of_maid.soul_of_true_power.tooltips.16": "§eSoul of Maid - Judgement Cut EX§r§d chains five §bJust Judgement Cuts§r§d.§r",
-  "item.true_power_of_maid.soul_of_true_power.tooltips.17": "§dIncreases maid`s mobility. During §bGuard Stance§r§d, increases damage resistance while maintaining movement and attacks§r",
+  "item.true_power_of_maid.soul_of_true_power.tooltips.17": "§dMaid becomes more versatile; §bGuard Stance§r§d greatly increases blockable damage. Maid can move/attack but cannot use §bTrick§r§d abilities. Taking damage immediately after melee attack in stance cancels damage and grants brief invincibility§r",
   "item.true_power_of_maid.soul_of_true_power.tooltips.18": "§dMaid's §eRank§r§d automatically increases over time and won't decrease when taking damage.§r",
   "item.true_power_of_maid.soul_of_true_power.tooltips.19": "§dWhen near death, maid decreases §eRank§r§d by one to prevent death - fully heals HP and resets all cooldowns. Dies if Rank drops to §eE (No Rank)§r§d.§r",
   "item.true_power_of_maid.soul_of_true_power.tooltips.20": "",
@@ -72,5 +75,6 @@
   "task.true_power_of_maid.slashblade_attack.desc": "Maids attack hostile mobs with SlashBlade.\nSkill cooldowns decrease as §eFavorability§f increases.\n§eRank§r§f System: Increases with consecutive attacks (boosts damage), decreases when damaged.\n§ePower§r§f State: Activated by §eStrength§r§f/§eHunger§r§f effects or reaching §eSSS§r§f Rank.",
   "task.true_power_of_maid.slashblade_attack.condition.has_slashblade": "Mainhand holds a SlashBlade",
   "task.true_power_of_maid.slashblade_attack.condition.souls": "Equip special SlashBlade Baubles to unlock more skills",
+  "jei.true_power_of_maid.altar_craft.item_craft.result": "Craft an Item",
   "item_group.true_power_of_maid": "TLM: True POWER"
 }
