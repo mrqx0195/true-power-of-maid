@@ -22,6 +22,7 @@ import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
+import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber
 public class MaidGuardHandler {
@@ -97,7 +98,7 @@ public class MaidGuardHandler {
         }
     }
 
-    public static void trickToTarget(EntityMaid maid, LivingEntity target) {
+    public static void trickToTarget(@NotNull EntityMaid maid, @NotNull LivingEntity target) {
         if (maid.level() instanceof ServerLevel serverLevel) {
             maid.refreshBrain(serverLevel);
         }

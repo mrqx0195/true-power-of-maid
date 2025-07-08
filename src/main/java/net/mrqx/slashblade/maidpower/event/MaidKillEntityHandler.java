@@ -25,7 +25,7 @@ public class MaidKillEntityHandler {
                     stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent((state) -> state.setProudSoulCount(state.getProudSoulCount() + Math.min(SlashBladeConfig.MAX_PROUD_SOUL_GOT.get(), souls)));
                 }
             }
-            if (event.getEntity() instanceof OwnableEntity ownable) {
+            if (event.getEntity() instanceof OwnableEntity ownable && ownable.getOwner() != null) {
                 maid.setTarget(ownable.getOwner());
                 MaidGuardHandler.trickToTarget(maid, ownable.getOwner());
             }
