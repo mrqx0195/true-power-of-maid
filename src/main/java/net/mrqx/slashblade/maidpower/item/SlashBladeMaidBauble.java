@@ -26,10 +26,10 @@ public class SlashBladeMaidBauble implements IMaidBauble {
                 BaubleItemHandler handler = maid.getMaidBauble();
                 RandomSource random = maid.level().getRandom();
                 int exp = event.getEntity().getExperienceReward();
-                if (random.nextDouble() < (double) (exp * exp * exp * exp) / 1000000) {
+                if (random.nextDouble() < Math.min(1.0, exp * 0.01)) {
                     int i = random.nextInt(handler.getSlots());
                     IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                    if (baubleIn instanceof UnawakenedSoul && random.nextDouble() < (double) (exp * exp * exp * exp) / 1000000) {
+                    if (baubleIn instanceof UnawakenedSoul && random.nextDouble() < Math.min(1.0, exp * 0.01)) {
                         handler.setStackInSlot(i, new ItemStack(MaidPowerItems.SOUL_AWAKENED_LIST.get(random.nextInt(MaidPowerItems.SOUL_AWAKENED_LIST.size())).get()));
                     }
                 }
