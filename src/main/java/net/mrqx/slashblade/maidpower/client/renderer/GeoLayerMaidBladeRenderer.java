@@ -128,10 +128,9 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
     }
 
     private ComboState getComboState(ISlashBladeState state) {
-        ComboState combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboSeq()) != null
+        return ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboSeq()) != null
                 ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboSeq())
                 : ComboStateRegistry.NONE.get();
-        return combo;
     }
 
     private ComboState getComboRootState(ISlashBladeState state) {

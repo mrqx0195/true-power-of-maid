@@ -5,7 +5,6 @@ import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
-import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -13,6 +12,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
+import net.mrqx.truepower.util.JustSlashArtManager;
 
 @Mod.EventBusSubscriber
 public class ChargeActionHandler {
@@ -30,14 +30,15 @@ public class ChargeActionHandler {
             return;
         }
         if (isJudgementCut(event.getComboState())) {
-            ResourceLocation saLoc = SlashArtsRegistry.JUDGEMENT_CUT.get().doArts(event.getType(), maid);
-            if (saLoc == ComboStateRegistry.NONE.getId()) {
-                return;
+            int count = JustSlashArtManager.addJustCount(maid);
+            int maxCount = SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? (SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 5 : 3) : 1;
+            if (count > maxCount) {
+                JustSlashArtManager.setJustCooldown(maid, 240);
+                event.setCanceled(true);
             }
             if (event.getType() == SlashArts.ArtsType.Jackpot) {
                 AdvancementHelper.grantedIf(Enchantments.SOUL_SPEED, maid);
             }
-            state.updateComboSeq(maid, saLoc);
         }
     }
 

@@ -1,19 +1,27 @@
 package net.mrqx.slashblade.maidpower.util;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
+import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
+import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
+import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
 import mods.flammpfeil.slashblade.registry.combo.ComboState;
+import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.KnockBacks;
+import net.minecraft.client.Minecraft;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeAttack;
 import net.mrqx.slashblade.maidpower.event.ChargeActionHandler;
@@ -106,10 +114,28 @@ public class MaidSlashBladeAttackUtils {
 
     private static void judgementCut(EntityMaid maid, ISlashBladeState state, LivingEntity target) {
         ResourceLocation currentLoc = state.resolvCurrentComboState(maid);
-        ComboState current = ComboStateRegistry.REGISTRY.get().getValue(currentLoc);
-        maid.lookAt(EntityAnchorArgument.Anchor.FEET, target.position());
-        if (current != null && !ChargeActionHandler.isJudgementCut(currentLoc)) {
-            state.doChargeAction(maid, SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? 10 : 20);
+        boolean canJudgementCut = !ChargeActionHandler.isJudgementCut(currentLoc) || SlashBladeMaidBauble.TruePower.checkBauble(maid);
+        if (canJudgementCut) {
+            maid.lookAt(EntityAnchorArgument.Anchor.FEET, target.position());
+            int elapsed;
+            SlashArts.ArtsType type;
+            if (SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid)) {
+                elapsed = 10;
+                type = SlashArts.ArtsType.Jackpot;
+            } else {
+                elapsed = 20;
+                type = SlashArts.ArtsType.Success;
+            }
+            ResourceLocation comboLoc = SlashArtsRegistry.JUDGEMENT_CUT.get().doArts(type, maid);
+            SlashBladeEvent.ChargeActionEvent event = new SlashBladeEvent.ChargeActionEvent(maid, elapsed, state, comboLoc, type);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (!event.isCanceled()) {
+                comboLoc = event.getComboState();
+                ComboState combo = ComboStateRegistry.REGISTRY.get().getValue(comboLoc);
+                if (combo != null && comboLoc != ComboStateRegistry.NONE.getId()) {
+                    state.updateComboSeq(maid, comboLoc);
+                }
+            }
         }
     }
 
@@ -122,7 +148,10 @@ public class MaidSlashBladeAttackUtils {
         if (current != null) {
             ComboState next = ComboStateRegistry.REGISTRY.get().getValue(current.getNextOfTimeout(maid));
             boolean just = SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid);
-            if (just && MaidSlashBladeAttack.QUICK_CHARGE_COMBO.contains(current)) {
+            if (SlashBladeMaidBauble.TruePower.checkBauble(maid) && MaidSlashBladeAttack.TRUE_POWER_CHARGE_COMBO.contains(current)) {
+                JUDGEMENT_CUT.accept(maid, state, target);
+                return true;
+            } else if (just && MaidSlashBladeAttack.QUICK_CHARGE_COMBO.contains(current)) {
                 JUDGEMENT_CUT.accept(maid, state, target);
                 return true;
             } else if (MaidSlashBladeAttack.CHARGE_COMBO.contains(current)) {
@@ -175,5 +204,26 @@ public class MaidSlashBladeAttackUtils {
                 }
             }
         }
+    }
+
+
+    @OnlyIn(Dist.CLIENT)
+    public static BiConsumer<Long, Integer> setClientRank() {
+        return (point, entityId) -> {
+            if (Minecraft.getInstance().level != null) {
+                Entity entity = Minecraft.getInstance().level.getEntity(entityId);
+                if (entity != null) {
+                    entity.getCapability(CapabilityConcentrationRank.RANK_POINT).ifPresent(cr -> {
+                        long time = entity.level().getGameTime();
+                        IConcentrationRank.ConcentrationRanks oldRank = cr.getRank(time);
+                        cr.setRawRankPoint(point);
+                        cr.setLastUpdte(time);
+                        if (oldRank.level < cr.getRank(time).level) {
+                            cr.setLastRankRise(time);
+                        }
+                    });
+                }
+            }
+        };
     }
 }

@@ -44,6 +44,18 @@ public class MaidSlashBladeAttack {
     );
 
     /**
+     * 【女仆之荣耀 - 真正的力量】生效时，可以打断发完美次元斩的 Combo
+     */
+    public static final Set<ComboState> TRUE_POWER_CHARGE_COMBO = Set.of(
+            ComboStateRegistry.JUDGEMENT_CUT_SLASH.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_SLASH_AIR.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST2.get(),
+            ComboStateRegistry.JUDGEMENT_CUT_END.get()
+
+    );
+
+    /**
      * 可以后接完美次元斩的 Combo
      */
     public static final Set<ComboState> QUICK_CHARGE_COMBO = Set.of(
@@ -145,7 +157,6 @@ public class MaidSlashBladeAttack {
             return false;
         }
         if (maid.level().getGameTime() % 4 != 0) {
-//            我也不知道这玩意存在的意义是啥，但不加这个某些动作会出现异常
             return false;
         }
         if (!MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid)) {

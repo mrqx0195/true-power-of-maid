@@ -6,31 +6,45 @@ import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.inventory.handler.BaubleItemHandler;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.mrqx.slashblade.maidpower.config.TruePowerOfMaidCommonConfig;
 import net.mrqx.slashblade.maidpower.event.MaidTickHandler;
 import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
-import net.mrqx.slashblade.maidpower.init.MaidPowerItems;
 
 public class SlashBladeMaidBauble implements IMaidBauble {
     @Mod.EventBusSubscriber
     public static class UnawakenedSoul extends SlashBladeMaidBauble {
         @SubscribeEvent
         public static void onLivingDeathEvent(LivingDeathEvent event) {
+            if (event.isCanceled()) {
+                return;
+            }
             if (event.getSource().getEntity() instanceof EntityMaid maid) {
                 BaubleItemHandler handler = maid.getMaidBauble();
                 RandomSource random = maid.level().getRandom();
                 int exp = event.getEntity().getExperienceReward();
-                if (random.nextDouble() < (double) (exp * exp * exp * exp) / 1000000) {
+                long exp4 = (long) exp * exp * exp * exp;
+                double chance = Math.min(1.0, exp4 / 1000000.0);
+                if (random.nextDouble() < chance) {
                     int i = random.nextInt(handler.getSlots());
                     IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                    if (baubleIn instanceof UnawakenedSoul && random.nextDouble() < (double) (exp * exp * exp * exp) / 1000000) {
-                        handler.setStackInSlot(i, new ItemStack(MaidPowerItems.SOUL_AWAKENED_LIST.get(random.nextInt(MaidPowerItems.SOUL_AWAKENED_LIST.size())).get()));
+                    if (baubleIn instanceof UnawakenedSoul && random.nextDouble() < chance) {
+                        String item = TruePowerOfMaidCommonConfig.UNAWAKENED_SOUL_RANGE_MAP.get(random.nextDouble() * TruePowerOfMaidCommonConfig.unawakenedSoulTotalRange);
+                        if (item != null) {
+                            Item item1 = maid.level().registryAccess().registryOrThrow(Registries.ITEM).get(new ResourceLocation(item));
+                            if (item1 != null) {
+                                handler.setStackInSlot(i, new ItemStack(item1));
+                            }
+                        }
                     }
                 }
             }

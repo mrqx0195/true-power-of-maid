@@ -1,7 +1,6 @@
 package net.mrqx.slashblade.maidpower.client.renderer;
 
 import com.github.tartaricacid.touhoulittlemaid.client.model.bedrock.BedrockModel;
-import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -11,8 +10,9 @@ import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.Mob;
 
-public class LayerMaidBladeRenderer<T extends EntityMaid, M extends EntityModel<T>> extends LayerMainBlade<T, M> {
+public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> extends LayerMainBlade<T, M> {
     public LayerMaidBladeRenderer(RenderLayerParent<T, M> entityRendererIn) {
         super(entityRendererIn);
     }
@@ -36,4 +36,5 @@ public class LayerMaidBladeRenderer<T extends EntityMaid, M extends EntityModel<
         matrixStack.mulPose(Axis.YP.rotationDegrees(15.0F));
         super.setUserPose(matrixStack, entity, partialTicks);
     }
+
 }

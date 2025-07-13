@@ -3,7 +3,6 @@
   "minVersion": "0.8",
   "mixins": [
     "MixinEntityMaid",
-    "MixinSlashArts",
     "MixinSlashBladeCompat",
     "MixinTargetSelector",
     "MixinTruePowerVoidSlash"

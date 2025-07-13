@@ -3,35 +3,44 @@ package net.mrqx.slashblade.maidpower.event;
 import com.github.tartaricacid.touhoulittlemaid.api.event.MaidTickEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import mods.flammpfeil.slashblade.SlashBladeConfig;
+import mods.flammpfeil.slashblade.ability.ArrowReflector;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
+import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import mods.flammpfeil.slashblade.registry.ModAttributes;
-import mods.flammpfeil.slashblade.registry.combo.ComboState;
 import mods.flammpfeil.slashblade.slasharts.JudgementCut;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.network.PacketDistributor;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidMirageBladeBehavior;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
+import net.mrqx.slashblade.maidpower.network.MaidRankSyncMessage;
+import net.mrqx.slashblade.maidpower.network.NetworkManager;
 import net.mrqx.slashblade.maidpower.task.TaskSlashBlade;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 import net.mrqx.truepower.util.JustSlashArtManager;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Mod.EventBusSubscriber
@@ -53,16 +62,23 @@ public class MaidTickHandler {
         maidBonus(maid, hasTruePower);
         maid.getMainHandItem().inventoryTick(maid.level(), maid, 0, true);
 
-        if (hasTruePower) {
-            maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                    .ifPresent(rank -> {
+        maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
+                .ifPresent(rank -> {
+                    if (hasTruePower) {
                         long rankPoint = Math.max(rank.getRankPoint(maid.level().getGameTime()), data.getLong(TRUE_POWER_RANK));
                         rank.setRawRankPoint(rankPoint);
+                        rank.setLastUpdte(maid.level().getGameTime());
                         data.putLong(TRUE_POWER_RANK, rankPoint);
-                    });
-        }
+                    }
 
-        ComboState currentState = ComboStateRegistry.REGISTRY.get().getValue(state.resolvCurrentComboState(maid));
+                    if (maid.getOwner() instanceof ServerPlayer serverPlayer) {
+                        MaidRankSyncMessage message = new MaidRankSyncMessage();
+                        message.rawPoint = rank.getRankPoint(maid.level().getGameTime());
+                        message.entityId = maid.getId();
+                        NetworkManager.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), message);
+                    }
+                });
+
         boolean canTrick = MaidSlashBladeMovementUtils.canTrick(maid);
         Entity target = state.getTargetEntity(maid.level());
         boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
@@ -75,9 +91,6 @@ public class MaidTickHandler {
             }
         }
 
-        if (currentState != null && !currentState.equals(ComboStateRegistry.NONE.get())) {
-            currentState.tickAction(maid);
-        }
         if (canTrick && !canAirTrick) {
             MaidSlashBladeMovementUtils.TRICK_DOWN_CHECK.accept(maid);
         }
@@ -148,6 +161,26 @@ public class MaidTickHandler {
 
                 entityReachAttributeInstance.addTransientModifier(entityReachBonus);
                 JudgementCut.doJudgementCutSuper(maid);
+
+                AABB aabb = maid.getBoundingBox().inflate(48.0F);
+                double reach = TargetSelector.getResolvedReach(maid) + 32.0;
+
+                maid.level().getEntitiesOfClass(Projectile.class, aabb).stream()
+                        .filter(e -> {
+                            Entity owner = (e instanceof IShootable iShootable) ?
+                                    iShootable.getShooter() : e.getOwner();
+                            if (owner != null) {
+                                return !owner.equals(maid) &&
+                                        !owner.equals(maid.getOwner()) &&
+                                        ((owner instanceof OwnableEntity ownable) && Objects.equals(ownable.getOwner(), maid.getOwner()));
+                            } else {
+                                return true;
+                            }
+                        })
+                        .filter(e -> (e.distanceToSqr(maid) < (reach * reach)))
+                        .forEach(e -> ArrowReflector.doReflect(e, maid));
+
+
                 entityReachAttributeInstance.removeModifier(entityReachBonus);
             }
         }
