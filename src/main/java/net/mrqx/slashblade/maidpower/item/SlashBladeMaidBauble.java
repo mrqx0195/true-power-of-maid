@@ -32,8 +32,8 @@ public class SlashBladeMaidBauble implements IMaidBauble {
                 BaubleItemHandler handler = maid.getMaidBauble();
                 RandomSource random = maid.level().getRandom();
                 int exp = event.getEntity().getExperienceReward();
-                long exp4 = (long) exp * exp * exp * exp;
-                double chance = Math.min(1.0, exp4 / 1000000.0);
+                long exp4 = (long) exp * exp * exp;
+                double chance = Math.min(1.0, exp4 / 100000.0);
                 if (random.nextDouble() < chance) {
                     int i = random.nextInt(handler.getSlots());
                     IMaidBauble baubleIn = handler.getBaubleInSlot(i);

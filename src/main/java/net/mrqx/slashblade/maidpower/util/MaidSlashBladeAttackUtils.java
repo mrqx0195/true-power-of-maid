@@ -205,8 +205,7 @@ public class MaidSlashBladeAttackUtils {
             }
         }
     }
-
-
+    
     @OnlyIn(Dist.CLIENT)
     public static BiConsumer<Long, Integer> setClientRank() {
         return (point, entityId) -> {

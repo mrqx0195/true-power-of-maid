@@ -50,6 +50,10 @@ public abstract class MixinTargetSelector {
                         return result;
                     }).toList());
             list1.removeIf(entity -> entity instanceof EntityMaid || entity instanceof Player);
+
+            List<Entity> list = list1.stream().distinct().toList();
+            list1.clear();
+            list1.addAll(list);
         }
     }
 }
