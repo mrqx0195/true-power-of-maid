@@ -39,7 +39,7 @@
   "item.true_power_of_maid.soul_of_just_judgement_cut.tooltips.2": "§b完美次元斩§r§f：与普通§b次元斩§r§f相比，释放时不会后撤步且伤害大幅提高；冷却不变",
   "item.true_power_of_maid.soul_of_void_slash": "女仆之魂 - 时空裂闪",
   "item.true_power_of_maid.soul_of_void_slash.tooltips.1": "使用拔刀剑攻击时，女仆解锁技能：§b虚无刀界§r§f，且该技能会根据女仆的§e评价§r§f扩大范围（§eSSS§r§f时等同索敌范围）",
-  "item.true_power_of_maid.soul_of_void_slash.tooltips.2": "§b虚无刀界§r§f：立即瞬移至当前目标附近，拔刀进行一次斩击（§e魔化§r§f状态下额外造成一次伤害）并附带长时间§e眩晕§r§f，结束时将命中的生物向女仆的方向拉进；基础冷却50秒",
+  "item.true_power_of_maid.soul_of_void_slash.tooltips.2": "§b虚无刀界§r§f：立即瞬移至当前目标附近，拔刀进行一次斩击（§e魔化§r§f状态下额外造成一次伤害）并附带长时间§e眩晕§r§f，结束时将命中的生物向女仆的方向拉进并收集范围内的掉落物；基础冷却50秒",
   "item.true_power_of_maid.soul_of_guard": "女仆之魂 - 防御",
   "item.true_power_of_maid.soul_of_guard.tooltips.1": "使用拔刀剑攻击时，女仆短时间内连续受到数次伤害或每累计受到最大生命值20%%的伤害就会进入§b格挡姿态§r§f，在5秒内停止移动和攻击，持续格挡伤害（免疫投射物伤害）",
   "item.true_power_of_maid.soul_of_guard.tooltips.2": "如果§b格挡姿态§r§f期间未受到足够的伤害就会瞬移脱离并刷新所有技能冷却，否则就会打破§b格挡姿态§r§f并使防御进入30秒不受§e好感度§f影响的冷却",

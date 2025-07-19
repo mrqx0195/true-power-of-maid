@@ -39,7 +39,7 @@
   "item.true_power_of_maid.soul_of_just_judgement_cut.tooltips.2": "§bJust Judgement Cut§r§f: No backstep with significantly increased damage. Cooldown unchanged.",
   "item.true_power_of_maid.soul_of_void_slash": "Soul of Maid - Void Slash",
   "item.true_power_of_maid.soul_of_void_slash.tooltips.1": "While attacking with SlashBlade, the maid unlocks §bVoid Slash§r§f with range scaling by maid's §eRank§r§f (matches target range at §eSSS§r§f).",
-  "item.true_power_of_maid.soul_of_void_slash.tooltips.2": "§bVoid Slash§r§f: Teleports to target, slashing with long §eStun§r§f and pull effect (extra hit in §ePower§r§f state). Base cooldown: 50s.",
+  "item.true_power_of_maid.soul_of_void_slash.tooltips.2": "§bVoid Slash§r§f: Teleports to target, slashing with long §eStun§r§f and pull effect (extra hit in §ePower§r§f state), then collect dropped items within the range. Base cooldown: 50s.",
   "item.true_power_of_maid.soul_of_guard": "Soul of Maid - Guard",
   "item.true_power_of_maid.soul_of_guard.tooltips.1": "During SlashBlade attacks, maid enters §bGuard Stance§r§f after consecutive hits or taking 20%% max HP damage. For 5 seconds, maid stops moving/attacking and continuously blocks damage (immune to projectiles).",
   "item.true_power_of_maid.soul_of_guard.tooltips.2": "If insufficient damage is taken during stance, teleports away and resets cooldowns. Otherwise breaks stance with 15s cooldown unaffected by Favorability.",

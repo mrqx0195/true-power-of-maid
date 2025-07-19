@@ -73,21 +73,21 @@ repositories {
         }
     }
 }
+
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
     implementation fg.deobf("maven.modrinth:slashblade-resharped:${slash_blade_version}")
-    // Touhou Little Maid
-    implementation fg.deobf("maven.modrinth:R0bDWFAW:${maid_version}-forge,${minecraft_version}")
-
     implementation fg.deobf("libs:mrqxs_Slashblade_Core-${minecraft_version}:${mrqx_slash_blade_core_version}")
     implementation fg.deobf("libs:True_POWER-${minecraft_version}:${true_power_version}")
 
+    // Touhou Little Maid
+    implementation fg.deobf("maven.modrinth:R0bDWFAW:${maid_version}-forge,${minecraft_version}")
+    compileOnly fg.deobf("maven.modrinth:simplebedrockmodel:1.2.1-forge,1.20.1")
+
     // For test
     runtimeOnly fg.deobf("libs:powerful_dummy:0.0.3")
-
-    compileOnly fg.deobf("maven.modrinth:simplebedrockmodel:1.2.1-forge,1.20.1")
 }
 
 tasks.named('processResources', ProcessResources).configure {
