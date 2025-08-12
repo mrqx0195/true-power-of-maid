@@ -183,7 +183,7 @@ public class MaidSlashBladeAttack {
                 if (!maid.onGround() && maid.getY() - target.getY() > 5) {
                     MaidSlashBladeAttackUtils.TRY_AERIAL_CLEAVE.apply(maid, state);
                 }
-                if (SlashBladeMaidBauble.RapidSlash.checkBauble(maid) && MaidSlashBladeAttackUtils.canInterruptCombo(maid)) {
+                if (SlashBladeMaidBauble.RapidSlash.checkBauble(maid) && MaidSlashBladeAttackUtils.canInterruptCombo(maid) && !maid.isMaidInSittingPose()) {
                     lookTargetAccessor.set(new EntityTracker(target, true));
                     MaidSlashBladeAttackUtils.RAPID_SLASH_ATTACK.accept(maid, state, target);
                 } else if (SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {

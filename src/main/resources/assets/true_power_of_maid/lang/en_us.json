@@ -73,7 +73,7 @@
   "item.true_power_of_maid.soul_of_true_power.tooltips.21": "§7§oShe only wishes to protect you. Nothing more.§r",
   "item.true_power_of_maid.tooltips": "§dHold §e[Shift]§r§d to see more information",
   "task.true_power_of_maid.slashblade_attack": "SlashBlade Attack",
-  "task.true_power_of_maid.slashblade_attack.desc": "Maids attack hostile mobs with SlashBlade.\nSkill cooldowns decrease as §eFavorability§f increases.\n§eRank§r§f System: Increases with consecutive attacks (boosts damage), decreases when damaged.\n§ePower§r§f State: Activated by §eStrength§r§f/§eHunger§r§f effects or reaching §eSSS§r§f Rank.",
+  "task.true_power_of_maid.slashblade_attack.desc": "Maids attack hostile mobs with SlashBlade.\nSkill cooldowns decrease as §eFavorability§r§7 increases.\n§eRank§r§7 System: Increases with consecutive attacks (boosts damage), decreases when damaged.\n§ePower§r§7 State: Activated by §eStrength§r§7/§eHunger§r§7 effects or reaching §eSSS§r§7 Rank.",
   "task.true_power_of_maid.slashblade_attack.condition.has_slashblade": "Mainhand holds a SlashBlade",
   "task.true_power_of_maid.slashblade_attack.condition.souls": "Equip special SlashBlade Baubles to unlock more skills",
   "jei.true_power_of_maid.altar_craft.item_craft.result": "Craft an Item",

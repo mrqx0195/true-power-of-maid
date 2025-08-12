@@ -65,7 +65,7 @@ public class MaidTickHandler {
         maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
                 .ifPresent(rank -> {
                     if (hasTruePower) {
-                        long rankPoint = Math.max(rank.getRankPoint(maid.level().getGameTime()), data.getLong(TRUE_POWER_RANK));
+                        long rankPoint = Math.min(Math.max(rank.getRankPoint(maid.level().getGameTime()), data.getLong(TRUE_POWER_RANK)), rank.getMaxCapacity());
                         rank.setRawRankPoint(rankPoint);
                         rank.setLastUpdte(maid.level().getGameTime());
                         data.putLong(TRUE_POWER_RANK, rankPoint);
@@ -73,7 +73,7 @@ public class MaidTickHandler {
 
                     if (maid.getOwner() instanceof ServerPlayer serverPlayer) {
                         MaidRankSyncMessage message = new MaidRankSyncMessage();
-                        message.rawPoint = rank.getRankPoint(maid.level().getGameTime());
+                        message.rawPoint = Math.min(rank.getRankPoint(maid.level().getGameTime()), rank.getMaxCapacity());
                         message.entityId = maid.getId();
                         NetworkManager.INSTANCE.send(PacketDistributor.PLAYER.with(() -> serverPlayer), message);
                     }

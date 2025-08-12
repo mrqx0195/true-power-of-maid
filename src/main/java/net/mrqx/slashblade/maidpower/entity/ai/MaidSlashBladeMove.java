@@ -18,6 +18,7 @@ import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.mrqx.sbr_core.utils.MrqxSlayerStyleArts;
 import net.mrqx.slashblade.maidpower.event.MaidGuardHandler;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
+import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 
 import java.util.Optional;
@@ -56,6 +57,10 @@ public class MaidSlashBladeMove {
         Optional<NearestVisibleLivingEntities> visibleEntitiesOpt = instance.tryGet(visibleEntitiesAccessor);
 
         if (mob instanceof EntityMaid maid) {
+            if (!MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid) || maid.isMaidInSittingPose()) {
+                return false;
+            }
+
             float distance = maid.distanceTo(target);
             double reach = TargetSelector.getResolvedReach(maid);
             CompoundTag data = maid.getPersistentData();
