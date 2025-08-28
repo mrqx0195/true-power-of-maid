@@ -1,19 +1,26 @@
-.classpath
-.eclipse
-.gradle
-.idea
-.metadata
-.project
+# eclipse
+bin
+*.launch
 .settings
-.vscode
-*.iml
+.metadata
+.classpath
+.project
+
+# idea
+out
 *.ipr
 *.iws
-*.launch
-bin
+*.iml
+.idea
+
+# gradle
 build
+.gradle
+
+# other
 eclipse
-forge*changelog.txt
-out
 run
-.cache
+runs
+run-data
+
+repo

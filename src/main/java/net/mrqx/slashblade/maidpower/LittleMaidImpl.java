@@ -46,15 +46,14 @@ public class LittleMaidImpl implements ILittleMaid {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    @SuppressWarnings("all")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void addAdditionGeckoMaidLayer(GeckoEntityMaidRenderer<? extends Mob> renderer, EntityRendererProvider.Context context) {
         renderer.addLayer((GeoLayerRenderer) new GeoLayerMaidBladeRenderer<>(renderer));
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    @SuppressWarnings("all")
     public void addAdditionMaidLayer(EntityMaidRenderer renderer, EntityRendererProvider.Context context) {
-        renderer.addLayer(new LayerMaidBladeRenderer(renderer));
+        renderer.addLayer(new LayerMaidBladeRenderer<>(renderer));
     }
 }

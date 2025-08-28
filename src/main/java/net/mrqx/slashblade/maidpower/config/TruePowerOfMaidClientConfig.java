@@ -18,9 +18,10 @@ public class TruePowerOfMaidClientConfig {
                 .defineInRange("maid_rank_size", 0.018, 0.0, Double.MAX_VALUE);
 
         MAID_RANK_X = clientBuilder
-                .comment("Set the pos of maid's ranking display. (default: 8)")
+                .comment("Set the x pos of maid's ranking display. (default: 8)")
                 .defineInRange("maid_rank_x", 8, Integer.MIN_VALUE, Integer.MAX_VALUE);
         MAID_RANK_Y = clientBuilder
+                .comment("Set the x pos of maid's ranking display. (default: -28)")
                 .defineInRange("maid_rank_y", -28, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
         CLIENT_CONFIG = clientBuilder.build();

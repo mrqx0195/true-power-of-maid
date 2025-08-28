@@ -11,6 +11,7 @@
   "refmap": "true_power_of_maid.refmap.json",
   "required": true,
   "client": [
+    "AccessorLayerMainBlade",
     "MixinSlashBladeRender"
   ]
 }
