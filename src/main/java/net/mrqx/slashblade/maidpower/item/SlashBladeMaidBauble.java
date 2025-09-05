@@ -4,6 +4,7 @@ import com.github.tartaricacid.touhoulittlemaid.api.bauble.IMaidBauble;
 import com.github.tartaricacid.touhoulittlemaid.api.event.MaidDeathEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.inventory.handler.BaubleItemHandler;
+import com.github.tartaricacid.touhoulittlemaid.util.ItemsUtil;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import net.minecraft.core.registries.Registries;
@@ -16,6 +17,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.mrqx.slashblade.maidpower.LittleMaidImpl;
 import net.mrqx.slashblade.maidpower.config.TruePowerOfMaidCommonConfig;
 import net.mrqx.slashblade.maidpower.event.MaidTickHandler;
 import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
@@ -51,15 +53,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof UnawakenedSoul) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.UNAWAKENED_SOUL_BAUBLE) >= 0;
         }
     }
 
@@ -79,15 +73,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof ComboB) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.COMBO_B_BAUBLE) >= 0;
         }
     }
 
@@ -107,15 +93,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof ComboC) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.COMBO_C_BAUBLE) >= 0;
         }
     }
 
@@ -129,57 +107,25 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof RapidSlash) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.RAPID_SLASH_BAUBLE) >= 0;
         }
     }
 
     public static class AirCombo extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof AirCombo) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.AIR_COMBO_BAUBLE) >= 0;
         }
     }
 
     public static class MirageBlade extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof MirageBlade) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.MIRAGE_BLADE_BAUBLE) >= 0;
         }
     }
 
     public static class Trick extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof Trick) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.TRICK_BAUBLE) >= 0;
         }
     }
 
@@ -193,15 +139,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof Power) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.POWER_BAUBLE) >= 0;
         }
     }
 
@@ -210,85 +148,37 @@ public class SlashBladeMaidBauble implements IMaidBauble {
             if (SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid)) {
                 return true;
             }
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof JudgementCut) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.JUDGEMENT_CUT_BAUBLE) >= 0;
         }
     }
 
     public static class JustJudgementCut extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof JustJudgementCut) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.JUST_JUDGEMENT_CUT_BAUBLE) >= 0;
         }
     }
 
     public static class VoidSlash extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof VoidSlash) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.VOID_SLASH_BAUBLE) >= 0;
         }
     }
 
     public static class Guard extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof Guard) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.GUARD_BAUBLE) >= 0;
         }
     }
 
     public static class Health extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof Health) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.HEALTH_BAUBLE) >= 0;
         }
     }
 
     public static class Exp extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            BaubleItemHandler handler = maid.getMaidBauble();
-
-            for (int i = 0; i < handler.getSlots(); ++i) {
-                IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof Exp) {
-                    return true;
-                }
-            }
-            return false;
+            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.EXP_BAUBLE) >= 0;
         }
     }
 

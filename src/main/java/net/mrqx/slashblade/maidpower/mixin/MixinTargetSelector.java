@@ -4,7 +4,7 @@ import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.extensions.IForgeEntity;
@@ -49,7 +49,8 @@ public abstract class MixinTargetSelector {
                         }
                         return result;
                     }).toList());
-            list1.removeIf(entity -> entity instanceof EntityMaid || entity instanceof Player);
+            list1.removeIf(entity -> entity.equals(maid) || entity.getUUID().equals(maid.getOwnerUUID()));
+            list1.removeIf(entity -> entity instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null && ownable.getOwnerUUID().equals(maid.getOwnerUUID()));
 
             List<Entity> list = list1.stream().distinct().toList();
             list1.clear();

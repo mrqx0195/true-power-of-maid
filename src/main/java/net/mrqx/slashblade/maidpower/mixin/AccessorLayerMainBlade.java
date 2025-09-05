@@ -8,6 +8,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(LayerMainBlade.class)
 public interface AccessorLayerMainBlade {
-    @Accessor("motionPlayer")
+    @Accessor(value = "motionPlayer", remap = false)
     LazyOptional<MmdMotionPlayerGL2> getMotionPlayer();
 }
