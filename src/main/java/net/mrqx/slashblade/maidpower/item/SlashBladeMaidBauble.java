@@ -55,7 +55,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, UnawakenedSoul.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, UnawakenedSoul.class) > 0;
         }
     }
 
@@ -75,7 +75,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, ComboB.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, ComboB.class) > 0;
         }
     }
 
@@ -95,7 +95,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, ComboC.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, ComboC.class) > 0;
         }
     }
 
@@ -109,25 +109,25 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, RapidSlash.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, RapidSlash.class) > 0;
         }
     }
 
     public static class AirCombo extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, AirCombo.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, AirCombo.class) > 0;
         }
     }
 
     public static class MirageBlade extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, MirageBlade.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, MirageBlade.class) > 0;
         }
     }
 
     public static class Trick extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Trick.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Trick.class) > 0;
         }
     }
 
@@ -141,7 +141,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Power.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Power.class) > 0;
         }
     }
 
@@ -150,37 +150,37 @@ public class SlashBladeMaidBauble implements IMaidBauble {
             if (SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid)) {
                 return true;
             }
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, JudgementCut.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, JudgementCut.class) > 0;
         }
     }
 
     public static class JustJudgementCut extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, JustJudgementCut.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, JustJudgementCut.class) > 0;
         }
     }
 
     public static class VoidSlash extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, VoidSlash.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, VoidSlash.class) > 0;
         }
     }
 
     public static class Guard extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Guard.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Guard.class) > 0;
         }
     }
 
     public static class Health extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Health.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Health.class) > 0;
         }
     }
 
     public static class Exp extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Exp.class) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Exp.class) > 0;
         }
     }
 
@@ -197,9 +197,9 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         public void onMaidDeathEvent(MaidDeathEvent event) {
             if (checkBauble(event.getMaid())) {
                 CompoundTag data = event.getMaid().getPersistentData();
-                if (data.getLong(MaidTickHandler.TRUE_POWER_RANK) > 0) {
+                if (data.getLong(MaidTickHandler.TRUE_POWER_RANK) >= 0) {
                     data.putLong(MaidTickHandler.TRUE_POWER_RANK, data.getLong(MaidTickHandler.TRUE_POWER_RANK) - 300);
-                    if (data.getLong(MaidTickHandler.TRUE_POWER_RANK) > 0) {
+                    if (data.getLong(MaidTickHandler.TRUE_POWER_RANK) >= 0) {
                         event.setCanceled(true);
                         event.getMaid().setHealth(event.getMaid().getMaxHealth());
                     }
