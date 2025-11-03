@@ -110,16 +110,18 @@ obfuscation {
 
 dependencies {
     modImplementation "maven.modrinth:slashblade-resharped:${slash_blade_version}"
-    modImplementation "libs:mrqxs_Slashblade_Core-${minecraft_version}:${mrqx_slash_blade_core_version}"
-    modImplementation "libs:True_POWER-${minecraft_version}:${true_power_version}"
+    // mrqx`s Slashblade Core
+    modImplementation "maven.modrinth:2zhQmVfn:${mrqx_slash_blade_core_version}"
+    modImplementation "maven.modrinth:true-power:${true_power_version}"
 
     // Touhou Little Maid
     modImplementation "maven.modrinth:touhou-little-maid:${maid_version}-forge+mc${minecraft_version}"
     modCompileOnlyApi "maven.modrinth:simplebedrockmodel:1.2.1-forge,1.20.1"
 
     // For test
-    modLocalRuntime "libs:powerful_dummy:20-0.0.6-a"
-    
+    modLocalRuntime "maven.modrinth:moonlight:1.20-2.16.1-forge"
+    modLocalRuntime "maven.modrinth:mmmmmmmmmmmm:1.20-2.0.9"
+
     implementation "org.jetbrains:annotations:17.0.0"
 }
 

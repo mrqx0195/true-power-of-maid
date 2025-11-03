@@ -19,6 +19,7 @@ public class TruePowerOfMaidCommonConfig {
     public static final ForgeConfigSpec COMMON_CONFIG;
 
     public static final ForgeConfigSpec.ConfigValue<List<? extends List<?>>> UNAWAKENED_SOUL_LIST;
+    public static final ForgeConfigSpec.IntValue TRUE_POWER_MAX_SOUL_COUNT;
 
     static {
         ForgeConfigSpec.Builder commonBuilder = new ForgeConfigSpec.Builder();
@@ -49,6 +50,10 @@ public class TruePowerOfMaidCommonConfig {
                                 && list.get(1) instanceof Double
                                 && (Double) (list.get(1)) >= 0.0);
 
+        TRUE_POWER_MAX_SOUL_COUNT = commonBuilder
+                .comment("Set max soul count of. (default: 10)")
+                .defineInRange("true_power_max_soul_count", 10, 0, Integer.MAX_VALUE);
+
         COMMON_CONFIG = commonBuilder.build();
     }
 
@@ -58,7 +63,7 @@ public class TruePowerOfMaidCommonConfig {
     @SubscribeEvent
     public static void onServerStartingEvent(ServerStartingEvent event) {
         UNAWAKENED_SOUL_RANGE_MAP.clear();
-        Map<String, Double> unawakenedSoulMap = new HashMap<>();
+        Map<String, Double> unawakenedSoulMap = new HashMap<>(16);
         UNAWAKENED_SOUL_LIST.get().forEach(chance -> unawakenedSoulMap.put((String) (chance.get(0)), (Double) (chance.get(1))));
         List<Map.Entry<String, Double>> sortedList = new ArrayList<>(unawakenedSoulMap.entrySet());
         sortedList.sort(Map.Entry.comparingByValue());

@@ -4,7 +4,7 @@ import com.github.tartaricacid.touhoulittlemaid.api.bauble.IMaidBauble;
 import com.github.tartaricacid.touhoulittlemaid.api.event.MaidDeathEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.inventory.handler.BaubleItemHandler;
-import com.github.tartaricacid.touhoulittlemaid.util.ItemsUtil;
+import com.github.tartaricacid.touhoulittlemaid.item.bauble.BaubleManager;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import net.minecraft.core.registries.Registries;
@@ -17,10 +17,12 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.mrqx.slashblade.maidpower.LittleMaidImpl;
 import net.mrqx.slashblade.maidpower.config.TruePowerOfMaidCommonConfig;
 import net.mrqx.slashblade.maidpower.event.MaidTickHandler;
 import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SlashBladeMaidBauble implements IMaidBauble {
     @Mod.EventBusSubscriber
@@ -53,7 +55,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.UNAWAKENED_SOUL_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, UnawakenedSoul.class) >= 0;
         }
     }
 
@@ -73,7 +75,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.COMBO_B_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, ComboB.class) >= 0;
         }
     }
 
@@ -93,7 +95,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.COMBO_C_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, ComboC.class) >= 0;
         }
     }
 
@@ -107,25 +109,25 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.RAPID_SLASH_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, RapidSlash.class) >= 0;
         }
     }
 
     public static class AirCombo extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.AIR_COMBO_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, AirCombo.class) >= 0;
         }
     }
 
     public static class MirageBlade extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.MIRAGE_BLADE_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, MirageBlade.class) >= 0;
         }
     }
 
     public static class Trick extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.TRICK_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Trick.class) >= 0;
         }
     }
 
@@ -139,7 +141,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
 
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.POWER_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Power.class) >= 0;
         }
     }
 
@@ -148,37 +150,37 @@ public class SlashBladeMaidBauble implements IMaidBauble {
             if (SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid)) {
                 return true;
             }
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.JUDGEMENT_CUT_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, JudgementCut.class) >= 0;
         }
     }
 
     public static class JustJudgementCut extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.JUST_JUDGEMENT_CUT_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, JustJudgementCut.class) >= 0;
         }
     }
 
     public static class VoidSlash extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.VOID_SLASH_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, VoidSlash.class) >= 0;
         }
     }
 
     public static class Guard extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.GUARD_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Guard.class) >= 0;
         }
     }
 
     public static class Health extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.HEALTH_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Health.class) >= 0;
         }
     }
 
     public static class Exp extends SlashBladeMaidBauble {
         public static boolean checkBauble(EntityMaid maid) {
-            return ItemsUtil.getBaubleSlotInMaid(maid, LittleMaidImpl.EXP_BAUBLE) >= 0;
+            return SlashBladeMaidBauble.getBaubleCountForClass(maid, Exp.class) >= 0;
         }
     }
 
@@ -211,18 +213,38 @@ public class SlashBladeMaidBauble implements IMaidBauble {
             }
             BaubleItemHandler handler = maid.getMaidBauble();
 
-            int count = 0;
-            boolean flag = false;
             for (int i = 0; i < handler.getSlots(); ++i) {
                 IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-                if (baubleIn instanceof SlashBladeMaidBauble) {
-                    count++;
-                    if (baubleIn instanceof TruePower) {
-                        flag = true;
-                    }
+                if (baubleIn instanceof TruePower) {
+                    return true;
                 }
             }
-            return flag && count >= 9;
+            return false;
         }
+    }
+
+    public static int getBaubleCountForClass(EntityMaid maid, Class<?> clazz) {
+        BaubleItemHandler handler = maid.getMaidBauble();
+
+        AtomicInteger count = new AtomicInteger(0);
+        AtomicBoolean truePowerFlag = new AtomicBoolean(false);
+        for (int i = 0; i < handler.getSlots(); ++i) {
+            IMaidBauble baubleIn = handler.getBaubleInSlot(i);
+            if (clazz.isInstance(baubleIn)) {
+                count.getAndIncrement();
+            }
+            if (baubleIn instanceof TruePower && !truePowerFlag.get()) {
+                count.set(0);
+                truePowerFlag.set(true);
+                ItemStack itemStack = handler.getStackInSlot(i);
+                TruePowerBaubleItem.getSouls(itemStack).forEach(itemStack1 -> {
+                    if (clazz.isInstance(BaubleManager.getBauble(itemStack1))) {
+                        count.getAndIncrement();
+                    }
+                });
+                return count.get();
+            }
+        }
+        return count.get();
     }
 }

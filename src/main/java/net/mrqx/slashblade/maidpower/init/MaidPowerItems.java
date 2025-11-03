@@ -7,6 +7,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBaubleItem;
+import net.mrqx.slashblade.maidpower.item.TruePowerBaubleItem;
 
 public class MaidPowerItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, TruePowerOfMaid.MODID);
@@ -25,5 +26,5 @@ public class MaidPowerItems {
     public static final RegistryObject<Item> SOUL_OF_GUARD = ITEMS.register("soul_of_guard", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
     public static final RegistryObject<Item> SOUL_OF_HEALTH = ITEMS.register("soul_of_health", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
     public static final RegistryObject<Item> SOUL_OF_EXP = ITEMS.register("soul_of_exp", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_TRUE_POWER = ITEMS.register("soul_of_true_power", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.EPIC)));
+    public static final RegistryObject<Item> SOUL_OF_TRUE_POWER = ITEMS.register("soul_of_true_power", TruePowerBaubleItem::new);
 }

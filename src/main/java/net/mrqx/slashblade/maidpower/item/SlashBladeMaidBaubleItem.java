@@ -16,7 +16,7 @@ import java.util.Locale;
 
 public class SlashBladeMaidBaubleItem extends Item {
     public SlashBladeMaidBaubleItem(Properties pProperties) {
-        super(pProperties);
+        super(pProperties.stacksTo(1));
     }
 
     @Override

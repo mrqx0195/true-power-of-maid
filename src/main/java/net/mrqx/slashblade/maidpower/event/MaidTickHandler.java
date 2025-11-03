@@ -241,13 +241,24 @@ public class MaidTickHandler {
         }
         AttributeModifier followRangeBonus = new AttributeModifier(
                 UUID.fromString("5a138a12-3f1a-40ab-98cf-9532bd9881ce"),
-                "Maid SlashBlade Bonus", radius, AttributeModifier.Operation.ADDITION);
+                "Maid SlashBlade Radius Bonus", radius, AttributeModifier.Operation.ADDITION);
         AttributeInstance followRangeAttributeInstance = maid.getAttribute(Attributes.FOLLOW_RANGE);
         if (followRangeAttributeInstance == null) {
             return;
         }
         followRangeAttributeInstance.removeModifier(followRangeBonus);
         followRangeAttributeInstance.addPermanentModifier(followRangeBonus);
+
+        AttributeModifier slashBladeDamageBonus = new AttributeModifier(
+                UUID.fromString("b70ee5b2-c9c8-45a9-a959-9db875d2c56e"),
+                "Maid SlashBlade Unawakened Soul Bonus", SlashBladeMaidBauble.getBaubleCountForClass(maid, SlashBladeMaidBauble.UnawakenedSoul.class) * 0.1,
+                AttributeModifier.Operation.MULTIPLY_TOTAL);
+        AttributeInstance slashBladeDamageInstance = maid.getAttribute(ModAttributes.SLASHBLADE_DAMAGE.get());
+        if (slashBladeDamageInstance == null) {
+            return;
+        }
+        slashBladeDamageInstance.removeModifier(slashBladeDamageBonus);
+        slashBladeDamageInstance.addPermanentModifier(slashBladeDamageBonus);
 
         IConcentrationRank.ConcentrationRanks rankBonus = maid
                 .getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
@@ -267,7 +278,7 @@ public class MaidTickHandler {
 
         AttributeModifier slashbladeDamageBonus = new AttributeModifier(
                 UUID.fromString("5e800b9e-f7ba-4f48-a018-2acfe422dce6"),
-                "Maid SlashBlade Bonus", rankDamageBonus, AttributeModifier.Operation.ADDITION);
+                "Maid SlashBlade Rank Bonus", rankDamageBonus, AttributeModifier.Operation.ADDITION);
         AttributeInstance slashbladeDamageAttributeInstance = maid.getAttribute(ModAttributes.SLASHBLADE_DAMAGE.get());
         if (slashbladeDamageAttributeInstance == null) {
             return;
@@ -277,7 +288,7 @@ public class MaidTickHandler {
 
         AttributeModifier entityReachBonus = new AttributeModifier(
                 UUID.fromString("5dd047e5-bb60-4ebf-93ba-34a1ece10128"),
-                "Maid SlashBlade Bonus", hasTruePower ? 2.5 : 0.5, AttributeModifier.Operation.ADDITION);
+                "Maid SlashBlade True Power Bonus", hasTruePower ? 2.5 : 0.5, AttributeModifier.Operation.ADDITION);
         AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
         if (entityReachAttributeInstance == null) {
             return;
