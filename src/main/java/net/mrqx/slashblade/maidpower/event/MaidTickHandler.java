@@ -2,7 +2,6 @@ package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.api.event.MaidTickEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
-import mods.flammpfeil.slashblade.SlashBladeConfig;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
@@ -259,32 +258,6 @@ public class MaidTickHandler {
         }
         slashBladeDamageInstance.removeModifier(slashBladeDamageBonus);
         slashBladeDamageInstance.addPermanentModifier(slashBladeDamageBonus);
-
-        IConcentrationRank.ConcentrationRanks rankBonus = maid
-                .getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                .map(rp -> rp.getRank(maid.getCommandSenderWorld().getGameTime()))
-                .orElse(IConcentrationRank.ConcentrationRanks.NONE);
-
-        float rankDamageBonus = rankBonus.level / 2.0f;
-        if (IConcentrationRank.ConcentrationRanks.S.level <= rankBonus.level) {
-            int refine = maid.getMainHandItem()
-                    .getCapability(ItemSlashBlade.BLADESTATE)
-                    .map(ISlashBladeState::getRefine)
-                    .orElse(0);
-            int expLevel = (int) Math.floor((double) maid.getExperience() / 120);
-            rankDamageBonus = (float) Math.max(rankDamageBonus,
-                    hasTruePower ? refine : Math.min(expLevel, refine) * SlashBladeConfig.REFINE_DAMAGE_MULTIPLIER.get());
-        }
-
-        AttributeModifier slashbladeDamageBonus = new AttributeModifier(
-                UUID.fromString("5e800b9e-f7ba-4f48-a018-2acfe422dce6"),
-                "Maid SlashBlade Rank Bonus", rankDamageBonus, AttributeModifier.Operation.ADDITION);
-        AttributeInstance slashbladeDamageAttributeInstance = maid.getAttribute(ModAttributes.SLASHBLADE_DAMAGE.get());
-        if (slashbladeDamageAttributeInstance == null) {
-            return;
-        }
-        slashbladeDamageAttributeInstance.removeModifier(slashbladeDamageBonus);
-        slashbladeDamageAttributeInstance.addPermanentModifier(slashbladeDamageBonus);
 
         AttributeModifier entityReachBonus = new AttributeModifier(
                 UUID.fromString("5dd047e5-bb60-4ebf-93ba-34a1ece10128"),
