@@ -34,6 +34,7 @@ import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.network.MaidRankSyncMessage;
 import net.mrqx.slashblade.maidpower.network.NetworkManager;
 import net.mrqx.slashblade.maidpower.task.TaskSlashBlade;
+import net.mrqx.slashblade.maidpower.util.MaidItemUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 import net.mrqx.truepower.util.JustSlashArtManager;
@@ -55,10 +56,11 @@ public class MaidTickHandler {
 
     private static void handleMaidTick(EntityMaid maid, ISlashBladeState state) {
         boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
+        boolean hasUnlimitedBladeWorks = SlashBladeMaidBauble.UnlimitedBladeWorks.checkBauble(maid);
         CompoundTag data = maid.getPersistentData();
 
-        maidTickCounter(maid, hasTruePower);
-        maidBonus(maid, hasTruePower);
+        maidTickCounter(maid, hasTruePower, hasUnlimitedBladeWorks);
+        maidBonus(maid, hasTruePower, hasUnlimitedBladeWorks);
         maid.getMainHandItem().inventoryTick(maid.level(), maid, 0, true);
 
         maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
@@ -68,6 +70,11 @@ public class MaidTickHandler {
                         rank.setRawRankPoint(rankPoint);
                         rank.setLastUpdte(maid.level().getGameTime());
                         data.putLong(TRUE_POWER_RANK, rankPoint);
+                    }
+                    if (hasUnlimitedBladeWorks) {
+                        long rankPoint = Math.min(Math.max(rank.getRankPoint(maid.level().getGameTime()), 5 * rank.getUnitCapacity() + 3), rank.getMaxCapacity());
+                        rank.setRawRankPoint(rankPoint);
+                        rank.setLastUpdte(maid.level().getGameTime());
                     }
 
                     if (maid.getOwner() instanceof ServerPlayer serverPlayer) {
@@ -104,21 +111,22 @@ public class MaidTickHandler {
             MaidSlashBladeMovementUtils.TRY_TRICK_DODGE.accept(maid);
             data.putBoolean(MaidGuardHandler.IS_PRE_ESCAPING, false);
         }
-        handleHealthAndExp(maid, state, hasTruePower);
+        handleHealthAndExp(maid, state, hasTruePower, hasUnlimitedBladeWorks);
         handleSuperJudgementCut(maid, state, hasTruePower, data);
     }
 
-    private static void handleHealthAndExp(EntityMaid maid, ISlashBladeState state, boolean hasTruePower) {
+    private static void handleHealthAndExp(EntityMaid maid, ISlashBladeState state, boolean hasTruePower, boolean hasUnlimitedBladeWorks) {
         int favorabilityLevel = Math.max(1, maid.getFavorabilityManager().getLevel() + 1);
-        int cost = Math.max(1, Math.max(0, 4 - favorabilityLevel) / (hasTruePower ? 2 : 1));
+        boolean flag = hasTruePower || hasUnlimitedBladeWorks;
+        int cost = Math.max(1, Math.max(0, 4 - favorabilityLevel) / (flag ? 2 : 1));
         if (SlashBladeMaidBauble.Health.checkBauble(maid) && maid.getHealth() < maid.getMaxHealth()) {
             boolean isGuarding = MaidGuardHandler.isGuarding(maid);
-            if (!hasTruePower && !isGuarding && maid.level().getGameTime() % 10 != 0) {
+            if (!flag && !isGuarding && maid.level().getGameTime() % 10 != 0) {
                 return;
             }
             if (state.getProudSoulCount() >= cost) {
                 state.setProudSoulCount(state.getProudSoulCount() - cost);
-                if (hasTruePower) {
+                if (flag) {
                     maid.setHealth(Math.max(maid.getHealth() + favorabilityLevel * (isGuarding ? 2 : 1), maid.getMaxHealth()));
                 } else {
                     maid.heal(favorabilityLevel * 0.5F);
@@ -134,13 +142,26 @@ public class MaidTickHandler {
                 }
             }
         }
+        if (hasUnlimitedBladeWorks && SlashBladeMaidBauble.Exp.checkBauble(maid)) {
+            MaidItemUtils.getAllSlashBlade(maid).forEach(stack ->
+                    stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(bladeState -> {
+                        if (maid.getExperience() >= cost && stack.getDamageValue() > 0) {
+                            maid.setExperience(maid.getExperience() - cost);
+                            bladeState.setDamage(bladeState.getDamage() - favorabilityLevel);
+                            if (bladeState.getDamage() <= 0) {
+                                bladeState.setBroken(false);
+                            }
+                        }
+                    })
+            );
+        }
     }
 
     private static void handleSuperJudgementCut(EntityMaid maid, ISlashBladeState state, boolean hasTruePower, CompoundTag data) {
         if (hasTruePower && data.getInt(MaidSlashBladeAttackUtils.SUPER_JUDGEMENT_CUT_COUNTER_KEY) <= 0) {
             Map.Entry<Integer, ResourceLocation> currentLoc = state.resolvCurrentComboStateTicks(maid);
             ResourceLocation csLoc = state.getSlashArts().doArts(SlashArts.ArtsType.Super, maid);
-            if (csLoc != ComboStateRegistry.NONE.getId() && !currentLoc.getValue().equals(csLoc)) {
+            if (!Objects.equals(csLoc, ComboStateRegistry.NONE.getId()) && !currentLoc.getValue().equals(csLoc)) {
                 data.putInt(MaidSlashBladeAttackUtils.SUPER_JUDGEMENT_CUT_COUNTER_KEY, 2400);
 
                 AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
@@ -185,11 +206,11 @@ public class MaidTickHandler {
         }
     }
 
-    public static void maidTickCounter(EntityMaid maid, boolean hasTruePower) {
+    public static void maidTickCounter(EntityMaid maid, boolean hasTruePower, boolean hasUnlimitedBladeWorks) {
         CompoundTag data = maid.getPersistentData();
-        int truePower = hasTruePower ? 2 : 1;
+        int power = (hasTruePower || hasUnlimitedBladeWorks) ? 2 : 1;
         int favorabilityLevel = maid.getFavorabilityManager().getLevel() + 1;
-        int decrement = favorabilityLevel * truePower;
+        int decrement = favorabilityLevel * power;
 
         data.putInt(MaidMirageBladeBehavior.HEAVY_RAIN_SWORD_COUNTER_KEY,
                 Math.max(0, data.getInt(MaidMirageBladeBehavior.HEAVY_RAIN_SWORD_COUNTER_KEY) - decrement));
@@ -207,15 +228,15 @@ public class MaidTickHandler {
                 Math.max(0, data.getInt(MaidSlashBladeAttackUtils.SUPER_JUDGEMENT_CUT_COUNTER_KEY) - decrement));
 
         data.putInt(MaidSlashBladeMove.TRICK_COOL_DOWN,
-                Math.max(0, data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) - truePower));
+                Math.max(0, data.getInt(MaidSlashBladeMove.TRICK_COOL_DOWN) - power));
         data.putInt(MaidGuardHandler.GUARD_DAMAGE_COUNTER,
-                Math.max(0, data.getInt(MaidGuardHandler.GUARD_DAMAGE_COUNTER) - truePower));
+                Math.max(0, data.getInt(MaidGuardHandler.GUARD_DAMAGE_COUNTER) - power));
         data.putInt(MaidGuardHandler.GUARD_ESCAPE_COUNTER,
-                Math.max(0, data.getInt(MaidGuardHandler.GUARD_ESCAPE_COUNTER) - truePower));
+                Math.max(0, data.getInt(MaidGuardHandler.GUARD_ESCAPE_COUNTER) - power));
         data.putInt(MaidGuardHandler.PRE_ESCAPE_COUNTER,
-                Math.max(0, data.getInt(MaidGuardHandler.PRE_ESCAPE_COUNTER) - truePower));
+                Math.max(0, data.getInt(MaidGuardHandler.PRE_ESCAPE_COUNTER) - power));
         data.putInt(MaidGuardHandler.GUARD_COOL_DOWN,
-                Math.max(0, data.getInt(MaidGuardHandler.GUARD_COOL_DOWN) - truePower));
+                Math.max(0, data.getInt(MaidGuardHandler.GUARD_COOL_DOWN) - power));
 
         if (!data.contains(TRUE_POWER_RANK)) {
             data.putLong(TRUE_POWER_RANK, 2300);
@@ -224,7 +245,7 @@ public class MaidTickHandler {
 
         long cooldown = JustSlashArtManager.getJustCooldown(maid);
         if (cooldown > 0) {
-            cooldown -= truePower;
+            cooldown -= power;
             JustSlashArtManager.setJustCooldown(maid, cooldown);
             if (cooldown == 0) {
                 JustSlashArtManager.resetJustCount(maid);
@@ -232,12 +253,8 @@ public class MaidTickHandler {
         }
     }
 
-    public static void maidBonus(EntityMaid maid, boolean hasTruePower) {
-        double radius = TargetSelector.getResolvedReach(maid) * 2;
-        radius *= radius;
-        if (SlashBladeMaidBauble.MirageBlade.checkBauble(maid) || SlashBladeMaidBauble.JudgementCut.checkBauble(maid)) {
-            radius *= 3;
-        }
+    public static void maidBonus(EntityMaid maid, boolean hasTruePower, boolean hasUnlimitedBladeWorks) {
+        double radius = TaskSlashBlade.getRadius(maid);
         AttributeModifier followRangeBonus = new AttributeModifier(
                 UUID.fromString("5a138a12-3f1a-40ab-98cf-9532bd9881ce"),
                 "Maid SlashBlade Radius Bonus", radius, AttributeModifier.Operation.ADDITION);
@@ -250,7 +267,7 @@ public class MaidTickHandler {
 
         AttributeModifier slashBladeDamageBonus = new AttributeModifier(
                 UUID.fromString("b70ee5b2-c9c8-45a9-a959-9db875d2c56e"),
-                "Maid SlashBlade Unawakened Soul Bonus", SlashBladeMaidBauble.getBaubleCountForClass(maid, SlashBladeMaidBauble.UnawakenedSoul.class) * 0.1,
+                "Maid SlashBlade Unawakened Soul Bonus", MaidItemUtils.getBaubleCountForClass(maid, SlashBladeMaidBauble.UnawakenedSoul.class) * 0.1,
                 AttributeModifier.Operation.MULTIPLY_TOTAL);
         AttributeInstance slashBladeDamageInstance = maid.getAttribute(ModAttributes.SLASHBLADE_DAMAGE.get());
         if (slashBladeDamageInstance == null) {
@@ -261,7 +278,7 @@ public class MaidTickHandler {
 
         AttributeModifier entityReachBonus = new AttributeModifier(
                 UUID.fromString("5dd047e5-bb60-4ebf-93ba-34a1ece10128"),
-                "Maid SlashBlade True Power Bonus", hasTruePower ? 2.5 : 0.5, AttributeModifier.Operation.ADDITION);
+                "Maid SlashBlade True Power Bonus", (hasTruePower || hasUnlimitedBladeWorks) ? 2.5 : 0.5, AttributeModifier.Operation.ADDITION);
         AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
         if (entityReachAttributeInstance == null) {
             return;

@@ -6,6 +6,7 @@ import com.github.tartaricacid.touhoulittlemaid.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import jp.nyatla.nymmd.MmdException;
+import jp.nyatla.nymmd.MmdMotionPlayerGL2;
 import jp.nyatla.nymmd.MmdVmdMotionMc;
 import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
@@ -31,7 +32,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.LazyOptional;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.mixin.AccessorLayerMainBlade;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
 public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> extends LayerMainBlade<T, M> {
@@ -40,7 +40,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
     }
 
     @Override
-    public void render(@NotNull PoseStack matrixStack, @NotNull MultiBufferSource bufferIn, int lightIn, @NotNull T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void render(PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         this.renderOffhandItem(matrixStack, bufferIn, lightIn, entity);
         float yOffset = 1.5F;
         double motionScale = 0.125F;
@@ -49,7 +49,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
         if (!stack.isEmpty()) {
             LazyOptional<ISlashBladeState> state = stack.getCapability(CapabilitySlashBlade.BLADESTATE);
             AccessorLayerMainBlade accessorLayerMainBlade = (AccessorLayerMainBlade) this;
-            state.ifPresent((s) -> accessorLayerMainBlade.getMotionPlayer().ifPresent((mmp) -> {
+            state.ifPresent((s) -> accessorLayerMainBlade.true_power_of_maid$getMotionPlayer().ifPresent((mmp) -> {
                 ComboState combo = ComboStateRegistry.REGISTRY.get().getValue(s.getComboSeq()) != null ? ComboStateRegistry.REGISTRY.get().getValue(s.getComboSeq()) : ComboStateRegistry.NONE.get();
 
                 double time;
@@ -100,54 +100,46 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
 
                         try (MSAutoCloser ignored1 = MSAutoCloser.pushMatrix(matrixStack)) {
                             int idx = mmp.getBoneIndexByName("hardpointA");
-                            if (0 <= idx) {
-                                float[] buf = new float[16];
-                                mmp._skinning_mat[idx].getValue(buf);
-                                Matrix4f mat = VectorHelper.matrix4fFromArray(buf);
-                                matrixStack.scale(-1.0F, 1.0F, 1.0F);
-                                PoseStack.Pose entry = matrixStack.last();
-                                entry.pose().mul(mat);
-                                matrixStack.scale(-1.0F, 1.0F, 1.0F);
-                            }
-
-                            float modelScale = (float) (modelScaleBase * ((double) 1.0F / motionScale));
-                            matrixStack.scale(modelScale, modelScale, modelScale);
                             String part;
                             if (s.isBroken()) {
                                 part = "blade_damaged";
                             } else {
                                 part = "blade";
                             }
-
-                            BladeRenderState.renderOverrided(stack, obj, part, textureLocation, matrixStack, bufferIn, lightIn);
-                            BladeRenderState.renderOverridedLuminous(stack, obj, part + "_luminous", textureLocation, matrixStack, bufferIn, lightIn);
+                            renderPart(matrixStack, bufferIn, lightIn, motionScale, modelScaleBase, stack, mmp, textureLocation, obj, idx, part);
                         }
 
                         try (MSAutoCloser ignored1 = MSAutoCloser.pushMatrix(matrixStack)) {
                             int idx = mmp.getBoneIndexByName("hardpointB");
-                            if (0 <= idx) {
-                                float[] buf = new float[16];
-                                mmp._skinning_mat[idx].getValue(buf);
-                                Matrix4f mat = VectorHelper.matrix4fFromArray(buf);
-                                matrixStack.scale(-1.0F, 1.0F, 1.0F);
-                                PoseStack.Pose entry = matrixStack.last();
-                                entry.pose().mul(mat);
-                                matrixStack.scale(-1.0F, 1.0F, 1.0F);
-                            }
-
-                            float modelScale = (float) (modelScaleBase * ((double) 1.0F / motionScale));
-                            matrixStack.scale(modelScale, modelScale, modelScale);
-                            BladeRenderState.renderOverrided(stack, obj, "sheath", textureLocation, matrixStack, bufferIn, lightIn);
-                            BladeRenderState.renderOverridedLuminous(stack, obj, "sheath_luminous", textureLocation, matrixStack, bufferIn, lightIn);
+                            String part = "sheath";
+                            renderPart(matrixStack, bufferIn, lightIn, motionScale, modelScaleBase, stack, mmp, textureLocation, obj, idx, part);
                             if (s.isCharged(entity)) {
                                 float f = (float) entity.tickCount + partialTicks;
-                                BladeRenderState.renderChargeEffect(stack, f, obj, "effect", new ResourceLocation("textures/entity/creeper/creeper_armor.png"), matrixStack, bufferIn, lightIn);
+                                BladeRenderState.renderChargeEffect(stack, f, obj, "effect", ResourceLocation.withDefaultNamespace("textures/entity/creeper/creeper_armor.png"), matrixStack, bufferIn, lightIn);
                             }
                         }
                     }
                 }
             }));
         }
+    }
+
+    private void renderPart(PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, double motionScale, double modelScaleBase, ItemStack stack, MmdMotionPlayerGL2 mmp, ResourceLocation textureLocation, WavefrontObject obj, int idx, String part) {
+        if (0 <= idx) {
+            float[] buf = new float[16];
+            mmp._skinning_mat[idx].getValue(buf);
+            Matrix4f mat = VectorHelper.matrix4fFromArray(buf);
+            matrixStack.scale(-1.0F, 1.0F, 1.0F);
+            PoseStack.Pose entry = matrixStack.last();
+            entry.pose().mul(mat);
+            matrixStack.scale(-1.0F, 1.0F, 1.0F);
+        }
+
+        float modelScale = (float) (modelScaleBase * ((double) 1.0F / motionScale));
+        matrixStack.scale(modelScale, modelScale, modelScale);
+
+        BladeRenderState.renderOverrided(stack, obj, part, textureLocation, matrixStack, bufferIn, lightIn);
+        BladeRenderState.renderOverridedLuminous(stack, obj, part + "_luminous", textureLocation, matrixStack, bufferIn, lightIn);
     }
 
     @Override

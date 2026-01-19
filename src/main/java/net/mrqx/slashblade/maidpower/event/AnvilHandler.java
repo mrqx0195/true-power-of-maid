@@ -7,8 +7,8 @@ import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.mrqx.slashblade.maidpower.init.MaidPowerItems;
+import net.mrqx.slashblade.maidpower.item.PowerfulSlashBladeBaubleItem;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
-import net.mrqx.slashblade.maidpower.item.TruePowerBaubleItem;
 
 @Mod.EventBusSubscriber
 public class AnvilHandler {
@@ -23,12 +23,12 @@ public class AnvilHandler {
             return;
         }
 
-        if (base.is(MaidPowerItems.SOUL_OF_TRUE_POWER.get())) {
+        if (base.is(MaidPowerItems.SOUL_OF_TRUE_POWER.get()) || base.is(MaidPowerItems.SOUL_OF_UNLIMITED_BLADE_WORKS.get())) {
             IMaidBauble bauble = BaubleManager.getBauble(material);
-            if (bauble instanceof SlashBladeMaidBauble && !(bauble instanceof SlashBladeMaidBauble.TruePower)) {
+            if (bauble instanceof SlashBladeMaidBauble && !(bauble instanceof SlashBladeMaidBauble.IPowerfulSlashBladeBauble)) {
                 ItemStack output = base.copy();
 
-                TruePowerBaubleItem.addSoul(output, material);
+                PowerfulSlashBladeBaubleItem.addSoul(output, material);
 
                 event.setMaterialCost(1);
                 event.setCost(30);

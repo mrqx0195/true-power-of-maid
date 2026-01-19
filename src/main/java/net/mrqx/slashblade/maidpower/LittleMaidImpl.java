@@ -35,6 +35,7 @@ public class LittleMaidImpl implements ILittleMaid {
     public static final SlashBladeMaidBauble.Health HEALTH_BAUBLE = new SlashBladeMaidBauble.Health();
     public static final SlashBladeMaidBauble.Exp EXP_BAUBLE = new SlashBladeMaidBauble.Exp();
     public static final SlashBladeMaidBauble.TruePower TRUE_POWER_BAUBLE = new SlashBladeMaidBauble.TruePower();
+    public static final SlashBladeMaidBauble.UnlimitedBladeWorks UNLIMITED_BLADE_WORKS_BAUBLE = new SlashBladeMaidBauble.UnlimitedBladeWorks();
 
     @Override
     public void addMaidTask(TaskManager manager) {
@@ -58,6 +59,7 @@ public class LittleMaidImpl implements ILittleMaid {
         manager.bind(MaidPowerItems.SOUL_OF_HEALTH.get(), HEALTH_BAUBLE);
         manager.bind(MaidPowerItems.SOUL_OF_EXP.get(), EXP_BAUBLE);
         manager.bind(MaidPowerItems.SOUL_OF_TRUE_POWER.get(), TRUE_POWER_BAUBLE);
+        manager.bind(MaidPowerItems.SOUL_OF_UNLIMITED_BLADE_WORKS.get(), UNLIMITED_BLADE_WORKS_BAUBLE);
     }
 
     @Override

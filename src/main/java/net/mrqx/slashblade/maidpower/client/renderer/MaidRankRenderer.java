@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL11;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class MaidRankRenderer {
-    public static final ResourceLocation RANK_IMG = new ResourceLocation("slashblade", "textures/gui/rank.png");
+    public static final ResourceLocation RANK_IMG = ResourceLocation.fromNamespaceAndPath("slashblade", "textures/gui/rank.png");
 
     @SubscribeEvent
     public static void onRenderLiving(RenderLivingEvent<?, ?> event) {
@@ -58,7 +58,7 @@ public class MaidRankRenderer {
 
                     int x = TruePowerOfMaidClientConfig.MAID_RANK_X.get();
                     int y = TruePowerOfMaidClientConfig.MAID_RANK_Y.get();
-                    ;
+
                     int rankOffset = 32 * (rank.level - 1);
                     int textOffset = showTextRank ? 128 : 0;
                     int progress = (int) (33.0F * cr.getRankProgress(now));

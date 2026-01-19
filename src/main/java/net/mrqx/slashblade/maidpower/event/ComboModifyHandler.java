@@ -33,6 +33,7 @@ public class ComboModifyHandler {
         }
     }
 
+    @SuppressWarnings({"SameParameterValue", "AlibabaEnumConstantsMustHaveComment"})
     private enum ComboMovementModifiers {
         UPPER_SLASH(1600, 1659, 90);
 

@@ -16,7 +16,6 @@ import net.mrqx.sbr_core.utils.MrqxSummonedSwordArts;
 import net.mrqx.slashblade.maidpower.event.MaidGuardHandler;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ public class MaidMirageBladeBehavior extends Behavior<EntityMaid> {
     }
 
     @Override
-    public boolean checkExtraStartConditions(@NotNull ServerLevel level, EntityMaid maid) {
+    public boolean checkExtraStartConditions(ServerLevel level, EntityMaid maid) {
         Optional<LivingEntity> targetOpt = maid.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET);
         if (targetOpt.isEmpty()) {
             return false;
@@ -47,13 +46,13 @@ public class MaidMirageBladeBehavior extends Behavior<EntityMaid> {
     }
 
     @Override
-    public boolean canStillUse(@NotNull ServerLevel level, EntityMaid maid, long gameTime) {
+    public boolean canStillUse(ServerLevel level, EntityMaid maid, long gameTime) {
         return maid.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET)
                 && checkExtraStartConditions(level, maid);
     }
 
     @Override
-    public void tick(@NotNull ServerLevel level, @NotNull EntityMaid maid, long gameTime) {
+    public void tick(ServerLevel level, EntityMaid maid, long gameTime) {
         LivingEntity target = maid.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         boolean truePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
         if (target == null) {

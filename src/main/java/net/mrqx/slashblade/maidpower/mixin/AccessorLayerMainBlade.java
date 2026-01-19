@@ -7,7 +7,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(LayerMainBlade.class)
+@SuppressWarnings({"AlibabaLowerCamelCaseVariableNaming", "AlibabaAbstractMethodOrInterfaceMethodMustUseJavadoc"})
 public interface AccessorLayerMainBlade {
     @Accessor(value = "motionPlayer", remap = false)
-    LazyOptional<MmdMotionPlayerGL2> getMotionPlayer();
+    LazyOptional<MmdMotionPlayerGL2> true_power_of_maid$getMotionPlayer();
 }

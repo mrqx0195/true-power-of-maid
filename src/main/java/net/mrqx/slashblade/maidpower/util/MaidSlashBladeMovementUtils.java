@@ -84,7 +84,7 @@ public class MaidSlashBladeMovementUtils {
         double oldX = maid.position().x;
         double oldY = maid.position().y;
         double oldZ = maid.position().z;
-        if (!maid.level().isClientSide() && target != null && maid.isAlive() && !maid.isMaidInSittingPose()) {
+        if (!maid.level().isClientSide() && maid.isAlive() && !maid.isMaidInSittingPose()) {
             for (int i = 0; i < 16; ++i) {
                 double reach = TargetSelector.getResolvedReach(maid);
                 reach *= reach;

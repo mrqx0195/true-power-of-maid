@@ -33,6 +33,7 @@ import org.apache.commons.lang3.function.TriFunction;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
@@ -132,7 +133,7 @@ public class MaidSlashBladeAttackUtils {
             if (!event.isCanceled()) {
                 comboLoc = event.getComboState();
                 ComboState combo = ComboStateRegistry.REGISTRY.get().getValue(comboLoc);
-                if (combo != null && comboLoc != ComboStateRegistry.NONE.getId()) {
+                if (combo != null && !Objects.equals(comboLoc, ComboStateRegistry.NONE.getId())) {
                     state.updateComboSeq(maid, comboLoc);
                 }
             }
@@ -205,7 +206,7 @@ public class MaidSlashBladeAttackUtils {
             }
         }
     }
-    
+
     @OnlyIn(Dist.CLIENT)
     public static BiConsumer<Long, Integer> setClientRank() {
         return (point, entityId) -> {

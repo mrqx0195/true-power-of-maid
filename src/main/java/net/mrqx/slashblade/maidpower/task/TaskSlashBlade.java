@@ -31,7 +31,6 @@ import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeAttack;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -42,12 +41,12 @@ public class TaskSlashBlade implements IAttackTask {
     public static final ResourceLocation UID = TruePowerOfMaid.prefix("slashblade_attack");
 
     @Override
-    public @NotNull ResourceLocation getUid() {
+    public ResourceLocation getUid() {
         return UID;
     }
 
     @Override
-    public @NotNull ItemStack getIcon() {
+    public ItemStack getIcon() {
         if (Minecraft.getInstance().player != null) {
             Registry<SlashBladeDefinition> bladeRegistry = SlashBlade.getSlashBladeDefinitionRegistry(Minecraft.getInstance().player.level());
             if (bladeRegistry.containsKey(SlashBladeBuiltInRegistry.YAMATO)) {
@@ -58,12 +57,12 @@ public class TaskSlashBlade implements IAttackTask {
     }
 
     @Override
-    public @Nullable SoundEvent getAmbientSound(@NotNull EntityMaid maid) {
+    public @Nullable SoundEvent getAmbientSound(EntityMaid maid) {
         return SoundUtil.attackSound(maid, InitSounds.MAID_ATTACK.get(), 0.5F);
     }
 
     @Override
-    public @NotNull List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createBrainTasks(@NotNull EntityMaid maid) {
+    public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createBrainTasks(EntityMaid maid) {
         BehaviorControl<EntityMaid> supplementedTask = StartAttacking.create(MaidSlashBladeAttackUtils::isHoldingSlashBlade, IRangedAttackTask::findFirstValidAttackTarget);
         BehaviorControl<EntityMaid> findTargetTask = StopAttackingIfTargetInvalid.create((target) -> !MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid) || farAway(target, maid));
         BehaviorControl<Mob> moveToTargetTask = MaidSlashBladeMove.create(0.6F);
@@ -79,7 +78,7 @@ public class TaskSlashBlade implements IAttackTask {
     }
 
     @Override
-    public @NotNull List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createRideBrainTasks(@NotNull EntityMaid maid) {
+    public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createRideBrainTasks(EntityMaid maid) {
         BehaviorControl<EntityMaid> supplementedTask = StartAttacking.create(MaidSlashBladeAttackUtils::isHoldingSlashBlade, IRangedAttackTask::findFirstValidAttackTarget);
         BehaviorControl<EntityMaid> findTargetTask = StopAttackingIfTargetInvalid.create((target) -> !MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid) || farAway(target, maid));
         BehaviorControl<Mob> attackTargetTask = MaidSlashBladeAttack.create();
@@ -93,7 +92,7 @@ public class TaskSlashBlade implements IAttackTask {
     }
 
     @Override
-    public boolean isWeapon(@NotNull EntityMaid maid, ItemStack stack) {
+    public boolean isWeapon(EntityMaid maid, ItemStack stack) {
         return stack.getCapability(ItemSlashBlade.BLADESTATE).isPresent();
     }
 
@@ -109,7 +108,7 @@ public class TaskSlashBlade implements IAttackTask {
     }
 
     @Override
-    public @NotNull List<Pair<String, Predicate<EntityMaid>>> getConditionDescription(@NotNull EntityMaid maid) {
+    public List<Pair<String, Predicate<EntityMaid>>> getConditionDescription(EntityMaid maid) {
         return Lists.newArrayList(Pair.of("has_slashblade", MaidSlashBladeAttackUtils::isHoldingSlashBlade), Pair.of("souls", this::hasSouls));
     }
 

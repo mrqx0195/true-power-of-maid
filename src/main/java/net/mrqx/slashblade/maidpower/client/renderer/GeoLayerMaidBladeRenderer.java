@@ -37,11 +37,11 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRenderer<T>> extends GeoLayerRenderer<T, R> {
-    private static final ResourceLocation CREEPER_ARMOR = new ResourceLocation("textures/entity/creeper/creeper_armor.png");
+    private static final ResourceLocation CREEPER_ARMOR = ResourceLocation.withDefaultNamespace("textures/entity/creeper/creeper_armor.png");
 
     private final LazyOptional<MmdPmdModelMc> bladeHolder = LazyOptional.of(() -> {
         try {
-            return new MmdPmdModelMc(new ResourceLocation("slashblade", "model/bladeholder.pmd"));
+            return new MmdPmdModelMc(ResourceLocation.fromNamespaceAndPath("slashblade", "model/bladeholder.pmd"));
         } catch (IOException | MmdException e) {
             throw new RuntimeException(e);
         }
@@ -122,8 +122,8 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
             poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
             ResourceLocation textureLocation = state.getTexture().orElse(DefaultResources.resourceDefaultTexture);
             WavefrontObject obj = BladeModelManager.getInstance().getModel(state.getModel().orElse(DefaultResources.resourceDefaultModel));
-            renderBladePart(poseStack, buffer, light, stack, obj, mmp, "hardpointA", modelScaleBase, motionScale, state, textureLocation);
-            renderSheathPart(poseStack, buffer, light, stack, obj, mmp, "hardpointB", modelScaleBase, motionScale, state, textureLocation, entity, partialTicks);
+            renderBladePart(poseStack, buffer, light, stack, obj, mmp, modelScaleBase, motionScale, state, textureLocation);
+            renderSheathPart(poseStack, buffer, light, stack, obj, mmp, modelScaleBase, motionScale, state, textureLocation, entity, partialTicks);
         }
     }
 
@@ -140,24 +140,21 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
     }
 
     private double getComboTime(ComboState combo, T entity, ISlashBladeState state, float partialTicks) {
-        double time = 0.0;
-        if (combo != null) {
-            time = TimeValueHelper.getMSecFromTicks((float) Math.max(0L, entity.level().getGameTime() - state.getLastActionTime()) + partialTicks);
-            while (combo != ComboStateRegistry.NONE.get() && (double) Objects.requireNonNull(combo).getTimeoutMS() < time) {
-                time -= combo.getTimeoutMS();
-                combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity)) != null
-                        ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity))
-                        : ComboStateRegistry.NONE.get();
-            }
+        double time = TimeValueHelper.getMSecFromTicks((float) Math.max(0L, entity.level().getGameTime() - state.getLastActionTime()) + partialTicks);
+        while (combo != ComboStateRegistry.NONE.get() && (double) Objects.requireNonNull(combo).getTimeoutMS() < time) {
+            time -= combo.getTimeoutMS();
+            combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity)) != null
+                    ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity))
+                    : ComboStateRegistry.NONE.get();
         }
         return time;
     }
 
     private void renderBladePart(PoseStack poseStack, MultiBufferSource buffer, int light, ItemStack stack, WavefrontObject obj,
-                                 MmdMotionPlayerGL2 mmp, String boneName, double modelScaleBase, double motionScale,
+                                 MmdMotionPlayerGL2 mmp, double modelScaleBase, double motionScale,
                                  ISlashBladeState state, ResourceLocation textureLocation) {
         try (MSAutoCloser ignored = MSAutoCloser.pushMatrix(poseStack)) {
-            int idx = mmp.getBoneIndexByName(boneName);
+            int idx = mmp.getBoneIndexByName("hardpointA");
             if (0 <= idx) {
                 float[] buf = new float[16];
                 mmp._skinning_mat[idx].getValue(buf);
@@ -176,10 +173,10 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
     }
 
     private void renderSheathPart(PoseStack poseStack, MultiBufferSource buffer, int light, ItemStack stack, WavefrontObject obj,
-                                  MmdMotionPlayerGL2 mmp, String boneName, double modelScaleBase, double motionScale,
+                                  MmdMotionPlayerGL2 mmp, double modelScaleBase, double motionScale,
                                   ISlashBladeState state, ResourceLocation textureLocation, T entity, float partialTicks) {
         try (MSAutoCloser ignored = MSAutoCloser.pushMatrix(poseStack)) {
-            int idx = mmp.getBoneIndexByName(boneName);
+            int idx = mmp.getBoneIndexByName("hardpointB");
             if (0 <= idx) {
                 float[] buf = new float[16];
                 mmp._skinning_mat[idx].getValue(buf);
