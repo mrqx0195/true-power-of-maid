@@ -36,12 +36,12 @@ public class LittleMaidImpl implements ILittleMaid {
     public static final SlashBladeMaidBauble.Exp EXP_BAUBLE = new SlashBladeMaidBauble.Exp();
     public static final SlashBladeMaidBauble.TruePower TRUE_POWER_BAUBLE = new SlashBladeMaidBauble.TruePower();
     public static final SlashBladeMaidBauble.UnlimitedBladeWorks UNLIMITED_BLADE_WORKS_BAUBLE = new SlashBladeMaidBauble.UnlimitedBladeWorks();
-
+    
     @Override
     public void addMaidTask(TaskManager manager) {
         manager.add(new TaskSlashBlade());
     }
-
+    
     @Override
     public void bindMaidBauble(BaubleManager manager) {
         manager.bind(MaidPowerItems.UNAWAKENED_SOUL.get(), UNAWAKENED_SOUL_BAUBLE);
@@ -61,14 +61,14 @@ public class LittleMaidImpl implements ILittleMaid {
         manager.bind(MaidPowerItems.SOUL_OF_TRUE_POWER.get(), TRUE_POWER_BAUBLE);
         manager.bind(MaidPowerItems.SOUL_OF_UNLIMITED_BLADE_WORKS.get(), UNLIMITED_BLADE_WORKS_BAUBLE);
     }
-
+    
     @Override
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void addAdditionGeckoMaidLayer(GeckoEntityMaidRenderer<? extends Mob> renderer, EntityRendererProvider.Context context) {
         renderer.addLayer((GeoLayerRenderer) new GeoLayerMaidBladeRenderer<>(renderer));
     }
-
+    
     @Override
     @OnlyIn(Dist.CLIENT)
     public void addAdditionMaidLayer(EntityMaidRenderer renderer, EntityRendererProvider.Context context) {

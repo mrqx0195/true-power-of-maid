@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(SlashBladeCompat.class)
 public abstract class MixinSlashBladeCompat {
     @Inject(method = "swingSlashBlade(Lcom/github/tartaricacid/touhoulittlemaid/entity/passive/EntityMaid;Lnet/minecraft/world/item/ItemStack;)V",
-            at = @At("HEAD"), cancellable = true, remap = false)
+        at = @At("HEAD"), cancellable = true, remap = false)
     private static void injectSwingSlashBlade(EntityMaid maid, ItemStack itemInHand, CallbackInfo ci) {
         ci.cancel();
     }

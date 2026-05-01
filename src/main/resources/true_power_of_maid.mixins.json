@@ -4,8 +4,8 @@
   "mixins": [
     "MixinAttackHelper",
     "MixinEntityMaid",
+    "MixinSlashBladeAttackUtils",
     "MixinSlashBladeCompat",
-    "MixinTargetSelector",
     "MixinTruePowerVoidSlash"
   ],
   "package": "net.mrqx.slashblade.maidpower.mixin",

@@ -32,7 +32,7 @@ public abstract class MixinTruePowerVoidSlash extends EntitySlashEffect {
     public MixinTruePowerVoidSlash(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
-
+    
     @Override
     public void tick() {
         if (this.getOwner() instanceof EntityMaid maid) {
@@ -40,17 +40,17 @@ public abstract class MixinTruePowerVoidSlash extends EntitySlashEffect {
             if (entityReachAttributeInstance == null) {
                 return;
             }
-
+            
             double radius = TaskSlashBlade.getRadius(maid);
             int rank = maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                    .map(cr -> cr.getRank(maid.level().getGameTime()))
-                    .orElse(IConcentrationRank.ConcentrationRanks.NONE).level;
+                .map(cr -> cr.getRank(maid.level().getGameTime()))
+                .orElse(IConcentrationRank.ConcentrationRanks.NONE).level;
             double bonus = radius / Math.max(TargetSelector.getResolvedReach(maid), 1) * rank / 7;
-
+            
             AttributeModifier entityReachBonus = new AttributeModifier(
-                    UUID.fromString("eaf33b07-3105-4676-866d-7a64640706b5"),
-                    "Maid VoidSlash Transient Bonus", bonus, AttributeModifier.Operation.MULTIPLY_TOTAL);
-
+                UUID.fromString("eaf33b07-3105-4676-866d-7a64640706b5"),
+                "Maid VoidSlash Transient Bonus", bonus, AttributeModifier.Operation.MULTIPLY_TOTAL);
+            
             entityReachAttributeInstance.addTransientModifier(entityReachBonus);
             super.tick();
             entityReachAttributeInstance.removeModifier(entityReachBonus);
@@ -58,12 +58,12 @@ public abstract class MixinTruePowerVoidSlash extends EntitySlashEffect {
             super.tick();
         }
     }
-
+    
     @Inject(method = "tryDespawn()V",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/mrqx/truepower/util/TruePowerAttackManager$1;remove(Lnet/minecraft/world/entity/Entity$RemovalReason;)V"
-            ), remap = false)
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/mrqx/truepower/util/TruePowerAttackManager$1;remove(Lnet/minecraft/world/entity/Entity$RemovalReason;)V"
+        ), remap = false)
     private void injectTryDespawn(CallbackInfo ci) {
         if (this.getOwner() instanceof EntityMaid maid && this.level() instanceof ServerLevel serverLevel) {
             List<Entity> list = new ArrayList<>();

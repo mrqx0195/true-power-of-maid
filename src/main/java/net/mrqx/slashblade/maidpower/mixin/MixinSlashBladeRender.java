@@ -16,13 +16,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(SlashBladeRender.class)
 public abstract class MixinSlashBladeRender {
     @Inject(method = "renderMaidMainhandSlashBlade(Lnet/minecraft/world/entity/Mob;Lcom/github/tartaricacid/touhoulittlemaid/client/model/bedrock/BedrockModel;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/item/ItemStack;F)V",
-            at = @At("HEAD"), cancellable = true, remap = false)
+        at = @At("HEAD"), cancellable = true, remap = false)
     private static void injectRenderMaidMainhandSlashBlade(Mob maid, BedrockModel<Mob> model, PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, ItemStack stack, float partialTicks, CallbackInfo ci) {
         ci.cancel();
     }
-
+    
     @Inject(method = "renderMaidMainhandSlashBlade(Lnet/minecraft/world/entity/LivingEntity;Lcom/github/tartaricacid/touhoulittlemaid/geckolib3/geo/animated/ILocationModel;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/item/ItemStack;F)V",
-            at = @At("HEAD"), cancellable = true, remap = false)
+        at = @At("HEAD"), cancellable = true, remap = false)
     private static void injectRenderMaidMainhandSlashBlade(LivingEntity maid, ILocationModel model, PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, ItemStack stack, float partialTicks, CallbackInfo ci) {
         ci.cancel();
     }

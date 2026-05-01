@@ -22,14 +22,14 @@ public class AnvilHandler {
         if (base.isEmpty() || material.isEmpty()) {
             return;
         }
-
+        
         if (base.is(MaidPowerItems.SOUL_OF_TRUE_POWER.get()) || base.is(MaidPowerItems.SOUL_OF_UNLIMITED_BLADE_WORKS.get())) {
             IMaidBauble bauble = BaubleManager.getBauble(material);
             if (bauble instanceof SlashBladeMaidBauble && !(bauble instanceof SlashBladeMaidBauble.IPowerfulSlashBladeBauble)) {
                 ItemStack output = base.copy();
-
+                
                 PowerfulSlashBladeBaubleItem.addSoul(output, material);
-
+                
                 event.setMaterialCost(1);
                 event.setCost(30);
                 event.setOutput(output);

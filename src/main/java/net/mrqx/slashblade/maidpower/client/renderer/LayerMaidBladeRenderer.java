@@ -38,7 +38,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
     public LayerMaidBladeRenderer(RenderLayerParent<T, M> entityRendererIn) {
         super(entityRendererIn);
     }
-
+    
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, T entity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         this.renderOffhandItem(matrixStack, bufferIn, lightIn, entity);
@@ -51,28 +51,28 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
             AccessorLayerMainBlade accessorLayerMainBlade = (AccessorLayerMainBlade) this;
             state.ifPresent((s) -> accessorLayerMainBlade.true_power_of_maid$getMotionPlayer().ifPresent((mmp) -> {
                 ComboState combo = ComboStateRegistry.REGISTRY.get().getValue(s.getComboSeq()) != null ? ComboStateRegistry.REGISTRY.get().getValue(s.getComboSeq()) : ComboStateRegistry.NONE.get();
-
+                
                 double time;
                 for (time = TimeValueHelper.getMSecFromTicks((float) Math.max(0L, entity.level().getGameTime() - s.getLastActionTime()) + partialTicks); combo != ComboStateRegistry.NONE.get() && (double) (combo != null ? combo.getTimeoutMS() : 0) < time; combo = ComboStateRegistry.REGISTRY.get().getValue(combo != null ? combo.getNextOfTimeout(entity) : null) != null ? ComboStateRegistry.REGISTRY.get().getValue(combo != null ? combo.getNextOfTimeout(entity) : null) : ComboStateRegistry.NONE.get()) {
                     time -= combo != null ? combo.getTimeoutMS() : 0;
                 }
-
+                
                 if (combo == ComboStateRegistry.NONE.get()) {
                     combo = ComboStateRegistry.REGISTRY.get().getValue(s.getComboRoot()) != null ? ComboStateRegistry.REGISTRY.get().getValue(s.getComboRoot()) : ComboStateRegistry.STANDBY.get();
                 }
-
+                
                 MmdVmdMotionMc motion;
                 if (combo != null) {
                     motion = BladeMotionManager.getInstance().getMotion(combo.getMotionLoc());
                     double maxSeconds = 0.0F;
-
+                    
                     try {
                         mmp.setVmd(motion);
                         maxSeconds = TimeValueHelper.getMSecFromFrames(motion.getMaxFrame());
                     } catch (Exception e) {
                         TruePowerOfMaid.LOGGER.error("Error while rendering maid`s SlashBlade:", e);
                     }
-
+                    
                     double start = TimeValueHelper.getMSecFromFrames(combo.getStartFrame());
                     double end = TimeValueHelper.getMSecFromFrames(combo.getEndFrame());
                     double span = Math.abs(end - start);
@@ -80,16 +80,16 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
                     if (combo.getLoop()) {
                         time %= span;
                     }
-
+                    
                     time = Math.min(span, time);
                     time = start + time;
-
+                    
                     try {
                         mmp.updateMotion((float) time);
                     } catch (MmdException e) {
                         TruePowerOfMaid.LOGGER.error("Error while rendering maid`s SlashBlade:", e);
                     }
-
+                    
                     try (MSAutoCloser ignored = MSAutoCloser.pushMatrix(matrixStack)) {
                         this.setUserPose(matrixStack, entity, partialTicks);
                         matrixStack.translate(0.0F, yOffset, 0.0F);
@@ -97,7 +97,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
                         matrixStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
                         ResourceLocation textureLocation = s.getTexture().orElse(DefaultResources.resourceDefaultTexture);
                         WavefrontObject obj = BladeModelManager.getInstance().getModel(s.getModel().orElse(DefaultResources.resourceDefaultModel));
-
+                        
                         try (MSAutoCloser ignored1 = MSAutoCloser.pushMatrix(matrixStack)) {
                             int idx = mmp.getBoneIndexByName("hardpointA");
                             String part;
@@ -108,7 +108,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
                             }
                             renderPart(matrixStack, bufferIn, lightIn, motionScale, modelScaleBase, stack, mmp, textureLocation, obj, idx, part);
                         }
-
+                        
                         try (MSAutoCloser ignored1 = MSAutoCloser.pushMatrix(matrixStack)) {
                             int idx = mmp.getBoneIndexByName("hardpointB");
                             String part = "sheath";
@@ -123,7 +123,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
             }));
         }
     }
-
+    
     private void renderPart(PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, double motionScale, double modelScaleBase, ItemStack stack, MmdMotionPlayerGL2 mmp, ResourceLocation textureLocation, WavefrontObject obj, int idx, String part) {
         if (0 <= idx) {
             float[] buf = new float[16];
@@ -134,18 +134,18 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
             entry.pose().mul(mat);
             matrixStack.scale(-1.0F, 1.0F, 1.0F);
         }
-
+        
         float modelScale = (float) (modelScaleBase * ((double) 1.0F / motionScale));
         matrixStack.scale(modelScale, modelScale, modelScale);
-
+        
         BladeRenderState.renderOverrided(stack, obj, part, textureLocation, matrixStack, bufferIn, lightIn);
         BladeRenderState.renderOverridedLuminous(stack, obj, part + "_luminous", textureLocation, matrixStack, bufferIn, lightIn);
     }
-
+    
     @Override
     public void renderOffhandItem(PoseStack matrixStack, MultiBufferSource bufferIn, int lightIn, T entity) {
     }
-
+    
     @SuppressWarnings("rawtypes")
     @Override
     public void setUserPose(PoseStack matrixStack, T entity, float partialTicks) {
@@ -162,5 +162,4 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
         matrixStack.mulPose(Axis.YP.rotationDegrees(15.0F));
         super.setUserPose(matrixStack, entity, partialTicks);
     }
-
 }

@@ -9,21 +9,26 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.monster.CrossbowAttackMob;
 import net.minecraft.world.level.Level;
+import net.mrqx.slashblade.maidpower.entity.ISlashBladeMaid;
+import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityMaid.class)
-public abstract class MixinEntityMaid extends TamableAnimal implements CrossbowAttackMob, IMaid {
+public abstract class MixinEntityMaid extends TamableAnimal implements CrossbowAttackMob, IMaid, ISlashBladeMaid {
     private MixinEntityMaid(EntityType<? extends TamableAnimal> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
-
+    
     @Inject(method = "getMeleeAttackRangeSqr(Lnet/minecraft/world/entity/LivingEntity;)D", at = @At("HEAD"), cancellable = true)
     private void injectGetMeleeAttackRangeSqr(LivingEntity entity, CallbackInfoReturnable<Double> cir) {
         this.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
             double reach = TargetSelector.getResolvedReach(this);
+            if (SlashBladeMaidBauble.UnlimitedBladeWorks.checkBauble((EntityMaid) (Object) this)) {
+                reach *= 2;
+            }
             cir.setReturnValue(reach * reach);
         });
     }

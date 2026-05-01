@@ -11,7 +11,7 @@ import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBaubleItem;
 
 public class MaidPowerItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, TruePowerOfMaid.MODID);
-
+    
     public static final RegistryObject<Item> UNAWAKENED_SOUL = ITEMS.register("unawakened_soul", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
     public static final RegistryObject<Item> SOUL_OF_COMBO_B = ITEMS.register("soul_of_combo_b", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
     public static final RegistryObject<Item> SOUL_OF_COMBO_C = ITEMS.register("soul_of_combo_c", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));

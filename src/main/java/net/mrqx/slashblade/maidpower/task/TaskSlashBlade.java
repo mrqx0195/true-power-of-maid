@@ -11,8 +11,8 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.data.builtin.SlashBladeBuiltInRegistry;
-import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.registry.SlashBladeItems;
 import mods.flammpfeil.slashblade.registry.slashblade.SlashBladeDefinition;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.client.Minecraft;
@@ -25,12 +25,12 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.behavior.StartAttacking;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.item.ItemStack;
+import net.mrqx.sbr_core.utils.SlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidMirageBladeBehavior;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeAttack;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
-import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -39,79 +39,7 @@ import java.util.function.Predicate;
 
 public class TaskSlashBlade implements IAttackTask {
     public static final ResourceLocation UID = TruePowerOfMaid.prefix("slashblade_attack");
-
-    @Override
-    public ResourceLocation getUid() {
-        return UID;
-    }
-
-    @Override
-    public ItemStack getIcon() {
-        if (Minecraft.getInstance().player != null) {
-            Registry<SlashBladeDefinition> bladeRegistry = SlashBlade.getSlashBladeDefinitionRegistry(Minecraft.getInstance().player.level());
-            if (bladeRegistry.containsKey(SlashBladeBuiltInRegistry.YAMATO)) {
-                return Objects.requireNonNull(bladeRegistry.get(SlashBladeBuiltInRegistry.YAMATO)).getBlade();
-            }
-        }
-        return SBItems.slashblade.getDefaultInstance();
-    }
-
-    @Override
-    public @Nullable SoundEvent getAmbientSound(EntityMaid maid) {
-        return SoundUtil.attackSound(maid, InitSounds.MAID_ATTACK.get(), 0.5F);
-    }
-
-    @Override
-    public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createBrainTasks(EntityMaid maid) {
-        BehaviorControl<EntityMaid> supplementedTask = StartAttacking.create(MaidSlashBladeAttackUtils::isHoldingSlashBlade, IRangedAttackTask::findFirstValidAttackTarget);
-        BehaviorControl<EntityMaid> findTargetTask = StopAttackingIfTargetInvalid.create((target) -> !MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid) || farAway(target, maid));
-        BehaviorControl<Mob> moveToTargetTask = MaidSlashBladeMove.create(0.6F);
-        BehaviorControl<Mob> attackTargetTask = MaidSlashBladeAttack.create();
-        BehaviorControl<EntityMaid> mirageBladeTask = new MaidMirageBladeBehavior();
-        return Lists.newArrayList(
-                Pair.of(5, supplementedTask),
-                Pair.of(5, findTargetTask),
-                Pair.of(5, moveToTargetTask),
-                Pair.of(5, attackTargetTask),
-                Pair.of(5, mirageBladeTask)
-        );
-    }
-
-    @Override
-    public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createRideBrainTasks(EntityMaid maid) {
-        BehaviorControl<EntityMaid> supplementedTask = StartAttacking.create(MaidSlashBladeAttackUtils::isHoldingSlashBlade, IRangedAttackTask::findFirstValidAttackTarget);
-        BehaviorControl<EntityMaid> findTargetTask = StopAttackingIfTargetInvalid.create((target) -> !MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid) || farAway(target, maid));
-        BehaviorControl<Mob> attackTargetTask = MaidSlashBladeAttack.create();
-        BehaviorControl<EntityMaid> mirageBladeTask = new MaidMirageBladeBehavior();
-        return Lists.newArrayList(
-                Pair.of(5, supplementedTask),
-                Pair.of(5, findTargetTask),
-                Pair.of(5, attackTargetTask),
-                Pair.of(5, mirageBladeTask)
-        );
-    }
-
-    @Override
-    public boolean isWeapon(EntityMaid maid, ItemStack stack) {
-        return stack.getCapability(ItemSlashBlade.BLADESTATE).isPresent();
-    }
-
-    private boolean hasSouls(EntityMaid maid) {
-        BaubleItemHandler handler = maid.getMaidBauble();
-        for (int i = 0; i < handler.getSlots(); ++i) {
-            IMaidBauble baubleIn = handler.getBaubleInSlot(i);
-            if (baubleIn instanceof SlashBladeMaidBauble) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public List<Pair<String, Predicate<EntityMaid>>> getConditionDescription(EntityMaid maid) {
-        return Lists.newArrayList(Pair.of("has_slashblade", MaidSlashBladeAttackUtils::isHoldingSlashBlade), Pair.of("souls", this::hasSouls));
-    }
-
+    
     public static boolean farAway(LivingEntity target, EntityMaid maid) {
         if (!target.isAlive()) {
             return true;
@@ -128,7 +56,7 @@ public class TaskSlashBlade implements IAttackTask {
             }
         }
     }
-
+    
     public static double getRadius(EntityMaid maid) {
         double radius = TargetSelector.getResolvedReach(maid) * 2;
         radius *= radius;
@@ -136,5 +64,77 @@ public class TaskSlashBlade implements IAttackTask {
             radius *= 3;
         }
         return radius;
+    }
+    
+    @Override
+    public ResourceLocation getUid() {
+        return UID;
+    }
+    
+    @Override
+    public ItemStack getIcon() {
+        if (Minecraft.getInstance().player != null) {
+            Registry<SlashBladeDefinition> bladeRegistry = SlashBlade.getSlashBladeDefinitionRegistry(Minecraft.getInstance().player.level());
+            if (bladeRegistry.containsKey(SlashBladeBuiltInRegistry.YAMATO)) {
+                return Objects.requireNonNull(bladeRegistry.get(SlashBladeBuiltInRegistry.YAMATO)).getBlade();
+            }
+        }
+        return SlashBladeItems.SLASHBLADE.get().getDefaultInstance();
+    }
+    
+    @Override
+    public @Nullable SoundEvent getAmbientSound(EntityMaid maid) {
+        return SoundUtil.attackSound(maid, InitSounds.MAID_ATTACK.get(), 0.5F);
+    }
+    
+    @Override
+    public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createBrainTasks(EntityMaid maid) {
+        BehaviorControl<EntityMaid> supplementedTask = StartAttacking.create(SlashBladeAttackUtils::isHoldingSlashBlade, IRangedAttackTask::findFirstValidAttackTarget);
+        BehaviorControl<EntityMaid> findTargetTask = StopAttackingIfTargetInvalid.create((target) -> !SlashBladeAttackUtils.isHoldingSlashBlade(maid) || farAway(target, maid));
+        BehaviorControl<Mob> moveToTargetTask = MaidSlashBladeMove.create(0.6F);
+        BehaviorControl<Mob> attackTargetTask = MaidSlashBladeAttack.create();
+        BehaviorControl<EntityMaid> mirageBladeTask = new MaidMirageBladeBehavior();
+        return Lists.newArrayList(
+            Pair.of(5, supplementedTask),
+            Pair.of(5, findTargetTask),
+            Pair.of(5, moveToTargetTask),
+            Pair.of(5, attackTargetTask),
+            Pair.of(5, mirageBladeTask)
+        );
+    }
+    
+    @Override
+    public List<Pair<Integer, BehaviorControl<? super EntityMaid>>> createRideBrainTasks(EntityMaid maid) {
+        BehaviorControl<EntityMaid> supplementedTask = StartAttacking.create(SlashBladeAttackUtils::isHoldingSlashBlade, IRangedAttackTask::findFirstValidAttackTarget);
+        BehaviorControl<EntityMaid> findTargetTask = StopAttackingIfTargetInvalid.create((target) -> !SlashBladeAttackUtils.isHoldingSlashBlade(maid) || farAway(target, maid));
+        BehaviorControl<Mob> attackTargetTask = MaidSlashBladeAttack.create();
+        BehaviorControl<EntityMaid> mirageBladeTask = new MaidMirageBladeBehavior();
+        return Lists.newArrayList(
+            Pair.of(5, supplementedTask),
+            Pair.of(5, findTargetTask),
+            Pair.of(5, attackTargetTask),
+            Pair.of(5, mirageBladeTask)
+        );
+    }
+    
+    @Override
+    public boolean isWeapon(EntityMaid maid, ItemStack stack) {
+        return stack.getCapability(ItemSlashBlade.BLADESTATE).isPresent();
+    }
+    
+    private boolean hasSouls(EntityMaid maid) {
+        BaubleItemHandler handler = maid.getMaidBauble();
+        for (int i = 0; i < handler.getSlots(); ++i) {
+            IMaidBauble baubleIn = handler.getBaubleInSlot(i);
+            if (baubleIn instanceof SlashBladeMaidBauble) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public List<Pair<String, Predicate<EntityMaid>>> getConditionDescription(EntityMaid maid) {
+        return Lists.newArrayList(Pair.of("has_slashblade", SlashBladeAttackUtils::isHoldingSlashBlade), Pair.of("souls", this::hasSouls));
     }
 }

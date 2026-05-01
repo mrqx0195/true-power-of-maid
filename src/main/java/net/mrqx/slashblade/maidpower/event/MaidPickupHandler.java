@@ -16,7 +16,7 @@ public class MaidPickupHandler {
             }
         });
     }
-
+    
     @SubscribeEvent
     public static void onMaidPickupPowerPoint(MaidPickupEvent.PowerPointResult event) {
         event.getMaid().getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {

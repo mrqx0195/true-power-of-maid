@@ -17,15 +17,15 @@ import net.mrqx.truepower.util.JustSlashArtManager;
 @Mod.EventBusSubscriber
 public class ChargeActionHandler {
     @SubscribeEvent
-    public static void onChargeActionEvent(SlashBladeEvent.ChargeActionEvent event) {
+    public static void onPerformSlashArtEvent(SlashBladeEvent.PerformSlashArtEvent event) {
         if (event.getEntityLiving() instanceof EntityMaid maid) {
             maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
-                    .ifPresent(state -> onChargeAction(event, maid, state));
+                .ifPresent(state -> onPerformSlashArt(event, maid, state));
         }
     }
-
-    private static void onChargeAction(SlashBladeEvent.ChargeActionEvent event, EntityMaid maid, ISlashBladeState state) {
-        if (!SlashBladeMaidBauble.JudgementCut.checkBauble(maid) && !SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid)) {
+    
+    private static void onPerformSlashArt(SlashBladeEvent.PerformSlashArtEvent event, EntityMaid maid, ISlashBladeState state) {
+        if (!SlashBladeMaidBauble.JudgementCut.checkBauble(maid) || JustSlashArtManager.getJustCooldown(maid) > 0) {
             event.setCanceled(true);
             return;
         }
@@ -34,20 +34,29 @@ public class ChargeActionHandler {
             int maxCount = SlashBladeMaidBauble.JustJudgementCut.checkBauble(maid) ? (SlashBladeMaidBauble.TruePower.checkBauble(maid) ? 5 : 3) : 1;
             if (count > maxCount) {
                 JustSlashArtManager.setJustCooldown(maid, 240);
+                JustSlashArtManager.resetJustCount(maid);
                 event.setCanceled(true);
             }
             if (event.getType() == SlashArts.ArtsType.Jackpot) {
                 AdvancementHelper.grantedIf(Enchantments.SOUL_SPEED, maid);
             }
+        } else if (SlashBladeMaidBauble.UnlimitedBladeWorks.checkBauble(maid)) {
+            JustSlashArtManager.setJustCooldown(maid, 240);
+            if (event.getType() == SlashArts.ArtsType.Jackpot) {
+                AdvancementHelper.grantedIf(Enchantments.SOUL_SPEED, maid);
+            }
+        } else {
+            event.setCanceled(true);
         }
     }
-
+    
     public static boolean isJudgementCut(ResourceLocation combo) {
         return combo.equals(ComboStateRegistry.JUDGEMENT_CUT.getId())
-                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH.getId())
-                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_AIR.getId())
-                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST.getId())
-                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST2.getId())
-                || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_END.getId());
+            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SHEATH_JUST.getId())
+            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH.getId())
+            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_AIR.getId())
+            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST.getId())
+            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST2.getId())
+            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_END.getId());
     }
 }

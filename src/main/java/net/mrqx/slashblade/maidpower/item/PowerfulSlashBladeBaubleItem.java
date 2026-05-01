@@ -21,11 +21,31 @@ import java.util.Locale;
 
 public class PowerfulSlashBladeBaubleItem extends SlashBladeMaidBaubleItem {
     public static final String POWERFUL_SOULS_KEY = TruePowerOfMaid.MODID + "." + "truePowerSouls";
-
+    
     public PowerfulSlashBladeBaubleItem() {
         super(new Properties().rarity(Rarity.EPIC));
     }
-
+    
+    public static void addSoul(ItemStack itemStack, ItemStack soul) {
+        ListTag listTag = ItemTagHelper.getList(itemStack, POWERFUL_SOULS_KEY, Tag.TAG_COMPOUND, false);
+        listTag.add(soul.serializeNBT());
+        if (listTag.size() > TruePowerOfMaidCommonConfig.TRUE_POWER_MAX_SOUL_COUNT.get()) {
+            listTag.remove(0);
+        }
+        ItemTagHelper.setList(itemStack, POWERFUL_SOULS_KEY, listTag);
+    }
+    
+    public static List<ItemStack> getSouls(ItemStack itemStack) {
+        ListTag listTag = ItemTagHelper.getList(itemStack, POWERFUL_SOULS_KEY, Tag.TAG_COMPOUND, false);
+        List<ItemStack> list = new ArrayList<>();
+        listTag.forEach(tag -> {
+            if (tag instanceof CompoundTag compoundTag) {
+                list.add(ItemStack.of(compoundTag));
+            }
+        });
+        return list;
+    }
+    
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         if (!Screen.hasShiftDown() && !Screen.hasAltDown()) {
@@ -38,7 +58,7 @@ public class PowerfulSlashBladeBaubleItem extends SlashBladeMaidBaubleItem {
                 String translated = Component.translatable(key).getString();
                 if (!translated.toLowerCase(Locale.ENGLISH).equals(key)) {
                     tooltip.add(index == 3 ? Component.translatable(key,
-                            Component.literal(String.valueOf(TruePowerOfMaidCommonConfig.TRUE_POWER_MAX_SOUL_COUNT.get())).withStyle(ChatFormatting.GOLD)) : Component.translatable(key));
+                        Component.literal(String.valueOf(TruePowerOfMaidCommonConfig.TRUE_POWER_MAX_SOUL_COUNT.get())).withStyle(ChatFormatting.GOLD)) : Component.translatable(key));
                     index++;
                 } else {
                     return;
@@ -47,25 +67,5 @@ public class PowerfulSlashBladeBaubleItem extends SlashBladeMaidBaubleItem {
         } else if (Screen.hasAltDown()) {
             PowerfulSlashBladeBaubleItem.getSouls(stack).forEach(itemStack -> tooltip.add(itemStack.getDisplayName()));
         }
-    }
-
-    public static void addSoul(ItemStack itemStack, ItemStack soul) {
-        ListTag listTag = ItemTagHelper.getList(itemStack, POWERFUL_SOULS_KEY, Tag.TAG_COMPOUND, false);
-        listTag.add(soul.serializeNBT());
-        if (listTag.size() > TruePowerOfMaidCommonConfig.TRUE_POWER_MAX_SOUL_COUNT.get()) {
-            listTag.remove(0);
-        }
-        ItemTagHelper.setList(itemStack, POWERFUL_SOULS_KEY, listTag);
-    }
-
-    public static List<ItemStack> getSouls(ItemStack itemStack) {
-        ListTag listTag = ItemTagHelper.getList(itemStack, POWERFUL_SOULS_KEY, Tag.TAG_COMPOUND, false);
-        List<ItemStack> list = new ArrayList<>();
-        listTag.forEach(tag -> {
-            if (tag instanceof CompoundTag compoundTag) {
-                list.add(ItemStack.of(compoundTag));
-            }
-        });
-        return list;
     }
 }

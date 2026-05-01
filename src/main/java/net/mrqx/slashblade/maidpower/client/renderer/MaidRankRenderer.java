@@ -22,7 +22,7 @@ import org.lwjgl.opengl.GL11;
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class MaidRankRenderer {
     public static final ResourceLocation RANK_IMG = ResourceLocation.fromNamespaceAndPath("slashblade", "textures/gui/rank.png");
-
+    
     @SubscribeEvent
     public static void onRenderLiving(RenderLivingEvent<?, ?> event) {
         if (event.getEntity() instanceof EntityMaid maid && maid.getTask().getUid().equals(TaskSlashBlade.UID)) {
@@ -32,33 +32,33 @@ public class MaidRankRenderer {
                 IConcentrationRank.ConcentrationRanks rank = cr.getRank(now);
                 if (rank != IConcentrationRank.ConcentrationRanks.NONE) {
                     PoseStack poseStack = event.getPoseStack();
-
+                    
                     float maidHeight = maid.getBbHeight() + 0.5F;
-
+                    
                     poseStack.pushPose();
                     poseStack.translate(0.0D, maidHeight, 0.0D);
                     poseStack.mulPose(renderer.entityRenderDispatcher.cameraOrientation());
                     float size = TruePowerOfMaidClientConfig.MAID_RANK_SIZE.get().floatValue();
                     poseStack.scale(-size, -size, size);
-
+                    
                     boolean depthTestEnabled = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
                     RenderSystem.disableDepthTest();
-
+                    
                     TextureManager texturemanager = Minecraft.getInstance().getTextureManager();
                     texturemanager.getTexture(RANK_IMG).setFilter(false, false);
                     RenderSystem.setShaderTexture(0, RANK_IMG);
-
+                    
                     boolean showTextRank = false;
                     long textTimeout = cr.getLastRankRise() + 20L;
                     if (now < textTimeout) {
                         showTextRank = true;
                     }
-
+                    
                     int x = TruePowerOfMaidClientConfig.MAID_RANK_X.get();
                     int y = TruePowerOfMaidClientConfig.MAID_RANK_Y.get();
-
+                    
                     int rankOffset = 32 * (rank.level - 1);
                     int textOffset = showTextRank ? 128 : 0;
                     int progress = (int) (33.0F * cr.getRankProgress(now));
@@ -68,7 +68,7 @@ public class MaidRankRenderer {
                     drawTexturedQuad(poseStack, x, y + progressIconInv + 7, textOffset, rankOffset + progressIconInv + 7, 64, progressIcon, 0);
                     drawTexturedQuad(poseStack, x, y + 32, 0, 240, 64, 16, 0);
                     drawTexturedQuad(poseStack, x + 16, y + 32, 16, 224, progress, 16, 0);
-
+                    
                     if (depthTestEnabled) {
                         RenderSystem.enableDepthTest();
                     } else {
@@ -79,8 +79,8 @@ public class MaidRankRenderer {
             });
         }
     }
-
-
+    
+    
     public static void drawTexturedQuad(PoseStack poseStack, int x, int y, int u, int v, int width, int height, float zLevel) {
         float f = 0.00390625F;
         RenderSystem.setShader(GameRenderer::getPositionTexShader);

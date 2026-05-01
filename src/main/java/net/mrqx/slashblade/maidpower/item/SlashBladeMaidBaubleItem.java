@@ -17,12 +17,12 @@ public class SlashBladeMaidBaubleItem extends Item {
     public SlashBladeMaidBaubleItem(Properties pProperties) {
         super(pProperties.stacksTo(1));
     }
-
+    
     @Override
     public boolean isFoil(ItemStack stack) {
         return true;
     }
-
+    
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {

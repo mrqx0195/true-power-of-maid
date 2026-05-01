@@ -16,9 +16,10 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.mrqx.sbr_core.utils.MrqxSlayerStyleArts;
+import net.mrqx.sbr_core.utils.SlashBladeAttackUtils;
+import net.mrqx.sbr_core.utils.SlashBladeMovementUtils;
 import net.mrqx.slashblade.maidpower.event.MaidGuardHandler;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
-import net.mrqx.slashblade.maidpower.util.MaidSlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 
 import java.util.Optional;
@@ -26,41 +27,41 @@ import java.util.function.Function;
 
 public class MaidSlashBladeMove {
     public static final String TRICK_COOL_DOWN = "truePowerOfMaid.trickCooldown";
-
+    
     public static BehaviorControl<Mob> create(Function<LivingEntity, Float> speedModifier) {
         return BehaviorBuilder.create(instance ->
-                instance.group(
-                        instance.registered(MemoryModuleType.WALK_TARGET),
-                        instance.registered(MemoryModuleType.LOOK_TARGET),
-                        instance.present(MemoryModuleType.ATTACK_TARGET),
-                        instance.registered(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-                ).apply(instance, (walkTargetAccessor, lookTargetAccessor, attackTargetAccessor, visibleEntitiesAccessor) ->
-                        (level, mob, time) -> handleMove(instance, walkTargetAccessor, lookTargetAccessor, attackTargetAccessor, visibleEntitiesAccessor, mob, speedModifier)
-                )
+            instance.group(
+                instance.registered(MemoryModuleType.WALK_TARGET),
+                instance.registered(MemoryModuleType.LOOK_TARGET),
+                instance.present(MemoryModuleType.ATTACK_TARGET),
+                instance.registered(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
+            ).apply(instance, (walkTargetAccessor, lookTargetAccessor, attackTargetAccessor, visibleEntitiesAccessor) ->
+                (level, mob, time) -> handleMove(instance, walkTargetAccessor, lookTargetAccessor, attackTargetAccessor, visibleEntitiesAccessor, mob, speedModifier)
+            )
         );
     }
-
+    
     public static BehaviorControl<Mob> create(float speedModifier) {
         return create(entity -> speedModifier);
     }
-
+    
     private static boolean handleMove(
-            BehaviorBuilder.Instance<Mob> instance,
-            MemoryAccessor<OptionalBox.Mu, WalkTarget> walkTargetAccessor,
-            MemoryAccessor<OptionalBox.Mu, PositionTracker> lookTargetAccessor,
-            MemoryAccessor<IdF.Mu, LivingEntity> attackTargetAccessor,
-            MemoryAccessor<OptionalBox.Mu, NearestVisibleLivingEntities> visibleEntitiesAccessor,
-            Mob mob,
-            Function<LivingEntity, Float> speedModifier
+        BehaviorBuilder.Instance<Mob> instance,
+        MemoryAccessor<OptionalBox.Mu, WalkTarget> walkTargetAccessor,
+        MemoryAccessor<OptionalBox.Mu, PositionTracker> lookTargetAccessor,
+        MemoryAccessor<IdF.Mu, LivingEntity> attackTargetAccessor,
+        MemoryAccessor<OptionalBox.Mu, NearestVisibleLivingEntities> visibleEntitiesAccessor,
+        Mob mob,
+        Function<LivingEntity, Float> speedModifier
     ) {
         LivingEntity target = instance.get(attackTargetAccessor);
         Optional<NearestVisibleLivingEntities> visibleEntitiesOpt = instance.tryGet(visibleEntitiesAccessor);
-
+        
         if (mob instanceof EntityMaid maid) {
-            if (!MaidSlashBladeAttackUtils.isHoldingSlashBlade(maid) || maid.isMaidInSittingPose()) {
+            if (!SlashBladeAttackUtils.isHoldingSlashBlade(maid) || maid.isMaidInSittingPose()) {
                 return false;
             }
-
+            
             float distance = maid.distanceTo(target);
             double reach = TargetSelector.getResolvedReach(maid);
             CompoundTag data = maid.getPersistentData();
@@ -68,13 +69,13 @@ public class MaidSlashBladeMove {
             if (MaidGuardHandler.isGuarding(maid) && !hasTruePower) {
                 return false;
             }
-
+            
             boolean canTrick = MaidSlashBladeMovementUtils.canTrick(maid);
             boolean canAirTrick = canTrick && SlashBladeMaidBauble.MirageBlade.checkBauble(maid);
             boolean hasTrick = false;
-
+            
             boolean targetVisible = visibleEntitiesOpt.map(entities -> entities.contains(target)).orElse(false);
-
+            
             if (targetVisible && distance > reach * reach) {
                 if (!canAirTrick) {
                     walkTargetAccessor.erase();
@@ -83,16 +84,16 @@ public class MaidSlashBladeMove {
                 lookTargetAccessor.set(new EntityTracker(target, true));
                 walkTargetAccessor.set(new WalkTarget(new EntityTracker(target, false), speedModifier.apply(mob) * (hasTruePower ? 2 : 1), 0));
             }
-
+            
             if (canAirTrick && distance > reach) {
-                if (!MaidSlashBladeMovementUtils.AIR_TRICK_CHECK.apply(maid, distance, reach)) {
-                    MaidSlashBladeMovementUtils.TRY_TRICK_TO_TARGET.accept(maid, target);
+                if (!SlashBladeMovementUtils.airTrickCheck(maid, distance, reach)) {
+                    SlashBladeMovementUtils.tryTrickToTarget(maid, target);
                 }
                 hasTrick = true;
                 data.putInt(TRICK_COOL_DOWN, 60);
                 maid.level().broadcastEntityEvent(maid, (byte) 46);
             }
-
+            
             if (canTrick && !hasTrick) {
                 if (!maid.onGround() && maid.getY() - target.getY() > 5) {
                     MrqxSlayerStyleArts.TRICK_DOWN.apply(maid, true);

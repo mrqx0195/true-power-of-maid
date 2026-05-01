@@ -38,7 +38,7 @@ import java.util.Objects;
 
 public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRenderer<T>> extends GeoLayerRenderer<T, R> {
     private static final ResourceLocation CREEPER_ARMOR = ResourceLocation.withDefaultNamespace("textures/entity/creeper/creeper_armor.png");
-
+    
     private final LazyOptional<MmdPmdModelMc> bladeHolder = LazyOptional.of(() -> {
         try {
             return new MmdPmdModelMc(ResourceLocation.fromNamespaceAndPath("slashblade", "model/bladeholder.pmd"));
@@ -46,7 +46,7 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
             throw new RuntimeException(e);
         }
     });
-
+    
     private final LazyOptional<MmdMotionPlayerGL2> motionPlayer = LazyOptional.of(() -> {
         MmdMotionPlayerGL2 mmp = new MmdMotionPlayerGL2();
         this.bladeHolder.ifPresent(pmd -> {
@@ -58,16 +58,16 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
         });
         return mmp;
     });
-
+    
     public GeoLayerMaidBladeRenderer(R entityRendererIn) {
         super(entityRendererIn);
     }
-
+    
     @Override
     public GeoLayerMaidBladeRenderer<T, R> copy(R renderer) {
         return new GeoLayerMaidBladeRenderer<>(renderer);
     }
-
+    
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int light, T entity, float limbSwing,
                        float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
@@ -76,22 +76,22 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
             return;
         }
         stack.getCapability(CapabilitySlashBlade.BLADESTATE).ifPresent(state -> motionPlayer.ifPresent(mmp ->
-                renderBlade(poseStack, buffer, light, entity, partialTicks, stack, state, mmp)));
+            renderBlade(poseStack, buffer, light, entity, partialTicks, stack, state, mmp)));
     }
-
+    
     private void renderBlade(PoseStack poseStack, MultiBufferSource buffer, int light, T entity, float partialTicks,
                              ItemStack stack, ISlashBladeState state, MmdMotionPlayerGL2 mmp) {
         float yOffset = 1.5F;
         double motionScale = 0.125F;
         double modelScaleBase = 0.0078125F;
-
+        
         ComboState combo = getComboState(state);
         double time = getComboTime(combo, entity, state, partialTicks);
-
+        
         if (combo == ComboStateRegistry.NONE.get()) {
             combo = getComboRootState(state);
         }
-
+        
         MmdVmdMotionMc motion = BladeMotionManager.getInstance().getMotion(Objects.requireNonNull(combo).getMotionLoc());
         double maxSeconds = 0.0F;
         try {
@@ -114,7 +114,7 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
         } catch (MmdException e) {
             TruePowerOfMaid.LOGGER.error("", e);
         }
-
+        
         try (MSAutoCloser ignored = MSAutoCloser.pushMatrix(poseStack)) {
             setUserPose(poseStack, entity, partialTicks);
             poseStack.translate(0.0F, yOffset, 0.0F);
@@ -126,30 +126,30 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
             renderSheathPart(poseStack, buffer, light, stack, obj, mmp, modelScaleBase, motionScale, state, textureLocation, entity, partialTicks);
         }
     }
-
+    
     private ComboState getComboState(ISlashBladeState state) {
         return ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboSeq()) != null
-                ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboSeq())
-                : ComboStateRegistry.NONE.get();
+            ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboSeq())
+            : ComboStateRegistry.NONE.get();
     }
-
+    
     private ComboState getComboRootState(ISlashBladeState state) {
         return ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboRoot()) != null
-                ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboRoot())
-                : ComboStateRegistry.STANDBY.get();
+            ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboRoot())
+            : ComboStateRegistry.STANDBY.get();
     }
-
+    
     private double getComboTime(ComboState combo, T entity, ISlashBladeState state, float partialTicks) {
         double time = TimeValueHelper.getMSecFromTicks((float) Math.max(0L, entity.level().getGameTime() - state.getLastActionTime()) + partialTicks);
         while (combo != ComboStateRegistry.NONE.get() && (double) Objects.requireNonNull(combo).getTimeoutMS() < time) {
             time -= combo.getTimeoutMS();
             combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity)) != null
-                    ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity))
-                    : ComboStateRegistry.NONE.get();
+                ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity))
+                : ComboStateRegistry.NONE.get();
         }
         return time;
     }
-
+    
     private void renderBladePart(PoseStack poseStack, MultiBufferSource buffer, int light, ItemStack stack, WavefrontObject obj,
                                  MmdMotionPlayerGL2 mmp, double modelScaleBase, double motionScale,
                                  ISlashBladeState state, ResourceLocation textureLocation) {
@@ -171,7 +171,7 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
             BladeRenderState.renderOverridedLuminous(stack, obj, part + "_luminous", textureLocation, poseStack, buffer, light);
         }
     }
-
+    
     private void renderSheathPart(PoseStack poseStack, MultiBufferSource buffer, int light, ItemStack stack, WavefrontObject obj,
                                   MmdMotionPlayerGL2 mmp, double modelScaleBase, double motionScale,
                                   ISlashBladeState state, ResourceLocation textureLocation, T entity, float partialTicks) {
@@ -196,7 +196,7 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
             }
         }
     }
-
+    
     public void setUserPose(PoseStack poseStack, T entity, float partialTicks) {
         ILocationModel model = getLocationModel(entity);
         RenderUtils.prepMatrixForLocator(poseStack, model.leftHandBones());

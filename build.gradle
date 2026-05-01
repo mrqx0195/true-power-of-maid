@@ -111,7 +111,8 @@ obfuscation {
 dependencies {
     modImplementation "maven.modrinth:slashblade-resharped:${slash_blade_version}"
     // mrqx`s Slashblade Core
-    modImplementation "maven.modrinth:2zhQmVfn:${mrqx_slash_blade_core_version}"
+//    modImplementation "maven.modrinth:2zhQmVfn:${mrqx_slash_blade_core_version}"
+    modImplementation "blank:mrqxs_Slashblade_Core-1.20.1:${mrqx_slash_blade_core_version}"
     modImplementation "maven.modrinth:true-power:${true_power_version}"
 
     // Touhou Little Maid
@@ -132,6 +133,9 @@ mixin {
 
 dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.5.0"))
 }
 
 jar {

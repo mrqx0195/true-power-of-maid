@@ -21,18 +21,18 @@ public abstract class MixinAttackHelper {
         if (attacker instanceof EntityMaid maid) {
             boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
             IConcentrationRank.ConcentrationRanks rankBonus = maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                    .map(rp -> rp.getRank(attacker.getCommandSenderWorld().getGameTime()))
-                    .orElse(IConcentrationRank.ConcentrationRanks.NONE);
+                .map(rp -> rp.getRank(attacker.getCommandSenderWorld().getGameTime()))
+                .orElse(IConcentrationRank.ConcentrationRanks.NONE);
             double rankDamageBonus = rankBonus.level / 2.0;
             if (IConcentrationRank.ConcentrationRanks.S.level <= rankBonus.level) {
                 int refine = maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
-                        .map(ISlashBladeState::getRefine).orElse(0);
+                    .map(ISlashBladeState::getRefine).orElse(0);
                 int expLevel = (int) Math.floor((double) maid.getExperience() / 120);
-
+                
                 rankDamageBonus = (float) Math.max(rankDamageBonus,
-                        (hasTruePower ? refine : Math.min(expLevel, refine)) * SlashBladeConfig.REFINE_DAMAGE_MULTIPLIER.get());
+                    (hasTruePower ? refine : Math.min(expLevel, refine)) * SlashBladeConfig.REFINE_DAMAGE_MULTIPLIER.get());
             }
-
+            
             cir.setReturnValue((float) rankDamageBonus);
         }
     }
