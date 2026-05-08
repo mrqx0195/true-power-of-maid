@@ -101,13 +101,11 @@ public class EntityUnlimitedBladeWorks extends LivingEntity implements OwnableEn
     }
     
     @Override
-    @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     @Nullable
     public UUID getOwnerUUID() {
         return this.entityData.get(OWNER_ID).orElse(null);
     }
     
-    @SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
     public void setOwnerUUID(@Nullable UUID uuid) {
         this.entityData.set(OWNER_ID, Optional.ofNullable(uuid));
     }
