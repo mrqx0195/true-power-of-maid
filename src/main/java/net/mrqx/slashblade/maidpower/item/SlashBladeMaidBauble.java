@@ -32,7 +32,6 @@ import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
 import net.mrqx.slashblade.maidpower.util.MaidItemUtils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SlashBladeMaidBauble implements IMaidBauble {
@@ -77,8 +76,11 @@ public class SlashBladeMaidBauble implements IMaidBauble {
     public static class ComboB extends SlashBladeMaidBauble {
         @SubscribeEvent
         public static void onMaidProgressComboEvent(MaidProgressComboEvent event) {
-            if (checkBauble(event.getMaid()) && event.getCurrentCombo() != null) {
-                if ((Objects.equals(event.getCurrentCombo(), ComboStateRegistry.COMBO_A3.getId()) || event.getCurrentCombo().equals(ComboStateRegistry.AERIAL_RAVE_A2.getId()))) {
+            if (checkBauble(event.getMaid())) {
+                if ((event.getNextCombo().equals(ComboStateRegistry.COMBO_A4.getId())
+                    || event.getNextCombo().equals(ComboStateRegistry.COMBO_A4_EX.getId())
+                    || event.getNextCombo().equals(ComboStateRegistry.AERIAL_RAVE_A3.getId())
+                )) {
                     event.setCanceled(true);
                 }
             } else {
@@ -98,7 +100,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         @SubscribeEvent
         public static void onMaidProgressComboEvent(MaidProgressComboEvent event) {
             if (checkBauble(event.getMaid())) {
-                if (Objects.equals(event.getCurrentCombo(), ComboStateRegistry.COMBO_A2.getId())) {
+                if (event.getNextCombo().equals(ComboStateRegistry.COMBO_A3.getId())) {
                     event.setCanceled(true);
                 }
             } else {
@@ -117,7 +119,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
     public static class RapidSlash extends SlashBladeMaidBauble {
         @SubscribeEvent
         public static void onMaidProgressComboEvent(MaidProgressComboEvent event) {
-            if (!checkBauble(event.getMaid()) && event.getNextCombo().equals(ComboStateRegistry.RAPID_SLASH_QUICK.getId())) {
+            if (!checkBauble(event.getMaid()) && (event.getNextCombo().equals(ComboStateRegistry.RAPID_SLASH.getId()) || event.getNextCombo().equals(ComboStateRegistry.RAPID_SLASH_QUICK.getId()))) {
                 event.setCanceled(true);
             }
         }

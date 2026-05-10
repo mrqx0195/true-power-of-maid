@@ -82,7 +82,7 @@ public class MaidSlashBladeMove {
                 }
             } else {
                 lookTargetAccessor.set(new EntityTracker(target, true));
-                walkTargetAccessor.set(new WalkTarget(new EntityTracker(target, false), speedModifier.apply(mob) * (hasTruePower ? 2 : 1), 0));
+                walkTargetAccessor.set(new WalkTarget(new EntityTracker(target, false), speedModifier.apply(mob) * (hasTruePower ? 2 : 1), (int) (reach * reach)));
             }
             
             if (canAirTrick && distance > reach) {
