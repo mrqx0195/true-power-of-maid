@@ -3,7 +3,7 @@ package net.mrqx.slashblade.maidpower.entity.ai;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.mojang.datafixers.kinds.IdF;
 import com.mojang.datafixers.kinds.OptionalBox;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -55,7 +55,7 @@ public class MaidSlashBladeAttack {
             return false;
         }
         
-        maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
+        BladeStateAccess.of(maid.getMainHandItem()).ifPresent(state -> {
             state.setTargetEntityId(maid.getTarget());
             boolean canRapidSlash = SlashBladeMaidBauble.RapidSlash.checkBauble(maid);
             boolean preferAirAttack = SlashBladeMaidBauble.AirCombo.checkBauble(maid);

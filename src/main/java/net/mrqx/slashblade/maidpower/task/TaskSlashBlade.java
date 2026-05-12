@@ -10,8 +10,8 @@ import com.github.tartaricacid.touhoulittlemaid.util.SoundUtil;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import mods.flammpfeil.slashblade.data.builtin.SlashBladeBuiltInRegistry;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.SlashBladeItems;
 import mods.flammpfeil.slashblade.registry.slashblade.SlashBladeDefinition;
 import mods.flammpfeil.slashblade.util.TargetSelector;
@@ -25,6 +25,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.behavior.StartAttacking;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.mrqx.sbr_core.utils.SlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidMirageBladeBehavior;
@@ -74,9 +75,10 @@ public class TaskSlashBlade implements IAttackTask {
     @Override
     public ItemStack getIcon() {
         if (Minecraft.getInstance().player != null) {
-            Registry<SlashBladeDefinition> bladeRegistry = SlashBlade.getSlashBladeDefinitionRegistry(Minecraft.getInstance().player.level());
+            Level level = Minecraft.getInstance().player.level();
+            Registry<SlashBladeDefinition> bladeRegistry = SlashBlade.getSlashBladeDefinitionRegistry(level);
             if (bladeRegistry.containsKey(SlashBladeBuiltInRegistry.YAMATO)) {
-                return Objects.requireNonNull(bladeRegistry.get(SlashBladeBuiltInRegistry.YAMATO)).getBlade();
+                return Objects.requireNonNull(bladeRegistry.get(SlashBladeBuiltInRegistry.YAMATO)).getBlade(level.registryAccess());
             }
         }
         return SlashBladeItems.SLASHBLADE.get().getDefaultInstance();
@@ -119,7 +121,7 @@ public class TaskSlashBlade implements IAttackTask {
     
     @Override
     public boolean isWeapon(EntityMaid maid, ItemStack stack) {
-        return stack.getCapability(ItemSlashBlade.BLADESTATE).isPresent();
+        return BladeStateAccess.of(stack).isPresent();
     }
     
     private boolean hasSouls(EntityMaid maid) {

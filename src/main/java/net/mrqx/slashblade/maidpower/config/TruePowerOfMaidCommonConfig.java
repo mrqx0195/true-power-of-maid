@@ -4,27 +4,27 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeMap;
 import com.google.common.collect.TreeRangeMap;
 import com.google.common.util.concurrent.AtomicDouble;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class TruePowerOfMaidCommonConfig {
-    public static final ForgeConfigSpec COMMON_CONFIG;
+    public static final ModConfigSpec COMMON_CONFIG;
     
-    public static final ForgeConfigSpec.ConfigValue<List<? extends List<?>>> UNAWAKENED_SOUL_LIST;
-    public static final ForgeConfigSpec.IntValue TRUE_POWER_MAX_SOUL_COUNT;
+    public static final ModConfigSpec.ConfigValue<List<? extends List<?>>> UNAWAKENED_SOUL_LIST;
+    public static final ModConfigSpec.IntValue TRUE_POWER_MAX_SOUL_COUNT;
     public static final RangeMap<Double, String> UNAWAKENED_SOUL_RANGE_MAP = TreeRangeMap.create();
     public static double unawakenedSoulTotalRange;
     
     static {
-        ForgeConfigSpec.Builder commonBuilder = new ForgeConfigSpec.Builder();
+        ModConfigSpec.Builder commonBuilder = new ModConfigSpec.Builder();
         
         commonBuilder.comment("TLM: True POWER common settings");
         
@@ -46,9 +46,9 @@ public class TruePowerOfMaidCommonConfig {
                     List.of("true_power_of_maid:soul_of_exp", 1.0),
                     List.of("true_power_of_maid:soul_of_power", 0.5),
                     List.of("true_power_of_maid:soul_of_true_power", 0.001)
-                ),
+                ), List::of,
                 it -> it instanceof List<?> list && list.size() == 2
-                    && list.get(0) instanceof String
+                    && list.getFirst() instanceof String
                     && list.get(1) instanceof Double
                     && (Double) (list.get(1)) >= 0.0);
         
@@ -63,7 +63,7 @@ public class TruePowerOfMaidCommonConfig {
     public static void onServerStartingEvent(ServerStartingEvent event) {
         UNAWAKENED_SOUL_RANGE_MAP.clear();
         Map<String, Double> unawakenedSoulMap = new HashMap<>(16);
-        UNAWAKENED_SOUL_LIST.get().forEach(chance -> unawakenedSoulMap.put((String) (chance.get(0)), (Double) (chance.get(1))));
+        UNAWAKENED_SOUL_LIST.get().forEach(chance -> unawakenedSoulMap.put((String) (chance.getFirst()), (Double) (chance.get(1))));
         List<Map.Entry<String, Double>> sortedList = new ArrayList<>(unawakenedSoulMap.entrySet());
         sortedList.sort(Map.Entry.comparingByValue());
         AtomicDouble total = new AtomicDouble(0);

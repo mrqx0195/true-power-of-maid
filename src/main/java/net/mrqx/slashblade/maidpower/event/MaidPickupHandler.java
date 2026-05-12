@@ -1,17 +1,19 @@
 package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.api.event.MaidPickupEvent;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class MaidPickupHandler {
     @SubscribeEvent
     public static void onMaidPickupExperience(MaidPickupEvent.ExperienceResult event) {
-        event.getMaid().getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
-            if (SlashBladeMaidBauble.Exp.checkBauble(event.getMaid())) {
+        EntityMaid maid = event.getMaid();
+        BladeStateAccess.of(maid.getMainHandItem()).ifPresent(state -> {
+            if (SlashBladeMaidBauble.Exp.checkBauble(maid)) {
                 state.setDamage(state.getDamage() - event.getExperienceOrb().getValue());
             }
         });
@@ -19,8 +21,9 @@ public class MaidPickupHandler {
     
     @SubscribeEvent
     public static void onMaidPickupPowerPoint(MaidPickupEvent.PowerPointResult event) {
-        event.getMaid().getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
-            if (SlashBladeMaidBauble.Exp.checkBauble(event.getMaid())) {
+        EntityMaid maid = event.getMaid();
+        BladeStateAccess.of(maid.getMainHandItem()).ifPresent(state -> {
+            if (SlashBladeMaidBauble.Exp.checkBauble(maid)) {
                 state.setDamage(state.getDamage() - event.getPowerPoint().getValue());
             }
         });

@@ -5,24 +5,21 @@ import com.github.tartaricacid.touhoulittlemaid.api.event.MaidDamageEvent;
 import com.github.tartaricacid.touhoulittlemaid.api.event.MaidDeathEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.inventory.handler.BaubleItemHandler;
-import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
+import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
+import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.mrqx.sbr_core.utils.SlashBladeAttackUtils;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.config.TruePowerOfMaidCommonConfig;
@@ -30,25 +27,28 @@ import net.mrqx.slashblade.maidpower.entity.EntityUnlimitedBladeWorks;
 import net.mrqx.slashblade.maidpower.event.MaidTickHandler;
 import net.mrqx.slashblade.maidpower.event.api.MaidProgressComboEvent;
 import net.mrqx.slashblade.maidpower.util.MaidItemUtils;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class SlashBladeMaidBauble implements IMaidBauble {
     public interface IPowerfulSlashBladeBauble {
     }
     
-    @Mod.EventBusSubscriber
+    @EventBusSubscriber
     public static class UnawakenedSoul extends SlashBladeMaidBauble {
         @SubscribeEvent
         public static void onLivingDeathEvent(LivingDeathEvent event) {
             if (event.isCanceled()) {
                 return;
             }
-            if (event.getSource().getEntity() instanceof EntityMaid maid) {
+            if (event.getSource().getEntity() instanceof EntityMaid maid && maid.level() instanceof ServerLevel serverLevel) {
                 BaubleItemHandler handler = maid.getMaidBauble();
-                RandomSource random = maid.level().getRandom();
-                int exp = event.getEntity().getExperienceReward();
+                RandomSource random = serverLevel.getRandom();
+                int exp = event.getEntity().getExperienceReward(serverLevel, maid);
                 long exp4 = (long) exp * exp * exp;
                 double chance = Math.min(1.0, exp4 / 100000.0);
                 if (random.nextDouble() < chance) {
@@ -57,7 +57,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
                     if (baubleIn instanceof UnawakenedSoul && random.nextDouble() < chance) {
                         String item = TruePowerOfMaidCommonConfig.UNAWAKENED_SOUL_RANGE_MAP.get(random.nextDouble() * TruePowerOfMaidCommonConfig.unawakenedSoulTotalRange);
                         if (item != null) {
-                            Item item1 = maid.level().registryAccess().registryOrThrow(Registries.ITEM).get(ResourceLocation.tryParse(item));
+                            Item item1 = serverLevel.registryAccess().registryOrThrow(Registries.ITEM).get(ResourceLocation.tryParse(item));
                             if (item1 != null) {
                                 handler.setStackInSlot(i, new ItemStack(item1));
                             }
@@ -72,7 +72,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
     }
     
-    @Mod.EventBusSubscriber
+    @EventBusSubscriber
     public static class ComboB extends SlashBladeMaidBauble {
         @SubscribeEvent
         public static void onMaidProgressComboEvent(MaidProgressComboEvent event) {
@@ -95,7 +95,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
     }
     
-    @Mod.EventBusSubscriber
+    @EventBusSubscriber
     public static class ComboC extends SlashBladeMaidBauble {
         @SubscribeEvent
         public static void onMaidProgressComboEvent(MaidProgressComboEvent event) {
@@ -115,7 +115,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
     }
     
-    @Mod.EventBusSubscriber
+    @EventBusSubscriber
     public static class RapidSlash extends SlashBladeMaidBauble {
         @SubscribeEvent
         public static void onMaidProgressComboEvent(MaidProgressComboEvent event) {
@@ -147,7 +147,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
     }
     
-    @Mod.EventBusSubscriber
+    @EventBusSubscriber
     public static class Power extends SlashBladeMaidBauble {
         @SubscribeEvent
         public static void onPowerBladeEvent(SlashBladeEvent.PowerBladeEvent event) {
@@ -200,7 +200,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
     }
     
-    @Mod.EventBusSubscriber
+    @EventBusSubscriber
     public static class TruePower extends SlashBladeMaidBauble implements IPowerfulSlashBladeBauble {
         @SubscribeEvent
         public static void onPowerBladeEvent(SlashBladeEvent.PowerBladeEvent event) {
@@ -225,7 +225,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
         
         @SubscribeEvent(priority = EventPriority.HIGH)
-        public void onMaidDeathEvent(MaidDeathEvent event) {
+        public static void onMaidDeathEvent(MaidDeathEvent event) {
             if (checkBauble(event.getMaid()) && SlashBladeAttackUtils.isHoldingSlashBlade(event.getMaid())) {
                 CompoundTag data = event.getMaid().getPersistentData();
                 if (data.getLong(MaidTickHandler.TRUE_POWER_RANK) >= 0) {
@@ -239,7 +239,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         }
     }
     
-    @Mod.EventBusSubscriber
+    @EventBusSubscriber
     public static class UnlimitedBladeWorks extends SlashBladeMaidBauble implements IPowerfulSlashBladeBauble {
         @SubscribeEvent
         public static void onPowerBladeEvent(SlashBladeEvent.PowerBladeEvent event) {
@@ -252,14 +252,13 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         public static void onMaidDamageEvent(MaidDamageEvent event) {
             if (checkBauble(event.getMaid()) && SlashBladeAttackUtils.isHoldingSlashBlade(event.getMaid())) {
                 MaidItemUtils.getAllSlashBladeUnbroken(event.getMaid()).forEach(itemStack ->
-                    itemStack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
+                    BladeStateAccess.of(itemStack).ifPresent(state -> {
                         if (event.getAmount() > 0 && !event.getMaid().getMainHandItem().equals(itemStack)) {
                             int damage = itemStack.getMaxDamage() - Math.min(itemStack.getDamageValue(), itemStack.getMaxDamage());
                             damage = Math.min(damage - 1, (int) Math.ceil(event.getAmount()));
                             if (damage > 0) {
                                 event.setAmount(event.getAmount() - damage);
-                                itemStack.hurtAndBreak(damage, event.getMaid(), entityMaid ->
-                                    entityMaid.broadcastBreakEvent(InteractionHand.MAIN_HAND));
+                                itemStack.hurtAndBreak(damage, event.getMaid(), EquipmentSlot.MAINHAND);
                             }
                         }
                     })
@@ -270,22 +269,22 @@ public class SlashBladeMaidBauble implements IMaidBauble {
         @SubscribeEvent
         public static void onMaidDeathEvent(MaidDeathEvent event) {
             if (checkBauble(event.getMaid()) && SlashBladeAttackUtils.isHoldingSlashBlade(event.getMaid())) {
-                AtomicReference<ItemStack> blade = new AtomicReference<>(event.getMaid().getMainHandItem());
+                ItemStack[] blade = {event.getMaid().getMainHandItem()};
                 MaidItemUtils.getAllSlashBladeUnbroken(event.getMaid()).forEach(itemStack ->
-                    itemStack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
-                        ItemStack stack = blade.get();
+                    BladeStateAccess.of(itemStack).ifPresent(state -> {
+                        ItemStack stack = blade[0];
                         if (!event.getMaid().getMainHandItem().equals(itemStack)) {
                             if (event.getMaid().getMainHandItem().equals(stack)) {
-                                blade.set(itemStack);
+                                blade[0] = itemStack;
                                 return;
                             }
                             if ((stack.getMaxDamage() - stack.getDamageValue()) > (itemStack.getMaxDamage() - itemStack.getDamageValue())) {
-                                blade.set(itemStack);
+                                blade[0] = itemStack;
                             }
                         }
                     })
                 );
-                blade.get().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
+                BladeStateAccess.of(blade[0]).ifPresent(state -> {
                     if (!state.isBroken()) {
                         state.setBroken(true);
                         event.setCanceled(true);
@@ -316,8 +315,7 @@ public class SlashBladeMaidBauble implements IMaidBauble {
                 ItemStack blade = bladeList.get(maid.level().random.nextInt(bladeList.size()));
                 EntityUnlimitedBladeWorks ubw = getEntityUnlimitedBladeWorks(maid, pos, xRot, yRot, blade);
                 AttackManager.doSlash(ubw, roll, mute, critical, damage);
-                blade.hurtAndBreak(1, maid, entityMaid ->
-                    entityMaid.broadcastBreakEvent(InteractionHand.MAIN_HAND));
+                blade.hurtAndBreak(1, maid, EquipmentSlot.MAINHAND);
             }
         }
         
@@ -325,17 +323,15 @@ public class SlashBladeMaidBauble implements IMaidBauble {
             EntityUnlimitedBladeWorks ubw = new EntityUnlimitedBladeWorks(TruePowerOfMaid.RegistryEvents.UnlimitedBladeWorks, maid.level());
             ubw.setOwnerUUID(maid.getUUID());
             ubw.setItemSlot(EquipmentSlot.MAINHAND, blade.copy());
-            ubw.getAttributes().assignValues(maid.getAttributes());
+            ubw.getAttributes().assignAllValues(maid.getAttributes());
             ubw.setPos(pos);
             ubw.setXRot(xRot);
             ubw.setYRot(yRot);
-            ubw.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT).ifPresent(rank ->
-                maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT).ifPresent(maidRank -> {
-                    rank.setRawRankPoint(maidRank.getRawRankPoint());
-                    rank.setLastRankRise(maidRank.getLastRankRise());
-                    rank.setLastUpdte(maidRank.getLastUpdate());
-                })
-            );
+            IConcentrationRank ubwRank = ubw.getData(CapabilityConcentrationRank.RANK_POINT);
+            IConcentrationRank maidRank = maid.getData(CapabilityConcentrationRank.RANK_POINT);
+            ubwRank.setRawRankPoint(maidRank.getRawRankPoint());
+            ubwRank.setLastRankRise(maidRank.getLastRankRise());
+            ubwRank.setLastUpdte(maidRank.getLastUpdate());
             ubw.setHealth(ubw.getMaxHealth());
             ubw.setNoGravity(true);
             ubw.noPhysics = true;

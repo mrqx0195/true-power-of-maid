@@ -3,11 +3,11 @@ package net.mrqx.slashblade.maidpower.event;
 import com.github.tartaricacid.touhoulittlemaid.api.event.MaidTickEvent;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import mods.flammpfeil.slashblade.ability.ArrowReflector;
-import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
+import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.entity.IShootable;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import mods.flammpfeil.slashblade.registry.ModAttributes;
 import mods.flammpfeil.slashblade.slasharts.JudgementCut;
@@ -15,10 +15,10 @@ import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -29,11 +29,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.mrqx.sbr_core.utils.SlashBladeAttackUtils;
 import net.mrqx.sbr_core.utils.SlashBladeMovementUtils;
+import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.entity.EntityUnlimitedBladeWorks;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidMirageBladeBehavior;
 import net.mrqx.slashblade.maidpower.entity.ai.MaidSlashBladeMove;
@@ -42,13 +40,14 @@ import net.mrqx.slashblade.maidpower.task.TaskSlashBlade;
 import net.mrqx.slashblade.maidpower.util.MaidItemUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
 import net.mrqx.truepower.util.JustSlashArtManager;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class MaidTickHandler {
     public static final String TRUE_POWER_RANK = "truePowerOfMaid.truePowerRank";
     public static final String UNLIMITED_BLADE_WORKS_COOLDOWN_KEY = "truePowerOfMaid.unlimitedBladeWorks.cooldown";
@@ -57,7 +56,7 @@ public class MaidTickHandler {
     @SubscribeEvent
     public static void onMaidTickEvent(MaidTickEvent event) {
         EntityMaid maid = event.getMaid();
-        maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
+        BladeStateAccess.of(maid.getMainHandItem())
             .ifPresent(state -> handleMaidTick(maid, state));
     }
     
@@ -70,20 +69,18 @@ public class MaidTickHandler {
         maidBonus(maid, hasTruePower, hasUnlimitedBladeWorks);
         maid.getMainHandItem().inventoryTick(maid.level(), maid, 0, true);
         
-        maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-            .ifPresent(rank -> {
-                if (hasTruePower) {
-                    long rankPoint = Math.min(Math.max(rank.getRankPoint(maid.level().getGameTime()), data.getLong(TRUE_POWER_RANK)), rank.getMaxCapacity());
-                    rank.setRawRankPoint(rankPoint);
-                    rank.setLastUpdte(maid.level().getGameTime());
-                    data.putLong(TRUE_POWER_RANK, rankPoint);
-                }
-                if (hasUnlimitedBladeWorks) {
-                    long rankPoint = Math.min(Math.max(rank.getRankPoint(maid.level().getGameTime()), 5 * rank.getUnitCapacity() + 3), rank.getMaxCapacity());
-                    rank.setRawRankPoint(rankPoint);
-                    rank.setLastUpdte(maid.level().getGameTime());
-                }
-            });
+        IConcentrationRank rank = maid.getData(CapabilityConcentrationRank.RANK_POINT);
+        if (hasTruePower) {
+            long rankPoint = Math.clamp(data.getLong(TRUE_POWER_RANK), rank.getRankPoint(maid.level().getGameTime()), rank.getMaxCapacity());
+            rank.setRawRankPoint(rankPoint);
+            rank.setLastUpdte(maid.level().getGameTime());
+            data.putLong(TRUE_POWER_RANK, rankPoint);
+        }
+        if (hasUnlimitedBladeWorks) {
+            long rankPoint = Math.clamp(5 * rank.getUnitCapacity() + 3, rank.getRankPoint(maid.level().getGameTime()), rank.getMaxCapacity());
+            rank.setRawRankPoint(rankPoint);
+            rank.setLastUpdte(maid.level().getGameTime());
+        }
         
         boolean canTrick = MaidSlashBladeMovementUtils.canTrick(maid);
         Entity target = state.getTargetEntity(maid.level());
@@ -149,7 +146,7 @@ public class MaidTickHandler {
         }
         if (hasUnlimitedBladeWorks && SlashBladeMaidBauble.Exp.checkBauble(maid)) {
             MaidItemUtils.getAllSlashBlade(maid).forEach(stack ->
-                stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(bladeState -> {
+                BladeStateAccess.of(stack).ifPresent(bladeState -> {
                     if (maid.getExperience() >= cost && stack.getDamageValue() > 0) {
                         maid.setExperience(maid.getExperience() - cost);
                         bladeState.setDamage(bladeState.getDamage() - favorabilityLevel);
@@ -169,20 +166,17 @@ public class MaidTickHandler {
             if (!Objects.equals(csLoc, ComboStateRegistry.NONE.getId()) && !currentLoc.getValue().equals(csLoc)) {
                 data.putInt(SlashBladeAttackUtils.SUPER_JUDGEMENT_CUT_COUNTER_KEY, 2400);
                 
-                AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
+                AttributeInstance entityReachAttributeInstance = maid.getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
                 if (entityReachAttributeInstance == null) {
                     return;
                 }
                 
                 double radius = TaskSlashBlade.getRadius(maid);
-                int rank = maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                    .map(cr -> cr.getRank(maid.level().getGameTime()))
-                    .orElse(IConcentrationRank.ConcentrationRanks.NONE).level;
+                int rank = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime()).level;
                 double bonus = radius / Math.max(TargetSelector.getResolvedReach(maid), 1) * rank / 7;
                 
                 AttributeModifier entityReachBonus = new AttributeModifier(
-                    UUID.fromString("a7333e5f-d97e-465c-98c7-281a82396d6b"),
-                    "Maid SuperJudgementCut Transient Bonus", bonus, AttributeModifier.Operation.MULTIPLY_TOTAL);
+                    TruePowerOfMaid.prefix("maid_super_judgement_cut_transient_bonus"), bonus, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
                 
                 entityReachAttributeInstance.addTransientModifier(entityReachBonus);
                 JudgementCut.doJudgementCutSuper(maid);
@@ -218,20 +212,17 @@ public class MaidTickHandler {
         if (data.getInt(UNLIMITED_BLADE_WORKS_COUNTER_KEY) > 0
 //                && maid.tickCount % 2 == 0
         ) {
-            AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
+            AttributeInstance entityReachAttributeInstance = maid.getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
             if (entityReachAttributeInstance == null) {
                 return;
             }
             
             double radius = TaskSlashBlade.getRadius(maid);
-            int rank = maid.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
-                .map(cr -> cr.getRank(maid.level().getGameTime()))
-                .orElse(IConcentrationRank.ConcentrationRanks.NONE).level;
+            int rank = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime()).level;
             double bonus = radius / Math.max(TargetSelector.getResolvedReach(maid), 1) * rank / 7;
             
             AttributeModifier entityReachBonus = new AttributeModifier(
-                UUID.fromString("a7333e5f-d97e-465c-98c7-281a82396d6b"),
-                "Maid UnlimitedBladeWorks Transient Bonus", bonus, AttributeModifier.Operation.MULTIPLY_TOTAL);
+                TruePowerOfMaid.prefix("Maid UnlimitedBladeWorks Transient Bonus"), bonus, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
             
             entityReachAttributeInstance.addTransientModifier(entityReachBonus);
             
@@ -281,10 +272,9 @@ public class MaidTickHandler {
                             
                             EntityUnlimitedBladeWorks ubw = SlashBladeMaidBauble.UnlimitedBladeWorks.getEntityUnlimitedBladeWorks(maid, pos, xRot, yRot, blade);
                             LivingEntity target = selected;
-                            ubw.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
+                            BladeStateAccess.of(ubw.getMainHandItem())
                                 .ifPresent(state -> SlashBladeAttackUtils.doSlashArts(ubw, state, target, critical));
-                            blade.hurtAndBreak(1, maid, entityMaid ->
-                                entityMaid.broadcastBreakEvent(InteractionHand.MAIN_HAND));
+                            blade.hurtAndBreak(1, maid, EquipmentSlot.MAINHAND);
                         }
                     }
                     if (data.getInt(UNLIMITED_BLADE_WORKS_COUNTER_KEY) <= 0) {
@@ -349,8 +339,7 @@ public class MaidTickHandler {
     public static void maidBonus(EntityMaid maid, boolean hasTruePower, boolean hasUnlimitedBladeWorks) {
         double radius = TaskSlashBlade.getRadius(maid);
         AttributeModifier followRangeBonus = new AttributeModifier(
-            UUID.fromString("5a138a12-3f1a-40ab-98cf-9532bd9881ce"),
-            "Maid SlashBlade Radius Bonus", radius, AttributeModifier.Operation.ADDITION);
+            TruePowerOfMaid.prefix("maid_slash_blade_radius_bonus"), radius, AttributeModifier.Operation.ADD_VALUE);
         AttributeInstance followRangeAttributeInstance = maid.getAttribute(Attributes.FOLLOW_RANGE);
         if (followRangeAttributeInstance == null) {
             return;
@@ -359,10 +348,9 @@ public class MaidTickHandler {
         followRangeAttributeInstance.addPermanentModifier(followRangeBonus);
         
         AttributeModifier slashBladeDamageBonus = new AttributeModifier(
-            UUID.fromString("b70ee5b2-c9c8-45a9-a959-9db875d2c56e"),
-            "Maid SlashBlade Unawakened Soul Bonus", MaidItemUtils.getBaubleCountForClass(maid, SlashBladeMaidBauble.UnawakenedSoul.class) * 0.1,
-            AttributeModifier.Operation.MULTIPLY_TOTAL);
-        AttributeInstance slashBladeDamageInstance = maid.getAttribute(ModAttributes.SLASHBLADE_DAMAGE.get());
+            TruePowerOfMaid.prefix("maid_slash_blade_unawakened_soul_bonus"), MaidItemUtils.getBaubleCountForClass(maid, SlashBladeMaidBauble.UnawakenedSoul.class) * 0.1,
+            AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+        AttributeInstance slashBladeDamageInstance = maid.getAttribute(ModAttributes.SLASHBLADE_DAMAGE);
         if (slashBladeDamageInstance == null) {
             return;
         }
@@ -370,9 +358,8 @@ public class MaidTickHandler {
         slashBladeDamageInstance.addPermanentModifier(slashBladeDamageBonus);
         
         AttributeModifier entityReachBonus = new AttributeModifier(
-            UUID.fromString("5dd047e5-bb60-4ebf-93ba-34a1ece10128"),
-            "Maid SlashBlade True Power Bonus", (hasTruePower || hasUnlimitedBladeWorks) ? 2.5 : 0.5, AttributeModifier.Operation.ADDITION);
-        AttributeInstance entityReachAttributeInstance = maid.getAttribute(ForgeMod.ENTITY_REACH.get());
+            TruePowerOfMaid.prefix("maid_slash_blade_true_power_bonus"), (hasTruePower || hasUnlimitedBladeWorks) ? 2.5 : 0.5, AttributeModifier.Operation.ADD_VALUE);
+        AttributeInstance entityReachAttributeInstance = maid.getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
         if (entityReachAttributeInstance == null) {
             return;
         }

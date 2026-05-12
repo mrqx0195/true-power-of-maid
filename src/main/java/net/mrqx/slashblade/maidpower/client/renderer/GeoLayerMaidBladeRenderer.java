@@ -10,7 +10,7 @@ import jp.nyatla.nymmd.MmdException;
 import jp.nyatla.nymmd.MmdMotionPlayerGL2;
 import jp.nyatla.nymmd.MmdPmdModelMc;
 import jp.nyatla.nymmd.MmdVmdMotionMc;
-import mods.flammpfeil.slashblade.capability.slashblade.CapabilitySlashBlade;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
@@ -28,36 +28,50 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.mrqx.sbr_core.MrqxSlashBladeCore;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import org.joml.Matrix4f;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRenderer<T>> extends GeoLayerRenderer<T, R> {
     private static final ResourceLocation CREEPER_ARMOR = ResourceLocation.withDefaultNamespace("textures/entity/creeper/creeper_armor.png");
     
-    private final LazyOptional<MmdPmdModelMc> bladeHolder = LazyOptional.of(() -> {
-        try {
-            return new MmdPmdModelMc(ResourceLocation.fromNamespaceAndPath("slashblade", "model/bladeholder.pmd"));
-        } catch (IOException | MmdException e) {
-            throw new RuntimeException(e);
-        }
-    });
+    @Nullable
+    private MmdPmdModelMc cachedBladeholder;
+    @Nullable
+    private MmdMotionPlayerGL2 cachedMotionPlayer;
     
-    private final LazyOptional<MmdMotionPlayerGL2> motionPlayer = LazyOptional.of(() -> {
-        MmdMotionPlayerGL2 mmp = new MmdMotionPlayerGL2();
-        this.bladeHolder.ifPresent(pmd -> {
+    public Optional<MmdPmdModelMc> getBladeholder() {
+        if (this.cachedBladeholder == null) {
             try {
-                mmp.setPmd(pmd);
-            } catch (MmdException e) {
-                TruePowerOfMaid.LOGGER.error("", e);
+                this.cachedBladeholder = new MmdPmdModelMc(ResourceLocation.fromNamespaceAndPath("slashblade", "model/bladeholder.pmd"));
+            } catch (MmdException | IOException e) {
+                MrqxSlashBladeCore.LOGGER.warn("Failed to new jp.nyatla.nymmd.MmdPmdModelMc", e);
             }
-        });
-        return mmp;
-    });
+        }
+        
+        return Optional.ofNullable(this.cachedBladeholder);
+    }
+    
+    public Optional<MmdMotionPlayerGL2> getMotionPlayer() {
+        if (this.cachedMotionPlayer == null) {
+            this.cachedMotionPlayer = new MmdMotionPlayerGL2();
+            this.getBladeholder().ifPresent((bladeHolder) -> {
+                try {
+                    this.cachedMotionPlayer.setPmd(bladeHolder);
+                } catch (MmdException e) {
+                    MrqxSlashBladeCore.LOGGER.warn("Failed to setPmd for MotionPlayer", e);
+                }
+                
+            });
+        }
+        
+        return Optional.ofNullable(this.cachedMotionPlayer);
+    }
     
     public GeoLayerMaidBladeRenderer(R entityRendererIn) {
         super(entityRendererIn);
@@ -75,7 +89,7 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
         if (stack.isEmpty()) {
             return;
         }
-        stack.getCapability(CapabilitySlashBlade.BLADESTATE).ifPresent(state -> motionPlayer.ifPresent(mmp ->
+        BladeStateAccess.of(stack).ifPresent(state -> this.getMotionPlayer().ifPresent(mmp ->
             renderBlade(poseStack, buffer, light, entity, partialTicks, stack, state, mmp)));
     }
     
@@ -128,23 +142,23 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
     }
     
     private ComboState getComboState(ISlashBladeState state) {
-        return ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboSeq()) != null
-            ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboSeq())
+        ComboState comboState = ComboStateRegistry.REGISTRY.get(state.getComboSeq());
+        return comboState != null ? comboState
             : ComboStateRegistry.NONE.get();
     }
     
     private ComboState getComboRootState(ISlashBladeState state) {
-        return ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboRoot()) != null
-            ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(state.getComboRoot())
+        ComboState comboState = ComboStateRegistry.REGISTRY.get(state.getComboRoot());
+        return comboState != null ? comboState
             : ComboStateRegistry.STANDBY.get();
     }
     
     private double getComboTime(ComboState combo, T entity, ISlashBladeState state, float partialTicks) {
-        double time = TimeValueHelper.getMSecFromTicks((float) Math.max(0L, entity.level().getGameTime() - state.getLastActionTime()) + partialTicks);
-        while (combo != ComboStateRegistry.NONE.get() && (double) Objects.requireNonNull(combo).getTimeoutMS() < time) {
+        double time = TimeValueHelper.getMSecFromTicks(Math.max(0L, entity.level().getGameTime() - state.getLastActionTime()) + partialTicks);
+        while (combo != ComboStateRegistry.NONE.get() && combo.getTimeoutMS() < time) {
             time -= combo.getTimeoutMS();
-            combo = ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity)) != null
-                ? (ComboState) ((IForgeRegistry<?>) ComboStateRegistry.REGISTRY.get()).getValue(combo.getNextOfTimeout(entity))
+            ComboState comboState = ComboStateRegistry.REGISTRY.get(combo.getNextOfTimeout(entity));
+            combo = comboState != null ? comboState
                 : ComboStateRegistry.NONE.get();
         }
         return time;
@@ -202,6 +216,10 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
         RenderUtils.prepMatrixForLocator(poseStack, model.leftHandBones());
         poseStack.translate(-0.35F, -0.8F, -0.5F);
         poseStack.mulPose(Axis.YP.rotationDegrees(15.0F));
-        UserPoseOverrider.invertRot(poseStack, entity, partialTicks);
+        
+        float comboRot = UserPoseOverrider.getInterpolatedComboRotation(entity, partialTicks);
+        if (comboRot != 0f) {
+            poseStack.mulPose(Axis.YP.rotationDegrees(comboRot));
+        }
     }
 }

@@ -1,25 +1,25 @@
 package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.truepower.util.JustSlashArtManager;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class ChargeActionHandler {
     @SubscribeEvent
     public static void onPerformSlashArtEvent(SlashBladeEvent.PerformSlashArtEvent event) {
         if (event.getEntityLiving() instanceof EntityMaid maid) {
-            maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
+            BladeStateAccess.of(maid.getMainHandItem())
                 .ifPresent(state -> onPerformSlashArt(event, maid, state));
         }
     }
@@ -38,12 +38,12 @@ public class ChargeActionHandler {
                 event.setCanceled(true);
             }
             if (event.getType() == SlashArts.ArtsType.Jackpot) {
-                AdvancementHelper.grantedIf(Enchantments.SOUL_SPEED, maid);
+                AdvancementHelper.grantedIf(maid.registryAccess().holderOrThrow(Enchantments.SOUL_SPEED).value(), maid);
             }
         } else if (SlashBladeMaidBauble.UnlimitedBladeWorks.checkBauble(maid)) {
             JustSlashArtManager.setJustCooldown(maid, 240);
             if (event.getType() == SlashArts.ArtsType.Jackpot) {
-                AdvancementHelper.grantedIf(Enchantments.SOUL_SPEED, maid);
+                AdvancementHelper.grantedIf(maid.registryAccess().holderOrThrow(Enchantments.SOUL_SPEED).value(), maid);
             }
         } else {
             event.setCanceled(true);

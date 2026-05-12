@@ -4,11 +4,11 @@ import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class DoSlashHandler {
     public static final String LAST_DO_SLASH_TIME = "truePowerOfMaid.lastDoSlashTime";
     

@@ -1,13 +1,13 @@
 package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.truepower.entity.EntityBlastSummonedSword;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class EntityJoinLevelHandler {
     @SubscribeEvent
     public static void onEntityJoinLevelEvent(EntityJoinLevelEvent event) {

@@ -3,12 +3,11 @@ package net.mrqx.slashblade.maidpower.event.api;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.eventbus.api.Cancelable;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
 import org.jetbrains.annotations.Nullable;
 
-@Cancelable
-public class MaidProgressComboEvent extends Event {
+public class MaidProgressComboEvent extends Event implements ICancellableEvent {
     private final EntityMaid maid;
     @Nullable
     private final LivingEntity target;

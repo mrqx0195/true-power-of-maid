@@ -2,16 +2,16 @@ package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import mods.flammpfeil.slashblade.SlashBlade;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import mods.flammpfeil.slashblade.registry.combo.ComboState;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import net.mrqx.sbr_core.events.ComboStateRegistryEvent;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 public class ComboModifyHandler {
     private static final ResourceLocation UPPER_SLASH_NAME = SlashBlade.prefix("upperslash_jump");
     
@@ -24,7 +24,7 @@ public class ComboModifyHandler {
             && combo.getPriority() == ComboMovementModifiers.UPPER_SLASH.priority) {
             builder.addTickAction(ComboState.TimeLineTickAction.getBuilder().put(6, livingEntity -> {
                 if (livingEntity instanceof EntityMaid maid && SlashBladeMaidBauble.AirCombo.checkBauble(maid)) {
-                    maid.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).ifPresent(state -> {
+                    BladeStateAccess.of(maid.getMainHandItem()).ifPresent(state -> {
                         state.updateComboSeq(livingEntity, UPPER_SLASH_NAME);
                         AdvancementHelper.grantCriterion(livingEntity, AdvancementHelper.ADVANCEMENT_UPPERSLASH_JUMP);
                     });

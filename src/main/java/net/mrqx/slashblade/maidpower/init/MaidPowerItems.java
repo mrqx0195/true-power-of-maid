@@ -1,31 +1,44 @@
 package net.mrqx.slashblade.maidpower.init;
 
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 import net.mrqx.slashblade.maidpower.item.PowerfulSlashBladeBaubleItem;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBaubleItem;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.List;
 
 public class MaidPowerItems {
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, TruePowerOfMaid.MODID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(TruePowerOfMaid.MODID);
+    public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, TruePowerOfMaid.MODID);
     
-    public static final RegistryObject<Item> UNAWAKENED_SOUL = ITEMS.register("unawakened_soul", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
-    public static final RegistryObject<Item> SOUL_OF_COMBO_B = ITEMS.register("soul_of_combo_b", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_COMBO_C = ITEMS.register("soul_of_combo_c", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_RAPID_SLASH = ITEMS.register("soul_of_rapid_slash", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_AIR_COMBO = ITEMS.register("soul_of_air_combo", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_MIRAGE_BLADE = ITEMS.register("soul_of_mirage_blade", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_TRICK = ITEMS.register("soul_of_trick", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_POWER = ITEMS.register("soul_of_power", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_JUDGEMENT_CUT = ITEMS.register("soul_of_judgement_cut", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_JUST_JUDGEMENT_CUT = ITEMS.register("soul_of_just_judgement_cut", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_VOID_SLASH = ITEMS.register("soul_of_void_slash", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_GUARD = ITEMS.register("soul_of_guard", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_HEALTH = ITEMS.register("soul_of_health", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_EXP = ITEMS.register("soul_of_exp", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
-    public static final RegistryObject<Item> SOUL_OF_TRUE_POWER = ITEMS.register("soul_of_true_power", PowerfulSlashBladeBaubleItem::new);
-    public static final RegistryObject<Item> SOUL_OF_UNLIMITED_BLADE_WORKS = ITEMS.register("soul_of_unlimited_blade_works", PowerfulSlashBladeBaubleItem::new);
+    public static final DeferredItem<SlashBladeMaidBaubleItem> UNAWAKENED_SOUL = ITEMS.register("unawakened_soul", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_COMBO_B = ITEMS.register("soul_of_combo_b", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_COMBO_C = ITEMS.register("soul_of_combo_c", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_RAPID_SLASH = ITEMS.register("soul_of_rapid_slash", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_AIR_COMBO = ITEMS.register("soul_of_air_combo", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_MIRAGE_BLADE = ITEMS.register("soul_of_mirage_blade", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_TRICK = ITEMS.register("soul_of_trick", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_POWER = ITEMS.register("soul_of_power", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_JUDGEMENT_CUT = ITEMS.register("soul_of_judgement_cut", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_JUST_JUDGEMENT_CUT = ITEMS.register("soul_of_just_judgement_cut", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_VOID_SLASH = ITEMS.register("soul_of_void_slash", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_GUARD = ITEMS.register("soul_of_guard", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_HEALTH = ITEMS.register("soul_of_health", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_EXP = ITEMS.register("soul_of_exp", () -> new SlashBladeMaidBaubleItem(new Item.Properties().rarity(Rarity.RARE)));
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_TRUE_POWER = ITEMS.register("soul_of_true_power", PowerfulSlashBladeBaubleItem::new);
+    public static final DeferredItem<SlashBladeMaidBaubleItem> SOUL_OF_UNLIMITED_BLADE_WORKS = ITEMS.register("soul_of_unlimited_blade_works", PowerfulSlashBladeBaubleItem::new);
+    
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<ItemStack>>> POWERFUL_SOULS_COMPONENT = DATA_COMPONENTS
+        .registerComponentType("powerful_souls_component", builder ->
+            builder.persistent(ItemStack.CODEC.listOf())
+                .networkSynchronized(ItemStack.LIST_STREAM_CODEC)
+                .cacheEncoding()
+        );
 }

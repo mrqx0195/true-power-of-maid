@@ -14,10 +14,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.network.PlayMessages;
 import net.mrqx.sbr_core.animation.VanillaConvertedVmdAnimation;
 import net.mrqx.sbr_core.entity.ISlashBladeEntity;
-import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -31,19 +29,14 @@ public class EntityUnlimitedBladeWorks extends LivingEntity implements OwnableEn
         super(entityType, level);
     }
     
-    @SuppressWarnings("unused")
-    public static EntityUnlimitedBladeWorks createInstance(PlayMessages.SpawnEntity packet, Level worldIn) {
-        return new EntityUnlimitedBladeWorks(TruePowerOfMaid.RegistryEvents.UnlimitedBladeWorks, worldIn);
-    }
-    
     public static AttributeSupplier.Builder createAttributes() {
         return EntityMaid.createAttributes();
     }
     
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(OWNER_ID, Optional.empty());
+    protected void defineSynchedData(SynchedEntityData.Builder synchedEntityDataBuilder) {
+        super.defineSynchedData(synchedEntityDataBuilder);
+        synchedEntityDataBuilder.define(OWNER_ID, Optional.empty());
     }
     
     @Override
@@ -75,7 +68,8 @@ public class EntityUnlimitedBladeWorks extends LivingEntity implements OwnableEn
     public ItemStack getItemBySlot(EquipmentSlot slot) {
         return switch (slot.getType()) {
             case HAND -> this.handItems.get(slot.getIndex());
-            case ARMOR -> this.armorItems.get(slot.getIndex());
+            case HUMANOID_ARMOR -> this.armorItems.get(slot.getIndex());
+            default -> ItemStack.EMPTY;
         };
     }
     
@@ -86,7 +80,7 @@ public class EntityUnlimitedBladeWorks extends LivingEntity implements OwnableEn
             case HAND:
                 this.onEquipItem(slot, this.handItems.set(slot.getIndex(), stack), stack);
                 break;
-            case ARMOR:
+            case HUMANOID_ARMOR:
                 this.onEquipItem(slot, this.armorItems.set(slot.getIndex(), stack), stack);
                 break;
             default:

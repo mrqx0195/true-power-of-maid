@@ -9,8 +9,6 @@ import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.GeoLayerRenderer;
 import com.github.tartaricacid.touhoulittlemaid.item.bauble.BaubleManager;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Mob;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.mrqx.slashblade.maidpower.client.renderer.GeoLayerMaidBladeRenderer;
 import net.mrqx.slashblade.maidpower.client.renderer.LayerMaidBladeRenderer;
 import net.mrqx.slashblade.maidpower.init.MaidPowerItems;
@@ -63,14 +61,12 @@ public class LittleMaidImpl implements ILittleMaid {
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
     @SuppressWarnings({"unchecked", "rawtypes"})
     public void addAdditionGeckoMaidLayer(GeckoEntityMaidRenderer<? extends Mob> renderer, EntityRendererProvider.Context context) {
         renderer.addLayer((GeoLayerRenderer) new GeoLayerMaidBladeRenderer<>(renderer));
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void addAdditionMaidLayer(EntityMaidRenderer renderer, EntityRendererProvider.Context context) {
         renderer.addLayer(new LayerMaidBladeRenderer<>(renderer));
     }

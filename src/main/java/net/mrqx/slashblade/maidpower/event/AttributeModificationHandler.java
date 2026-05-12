@@ -2,14 +2,14 @@ package net.mrqx.slashblade.maidpower.event;
 
 import com.github.tartaricacid.touhoulittlemaid.init.InitEntities;
 import mods.flammpfeil.slashblade.registry.ModAttributes;
-import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 public class AttributeModificationHandler {
     @SubscribeEvent
     public static void onEntityAttributeModificationEvent(EntityAttributeModificationEvent event) {
-        event.add(InitEntities.MAID.get(), ModAttributes.SLASHBLADE_DAMAGE.get());
+        event.add(InitEntities.MAID.get(), ModAttributes.SLASHBLADE_DAMAGE);
     }
 }

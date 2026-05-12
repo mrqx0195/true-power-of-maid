@@ -4,12 +4,12 @@ import com.github.tartaricacid.touhoulittlemaid.api.bauble.IMaidBauble;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import com.github.tartaricacid.touhoulittlemaid.inventory.handler.BaubleItemHandler;
 import com.github.tartaricacid.touhoulittlemaid.item.bauble.BaubleManager;
+import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemStackHandler;
 import net.mrqx.slashblade.maidpower.item.PowerfulSlashBladeBaubleItem;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,7 @@ public class MaidItemUtils {
         List<ItemStack> bladeList = new ArrayList<>();
         for (int i = 0; i < maidInv.getSlots(); i++) {
             ItemStack stack = maidInv.getStackInSlot(i);
-            if (stack.getCapability(ItemSlashBlade.BLADESTATE).isPresent()) {
+            if (BladeStateAccess.of(stack).isPresent()) {
                 bladeList.add(stack);
             }
         }
@@ -56,7 +56,7 @@ public class MaidItemUtils {
     
     public static List<ItemStack> getAllSlashBladeUnbroken(EntityMaid maid) {
         List<ItemStack> list = getAllSlashBlade(maid);
-        list.removeIf(itemStack -> itemStack.getCapability(ItemSlashBlade.BLADESTATE).map(ISlashBladeState::isBroken).orElse(false));
+        list.removeIf(itemStack -> BladeStateAccess.of(itemStack).map(ISlashBladeState::isBroken).orElse(false));
         return list;
     }
 }
