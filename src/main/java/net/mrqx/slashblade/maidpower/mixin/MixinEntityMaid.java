@@ -23,13 +23,13 @@ public abstract class MixinEntityMaid extends TamableAnimal implements CrossbowA
     }
     
     @Inject(method = "isWithinMeleeAttackRange(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
-    private void injectGetMeleeAttackRangeSqr(LivingEntity target, CallbackInfoReturnable<Double> cir) {
+    private void injectGetMeleeAttackRangeSqr(LivingEntity target, CallbackInfoReturnable<Boolean> cir) {
         BladeStateAccess.of(this.getMainHandItem()).ifPresent(state -> {
             double reach = TargetSelector.getResolvedReach(this);
             if (SlashBladeMaidBauble.UnlimitedBladeWorks.checkBauble((EntityMaid) (Object) this)) {
                 reach *= 2;
             }
-            cir.setReturnValue(reach * reach);
+            cir.setReturnValue(this.distanceTo(target) < reach * reach);
         });
     }
 }
