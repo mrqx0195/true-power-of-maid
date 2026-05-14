@@ -71,13 +71,13 @@ public class MaidTickHandler {
         
         IConcentrationRank rank = maid.getData(CapabilityConcentrationRank.RANK_POINT);
         if (hasTruePower) {
-            long rankPoint = Math.clamp(data.getLong(TRUE_POWER_RANK), rank.getRankPoint(maid.level().getGameTime()), rank.getMaxCapacity());
+            long rankPoint = Math.clamp(rank.getRankPoint(maid.level().getGameTime()), data.getLong(TRUE_POWER_RANK), rank.getMaxCapacity());
             rank.setRawRankPoint(rankPoint);
             rank.setLastUpdte(maid.level().getGameTime());
             data.putLong(TRUE_POWER_RANK, rankPoint);
         }
         if (hasUnlimitedBladeWorks) {
-            long rankPoint = Math.clamp(5 * rank.getUnitCapacity() + 3, rank.getRankPoint(maid.level().getGameTime()), rank.getMaxCapacity());
+            long rankPoint = Math.clamp(rank.getRankPoint(maid.level().getGameTime()), 5 * rank.getUnitCapacity() + 3, rank.getMaxCapacity());
             rank.setRawRankPoint(rankPoint);
             rank.setLastUpdte(maid.level().getGameTime());
         }
