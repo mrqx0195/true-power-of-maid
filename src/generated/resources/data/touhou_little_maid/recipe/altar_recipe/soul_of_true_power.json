@@ -1,15 +1,8 @@
 {
-  "type": "touhou_little_maid:altar_crafting",
-  "output": {
-    "type": "minecraft:item",
-    "nbt": {
-      "Item": {
-        "id": "true_power_of_maid:soul_of_true_power",
-        "Count": 1
-      }
-    }
-  },
-  "power": 5,
+  "type": "touhou_little_maid:altar_recipe_serializers",
+  "category": "equipment",
+  "entity": "minecraft:item",
+  "group": "altar_recipe",
   "ingredients": [
     {
       "item": "true_power_of_maid:soul_of_power"
@@ -29,5 +22,11 @@
     {
       "item": "true_power_of_maid:soul_of_power"
     }
-  ]
+  ],
+  "lang": "jei.touhou_little_maid.altar_craft.item_craft.result",
+  "power": 5.0,
+  "result": {
+    "count": 1,
+    "id": "true_power_of_maid:soul_of_true_power"
+  }
 }
