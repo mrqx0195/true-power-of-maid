@@ -6,9 +6,6 @@ import net.mrqx.slashblade.maidpower.event.MaidGuardHandler;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 
 public class MaidSlashBladeMovementUtils {
-    /**
-     * 检查是否可发动瞬步类技能
-     */
     public static boolean canTrick(EntityMaid maid) {
         return SlashBladeMaidBauble.Trick.checkBauble(maid)
             && !MaidGuardHandler.isGuarding(maid)

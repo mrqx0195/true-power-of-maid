@@ -2,7 +2,7 @@ plugins {
     id 'idea'
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev.legacyforge' version '2.0.91'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.141'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -113,7 +113,8 @@ dependencies {
     // mrqx`s Slashblade Core
 //    modImplementation "maven.modrinth:2zhQmVfn:${mrqx_slash_blade_core_version}"
     modImplementation "blank:mrqxs_Slashblade_Core-1.20.1:${mrqx_slash_blade_core_version}"
-    modImplementation "maven.modrinth:true-power:${true_power_version}"
+//    modImplementation "maven.modrinth:true-power:${true_power_version}"
+    modImplementation "blank:True_POWER-1.20.1:${true_power_version}"
 
     // Touhou Little Maid
     modImplementation "maven.modrinth:touhou-little-maid:${maid_version}-forge+mc${minecraft_version}"
