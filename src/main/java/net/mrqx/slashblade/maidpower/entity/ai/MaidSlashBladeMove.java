@@ -76,13 +76,11 @@ public class MaidSlashBladeMove {
             
             boolean targetVisible = visibleEntitiesOpt.map(entities -> entities.contains(target)).orElse(false);
             
-            if (targetVisible && distance > reach * reach) {
-                if (!canAirTrick) {
-                    walkTargetAccessor.erase();
-                }
+            if (targetVisible && distance > reach * reach && canAirTrick) {
+                walkTargetAccessor.erase();
             } else {
                 lookTargetAccessor.set(new EntityTracker(target, true));
-                walkTargetAccessor.set(new WalkTarget(new EntityTracker(target, false), speedModifier.apply(mob) * (hasTruePower ? 2 : 1), (int) (reach * reach / 2)));
+                walkTargetAccessor.set(new WalkTarget(new EntityTracker(target, false), speedModifier.apply(mob) * (hasTruePower ? 2 : 1), (int) reach));
             }
             
             if (canAirTrick && distance > reach) {

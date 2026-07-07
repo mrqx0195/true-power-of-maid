@@ -37,6 +37,8 @@ public class TruePowerOfMaid {
         
         container.registerConfig(ModConfig.Type.COMMON, TruePowerOfMaidCommonConfig.COMMON_CONFIG);
         container.registerConfig(ModConfig.Type.CLIENT, TruePowerOfMaidClientConfig.CLIENT_CONFIG);
+        
+        LittleMaidImpl.init();
     }
     
     public static ResourceLocation prefix(String path) {

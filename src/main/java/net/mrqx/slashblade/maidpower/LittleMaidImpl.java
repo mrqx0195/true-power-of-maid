@@ -14,6 +14,8 @@ import net.mrqx.slashblade.maidpower.client.renderer.LayerMaidBladeRenderer;
 import net.mrqx.slashblade.maidpower.init.MaidPowerItems;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.task.TaskSlashBlade;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 @SuppressWarnings("unused")
 @LittleMaidExtension
@@ -62,12 +64,17 @@ public class LittleMaidImpl implements ILittleMaid {
     
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
+    @OnlyIn(Dist.CLIENT)
     public void addAdditionGeckoMaidLayer(GeckoEntityMaidRenderer<? extends Mob> renderer, EntityRendererProvider.Context context) {
         renderer.addLayer((GeoLayerRenderer) new GeoLayerMaidBladeRenderer<>(renderer));
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public void addAdditionMaidLayer(EntityMaidRenderer renderer, EntityRendererProvider.Context context) {
         renderer.addLayer(new LayerMaidBladeRenderer<>(renderer));
+    }
+    
+    public static void init() {
     }
 }
