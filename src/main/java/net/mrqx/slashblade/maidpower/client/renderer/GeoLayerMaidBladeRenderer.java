@@ -1,80 +1,18 @@
 package net.mrqx.slashblade.maidpower.client.renderer;
 
+import com.github.tartaricacid.touhoulittlemaid.client.renderer.entity.GeckoEntityMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.GeoLayerRenderer;
-import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntityRenderer;
-import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
-import com.github.tartaricacid.touhoulittlemaid.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import jp.nyatla.nymmd.MmdException;
-import jp.nyatla.nymmd.MmdMotionPlayerGL2;
-import jp.nyatla.nymmd.MmdPmdModelMc;
-import jp.nyatla.nymmd.MmdVmdMotionMc;
-import mods.flammpfeil.slashblade.capability.slashblade.BladeStateAccess;
-import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
-import mods.flammpfeil.slashblade.client.renderer.model.BladeMotionManager;
-import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
-import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
-import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
-import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
-import mods.flammpfeil.slashblade.init.DefaultResources;
-import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
-import mods.flammpfeil.slashblade.registry.combo.ComboState;
-import mods.flammpfeil.slashblade.util.TimeValueHelper;
-import mods.flammpfeil.slashblade.util.VectorHelper;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.item.ItemStack;
-import net.mrqx.sbr_core.MrqxSlashBladeCore;
-import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
-import org.joml.Matrix4f;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.Objects;
-import java.util.Optional;
-
-public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRenderer<T>> extends GeoLayerRenderer<T, R> {
-    private static final ResourceLocation CREEPER_ARMOR = ResourceLocation.withDefaultNamespace("textures/entity/creeper/creeper_armor.png");
-    
-    @Nullable
-    private MmdPmdModelMc cachedBladeholder;
-    @Nullable
-    private MmdMotionPlayerGL2 cachedMotionPlayer;
-    
-    public Optional<MmdPmdModelMc> getBladeholder() {
-        if (this.cachedBladeholder == null) {
-            try {
-                this.cachedBladeholder = new MmdPmdModelMc(ResourceLocation.fromNamespaceAndPath("slashblade", "model/bladeholder.pmd"));
-            } catch (MmdException | IOException e) {
-                MrqxSlashBladeCore.LOGGER.warn("Failed to new jp.nyatla.nymmd.MmdPmdModelMc", e);
-            }
-        }
-        
-        return Optional.ofNullable(this.cachedBladeholder);
-    }
-    
-    public Optional<MmdMotionPlayerGL2> getMotionPlayer() {
-        if (this.cachedMotionPlayer == null) {
-            this.cachedMotionPlayer = new MmdMotionPlayerGL2();
-            this.getBladeholder().ifPresent((bladeHolder) -> {
-                try {
-                    this.cachedMotionPlayer.setPmd(bladeHolder);
-                } catch (MmdException e) {
-                    MrqxSlashBladeCore.LOGGER.warn("Failed to setPmd for MotionPlayer", e);
-                }
-                
-            });
-        }
-        
-        return Optional.ofNullable(this.cachedMotionPlayer);
-    }
+public class GeoLayerMaidBladeRenderer<T extends Mob, R extends GeckoEntityMaidRenderer<T>> extends GeoLayerRenderer<T, R> {
+    public final LayerMaidBladeRenderer<T, HumanoidModel<T>> layerMaidBladeRenderer;
     
     public GeoLayerMaidBladeRenderer(R entityRendererIn) {
         super(entityRendererIn);
+        this.layerMaidBladeRenderer = new LayerMaidBladeRenderer<>(entityRendererIn);
     }
     
     @Override
@@ -85,141 +23,6 @@ public class GeoLayerMaidBladeRenderer<T extends Mob, R extends IGeoEntityRender
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int light, T entity, float limbSwing,
                        float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        ItemStack stack = entity.getItemInHand(InteractionHand.MAIN_HAND);
-        if (stack.isEmpty()) {
-            return;
-        }
-        BladeStateAccess.of(stack).ifPresent(state -> this.getMotionPlayer().ifPresent(mmp ->
-            renderBlade(poseStack, buffer, light, entity, partialTicks, stack, state, mmp)));
-    }
-    
-    private void renderBlade(PoseStack poseStack, MultiBufferSource buffer, int light, T entity, float partialTicks,
-                             ItemStack stack, ISlashBladeState state, MmdMotionPlayerGL2 mmp) {
-        float yOffset = 1.5F;
-        double motionScale = 0.125F;
-        double modelScaleBase = 0.0078125F;
-        
-        ComboState combo = getComboState(state);
-        double time = getComboTime(combo, entity, state, partialTicks);
-        
-        if (combo == ComboStateRegistry.NONE.get()) {
-            combo = getComboRootState(state);
-        }
-        
-        MmdVmdMotionMc motion = BladeMotionManager.getInstance().getMotion(Objects.requireNonNull(combo).getMotionLoc());
-        double maxSeconds = 0.0F;
-        try {
-            mmp.setVmd(motion);
-            maxSeconds = TimeValueHelper.getMSecFromFrames(motion.getMaxFrame());
-        } catch (Exception e) {
-            TruePowerOfMaid.LOGGER.error("", e);
-        }
-        double start = TimeValueHelper.getMSecFromFrames(combo.getStartFrame());
-        double end = TimeValueHelper.getMSecFromFrames(combo.getEndFrame());
-        double span = Math.abs(end - start);
-        span = Math.min(maxSeconds, span);
-        if (combo.getLoop()) {
-            time %= span;
-        }
-        time = Math.min(span, time);
-        time = start + time;
-        try {
-            mmp.updateMotion((float) time);
-        } catch (MmdException e) {
-            TruePowerOfMaid.LOGGER.error("", e);
-        }
-        
-        try (MSAutoCloser ignored = MSAutoCloser.pushMatrix(poseStack)) {
-            setUserPose(poseStack, entity, partialTicks);
-            poseStack.translate(0.0F, yOffset, 0.0F);
-            poseStack.scale((float) motionScale, (float) motionScale, (float) motionScale);
-            poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-            ResourceLocation textureLocation = state.getTexture().orElse(DefaultResources.resourceDefaultTexture);
-            WavefrontObject obj = BladeModelManager.getInstance().getModel(state.getModel().orElse(DefaultResources.resourceDefaultModel));
-            renderBladePart(poseStack, buffer, light, stack, obj, mmp, modelScaleBase, motionScale, state, textureLocation);
-            renderSheathPart(poseStack, buffer, light, stack, obj, mmp, modelScaleBase, motionScale, state, textureLocation, entity, partialTicks);
-        }
-    }
-    
-    private ComboState getComboState(ISlashBladeState state) {
-        ComboState comboState = ComboStateRegistry.REGISTRY.get(state.getComboSeq());
-        return comboState != null ? comboState
-            : ComboStateRegistry.NONE.get();
-    }
-    
-    private ComboState getComboRootState(ISlashBladeState state) {
-        ComboState comboState = ComboStateRegistry.REGISTRY.get(state.getComboRoot());
-        return comboState != null ? comboState
-            : ComboStateRegistry.STANDBY.get();
-    }
-    
-    private double getComboTime(ComboState combo, T entity, ISlashBladeState state, float partialTicks) {
-        double time = TimeValueHelper.getMSecFromTicks(Math.max(0L, entity.level().getGameTime() - state.getLastActionTime()) + partialTicks);
-        while (combo != ComboStateRegistry.NONE.get() && combo.getTimeoutMS() < time) {
-            time -= combo.getTimeoutMS();
-            ComboState comboState = ComboStateRegistry.REGISTRY.get(combo.getNextOfTimeout(entity));
-            combo = comboState != null ? comboState
-                : ComboStateRegistry.NONE.get();
-        }
-        return time;
-    }
-    
-    private void renderBladePart(PoseStack poseStack, MultiBufferSource buffer, int light, ItemStack stack, WavefrontObject obj,
-                                 MmdMotionPlayerGL2 mmp, double modelScaleBase, double motionScale,
-                                 ISlashBladeState state, ResourceLocation textureLocation) {
-        try (MSAutoCloser ignored = MSAutoCloser.pushMatrix(poseStack)) {
-            int idx = mmp.getBoneIndexByName("hardpointA");
-            if (0 <= idx) {
-                float[] buf = new float[16];
-                mmp._skinning_mat[idx].getValue(buf);
-                Matrix4f mat = VectorHelper.matrix4fFromArray(buf);
-                poseStack.scale(-1.0F, 1.0F, 1.0F);
-                PoseStack.Pose entry = poseStack.last();
-                entry.pose().mul(mat);
-                poseStack.scale(-1.0F, 1.0F, 1.0F);
-            }
-            float modelScale = (float) (modelScaleBase * ((double) 1.0F / motionScale));
-            poseStack.scale(modelScale, modelScale, modelScale);
-            String part = state.isBroken() ? "blade_damaged" : "blade";
-            BladeRenderState.renderOverrided(stack, obj, part, textureLocation, poseStack, buffer, light);
-            BladeRenderState.renderOverridedLuminous(stack, obj, part + "_luminous", textureLocation, poseStack, buffer, light);
-        }
-    }
-    
-    private void renderSheathPart(PoseStack poseStack, MultiBufferSource buffer, int light, ItemStack stack, WavefrontObject obj,
-                                  MmdMotionPlayerGL2 mmp, double modelScaleBase, double motionScale,
-                                  ISlashBladeState state, ResourceLocation textureLocation, T entity, float partialTicks) {
-        try (MSAutoCloser ignored = MSAutoCloser.pushMatrix(poseStack)) {
-            int idx = mmp.getBoneIndexByName("hardpointB");
-            if (0 <= idx) {
-                float[] buf = new float[16];
-                mmp._skinning_mat[idx].getValue(buf);
-                Matrix4f mat = VectorHelper.matrix4fFromArray(buf);
-                poseStack.scale(-1.0F, 1.0F, 1.0F);
-                PoseStack.Pose entry = poseStack.last();
-                entry.pose().mul(mat);
-                poseStack.scale(-1.0F, 1.0F, 1.0F);
-            }
-            float modelScale = (float) (modelScaleBase * ((double) 1.0F / motionScale));
-            poseStack.scale(modelScale, modelScale, modelScale);
-            BladeRenderState.renderOverrided(stack, obj, "sheath", textureLocation, poseStack, buffer, light);
-            BladeRenderState.renderOverridedLuminous(stack, obj, "sheath_luminous", textureLocation, poseStack, buffer, light);
-            if (state.isCharged(entity)) {
-                float f = (float) entity.tickCount + partialTicks;
-                BladeRenderState.renderChargeEffect(stack, f, obj, "effect", CREEPER_ARMOR, poseStack, buffer, light);
-            }
-        }
-    }
-    
-    public void setUserPose(PoseStack poseStack, T entity, float partialTicks) {
-        ILocationModel model = getLocationModel(entity);
-        RenderUtils.prepMatrixForLocator(poseStack, model.leftHandBones());
-        poseStack.translate(-0.35F, -0.8F, -0.5F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(15.0F));
-        
-        float comboRot = UserPoseOverrider.getInterpolatedComboRotation(entity, partialTicks);
-        if (comboRot != 0f) {
-            poseStack.mulPose(Axis.YP.rotationDegrees(comboRot));
-        }
+        this.layerMaidBladeRenderer.render(poseStack, buffer, light, entity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
     }
 }
