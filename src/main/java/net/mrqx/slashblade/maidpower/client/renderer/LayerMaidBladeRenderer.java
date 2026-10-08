@@ -6,6 +6,7 @@ import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocation
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -13,6 +14,8 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Mob;
 import net.mrqx.sbr_core.client.layer.LayerSlashEntityBlade;
+
+import javax.annotation.Nullable;
 
 public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> extends LayerSlashEntityBlade<T, M> {
     public final RenderLayerParent<T, M> parent;
@@ -28,7 +31,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
     
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public void setUserPose(PoseStack matrixStack, T entity, float partialTicks) {
+    public void setUserPose(PoseStack matrixStack, T entity, float partialTicks, @Nullable ISlashBladeState state) {
         if (parent instanceof GeckoEntityMaidRenderer geckoEntityMaidRenderer) {
             ILocationModel model = geckoEntityMaidRenderer.getGeoEntity(entity).getGeoModel();
             RenderUtils.prepMatrixForLocator(matrixStack, model.leftWaistBones());
@@ -40,6 +43,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
             if (comboRot != 0f) {
                 matrixStack.mulPose(Axis.YP.rotationDegrees(comboRot));
             }
+            super.setUserPose(matrixStack, entity, partialTicks);
             return;
         }
         M model = getParentModel();
