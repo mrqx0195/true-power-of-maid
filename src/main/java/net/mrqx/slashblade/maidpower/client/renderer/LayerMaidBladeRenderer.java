@@ -2,6 +2,7 @@ package net.mrqx.slashblade.maidpower.client.renderer;
 
 import com.github.tartaricacid.touhoulittlemaid.client.model.bedrock.BedrockModel;
 import com.github.tartaricacid.touhoulittlemaid.client.renderer.entity.GeckoEntityMaidRenderer;
+import com.github.tartaricacid.touhoulittlemaid.geckolib3.core.processor.ILocationBone;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.Mob;
 import net.mrqx.sbr_core.client.layer.LayerSlashEntityBlade;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> extends LayerSlashEntityBlade<T, M> {
     public final RenderLayerParent<T, M> parent;
@@ -34,7 +36,13 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
     public void setUserPose(PoseStack matrixStack, T entity, float partialTicks, @Nullable ISlashBladeState state) {
         if (this.parent instanceof GeckoEntityMaidRenderer geckoEntityMaidRenderer) {
             ILocationModel model = geckoEntityMaidRenderer.getGeoEntity(entity).getGeoModel();
-            RenderUtils.prepMatrixForLocator(matrixStack, model.leftWaistBones());
+            List<? extends ILocationBone> locators = model.leftWaistBones();
+            if (locators.isEmpty()) {
+                locators = model.leftHandBones();
+            }
+            if (!locators.isEmpty()) {
+                RenderUtils.prepMatrixForLocator(matrixStack, locators);
+            }
             matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
             matrixStack.translate(-0.35F, -0.8F, -0.5F);
             matrixStack.mulPose(Axis.YP.rotationDegrees(15.0F));
