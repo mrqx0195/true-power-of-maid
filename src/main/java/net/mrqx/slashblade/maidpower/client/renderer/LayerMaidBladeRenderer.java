@@ -1,8 +1,8 @@
 package net.mrqx.slashblade.maidpower.client.renderer;
 
 import com.github.tartaricacid.touhoulittlemaid.client.model.bedrock.BedrockModel;
-import com.github.tartaricacid.touhoulittlemaid.client.renderer.entity.GeckoEntityMaidRenderer;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.core.processor.ILocationBone;
+import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.IGeoEntityRenderer;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.geo.animated.ILocationModel;
 import com.github.tartaricacid.touhoulittlemaid.geckolib3.util.RenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,8 +34,8 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void setUserPose(PoseStack matrixStack, T entity, float partialTicks, @Nullable ISlashBladeState state) {
-        if (this.parent instanceof GeckoEntityMaidRenderer geckoEntityMaidRenderer) {
-            ILocationModel model = geckoEntityMaidRenderer.getGeoEntity(entity).getGeoModel();
+        if (this.parent instanceof IGeoEntityRenderer geoEntityRenderer) {
+            ILocationModel model = geoEntityRenderer.getGeoEntity(entity).getGeoModel();
             List<? extends ILocationBone> locators = model.leftWaistBones();
             if (locators.isEmpty()) {
                 locators = model.leftHandBones();
@@ -52,14 +52,25 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
                 matrixStack.mulPose(Axis.YP.rotationDegrees(comboRot));
             }
         } else {
-            M model = this.getParentModel();
-            if (model instanceof BedrockModel bedrockModel && bedrockModel.hasWaistPositioningModel(HumanoidArm.LEFT)) {
-                bedrockModel.translateToPositioningWaist(HumanoidArm.LEFT, matrixStack);
-            } else if (model instanceof ILocationModel iLocationModel) {
-                RenderUtils.prepMatrixForLocator(matrixStack, iLocationModel.leftHandBones());
-            } else {
-                matrixStack.translate(0.25F, 0.85, 0.0F);
-                matrixStack.mulPose(Axis.XP.rotationDegrees(-20.0F));
+            M parentModel = this.getParentModel();
+            switch (parentModel) {
+                case ILocationModel model -> {
+                    List<? extends ILocationBone> locators = model.leftWaistBones();
+                    if (locators.isEmpty()) {
+                        locators = model.leftHandBones();
+                    }
+                    if (!locators.isEmpty()) {
+                        RenderUtils.prepMatrixForLocator(matrixStack, locators);
+                    }
+                }
+                case BedrockModel bedrockModel when bedrockModel.hasWaistPositioningModel(HumanoidArm.LEFT) ->
+                    bedrockModel.translateToPositioningWaist(HumanoidArm.LEFT, matrixStack);
+                case BedrockModel bedrockModel when bedrockModel.hasArmPositioningModel(HumanoidArm.LEFT) ->
+                    bedrockModel.translateToPositioningHand(HumanoidArm.LEFT, matrixStack);
+                default -> {
+                    matrixStack.translate(0.25F, 0.85, 0.0F);
+                    matrixStack.mulPose(Axis.XP.rotationDegrees(-20.0F));
+                }
             }
             matrixStack.translate(-0.3F, -0.2F, -0.5F);
             matrixStack.mulPose(Axis.YP.rotationDegrees(15.0F));
