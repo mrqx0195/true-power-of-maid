@@ -32,7 +32,7 @@ public class MaidRankRenderer {
             long now = maid.level().getGameTime();
             LivingEntityRenderer<?, ?> renderer = event.getRenderer();
             IConcentrationRank.ConcentrationRanks rank = cr.getRank(now);
-            if (rank != IConcentrationRank.ConcentrationRanks.NONE) {
+            if (rank != IConcentrationRank.ConcentrationRanks.NONE && rank != null) {
                 PoseStack poseStack = event.getPoseStack();
                 
                 float maidHeight = maid.getBbHeight() + 0.5F;

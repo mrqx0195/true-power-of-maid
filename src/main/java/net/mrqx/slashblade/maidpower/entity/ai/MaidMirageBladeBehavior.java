@@ -69,7 +69,11 @@ public class MaidMirageBladeBehavior extends Behavior<EntityMaid> {
         int enchantPower = maid.getMainHandItem().getEnchantmentLevel(maid.registryAccess().holderOrThrow(Enchantments.POWER));
         int powerLevel = (enchantPower + favorLevel + 1) * (truePower ? 2 : 1);
         CompoundTag data = maid.getPersistentData();
-        int rank = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime()).level;
+        IConcentrationRank.ConcentrationRanks ranks = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime());
+        if (ranks == null) {
+            return;
+        }
+        int rank = ranks.level;
         
         switch (favorLevel) {
             case 3:

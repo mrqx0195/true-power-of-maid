@@ -9,10 +9,13 @@ import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import mods.flammpfeil.slashblade.util.AdvancementHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.mrqx.sbr_core.utils.JustSlashArtManager;
 import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
-import net.mrqx.truepower.util.JustSlashArtManager;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 @EventBusSubscriber
 public class ChargeActionHandler {
@@ -50,13 +53,13 @@ public class ChargeActionHandler {
         }
     }
     
-    public static boolean isJudgementCut(ResourceLocation combo) {
-        return combo.equals(ComboStateRegistry.JUDGEMENT_CUT.getId())
-            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SHEATH_JUST.getId())
-            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH.getId())
-            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_AIR.getId())
-            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST.getId())
-            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST2.getId())
-            || combo.equals(ComboStateRegistry.JUDGEMENT_CUT_END.getId());
+    public static boolean isJudgementCut(@Nullable ResourceLocation combo) {
+        return Objects.equals(combo, ComboStateRegistry.JUDGEMENT_CUT.getId())
+            || Objects.equals(combo, ComboStateRegistry.JUDGEMENT_CUT_SHEATH_JUST.getId())
+            || Objects.equals(combo, ComboStateRegistry.JUDGEMENT_CUT_SLASH.getId())
+            || Objects.equals(combo, ComboStateRegistry.JUDGEMENT_CUT_SLASH_AIR.getId())
+            || Objects.equals(combo, ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST.getId())
+            || Objects.equals(combo, ComboStateRegistry.JUDGEMENT_CUT_SLASH_JUST2.getId())
+            || Objects.equals(combo, ComboStateRegistry.JUDGEMENT_CUT_END.getId());
     }
 }

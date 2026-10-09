@@ -29,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.mrqx.sbr_core.utils.JustSlashArtManager;
 import net.mrqx.sbr_core.utils.SlashBladeAttackUtils;
 import net.mrqx.sbr_core.utils.SlashBladeMovementUtils;
 import net.mrqx.slashblade.maidpower.TruePowerOfMaid;
@@ -39,7 +40,6 @@ import net.mrqx.slashblade.maidpower.item.SlashBladeMaidBauble;
 import net.mrqx.slashblade.maidpower.task.TaskSlashBlade;
 import net.mrqx.slashblade.maidpower.util.MaidItemUtils;
 import net.mrqx.slashblade.maidpower.util.MaidSlashBladeMovementUtils;
-import net.mrqx.truepower.util.JustSlashArtManager;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -60,7 +60,6 @@ public class MaidTickHandler {
             .ifPresent(state -> handleMaidTick(maid, state));
     }
     
-    @SuppressWarnings("MathClampMigration")
     private static void handleMaidTick(EntityMaid maid, ISlashBladeState state) {
         boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
         boolean hasUnlimitedBladeWorks = SlashBladeMaidBauble.UnlimitedBladeWorks.checkBauble(maid);
@@ -173,7 +172,11 @@ public class MaidTickHandler {
                 }
                 
                 double radius = TaskSlashBlade.getRadius(maid);
-                int rank = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime()).level;
+                IConcentrationRank.ConcentrationRanks ranks = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime());
+                if (ranks == null) {
+                    return;
+                }
+                int rank = ranks.level;
                 double bonus = radius / Math.max(TargetSelector.getResolvedReach(maid), 1) * rank / 7;
                 
                 AttributeModifier entityReachBonus = new AttributeModifier(
@@ -219,7 +222,11 @@ public class MaidTickHandler {
             }
             
             double radius = TaskSlashBlade.getRadius(maid);
-            int rank = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime()).level;
+            IConcentrationRank.ConcentrationRanks ranks = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime());
+            if (ranks == null) {
+                return;
+            }
+            int rank = ranks.level;
             double bonus = radius / Math.max(TargetSelector.getResolvedReach(maid), 1) * rank / 7;
             
             AttributeModifier entityReachBonus = new AttributeModifier(

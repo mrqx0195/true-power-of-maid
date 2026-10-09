@@ -21,6 +21,9 @@ public class MaidKillEntityHandler {
             ItemStack stack = maid.getMainHandItem();
             BladeStateAccess.of(stack).ifPresent(state -> {
                 IConcentrationRank.ConcentrationRanks rankBonus = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime());
+                if (rankBonus == null) {
+                    return;
+                }
                 int souls = (int) Math.floor(event.getEntity().getExperienceReward(serverLevel, maid) * (1 + rankBonus.level * 0.1) * (SlashBladeMaidBauble.UnawakenedSoul.checkBauble(maid) ? 1 : 0.8));
                 state.setProudSoulCount(state.getProudSoulCount() + Math.min(SlashBladeConfig.MAX_PROUD_SOUL_GOT.get(), souls));
             });

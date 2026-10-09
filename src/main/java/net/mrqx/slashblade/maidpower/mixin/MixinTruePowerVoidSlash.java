@@ -3,6 +3,7 @@ package net.mrqx.slashblade.maidpower.mixin;
 import com.github.tartaricacid.touhoulittlemaid.entity.item.EntityPowerPoint;
 import com.github.tartaricacid.touhoulittlemaid.entity.passive.EntityMaid;
 import mods.flammpfeil.slashblade.capability.concentrationrank.CapabilityConcentrationRank;
+import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
 import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.entity.Projectile;
 import mods.flammpfeil.slashblade.util.TargetSelector;
@@ -41,7 +42,11 @@ public abstract class MixinTruePowerVoidSlash extends EntitySlashEffect {
             }
             
             double radius = TaskSlashBlade.getRadius(maid);
-            int rank = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime()).level;
+            IConcentrationRank.ConcentrationRanks ranks = maid.getData(CapabilityConcentrationRank.RANK_POINT).getRank(maid.level().getGameTime());
+            if (ranks == null) {
+                return;
+            }
+            int rank = ranks.level;
             double bonus = radius / Math.max(TargetSelector.getResolvedReach(maid), 1) * rank / 7;
             
             AttributeModifier entityReachBonus = new AttributeModifier(

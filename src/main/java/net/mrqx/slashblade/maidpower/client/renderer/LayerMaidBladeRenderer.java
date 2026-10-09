@@ -32,7 +32,7 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void setUserPose(PoseStack matrixStack, T entity, float partialTicks, @Nullable ISlashBladeState state) {
-        if (parent instanceof GeckoEntityMaidRenderer geckoEntityMaidRenderer) {
+        if (this.parent instanceof GeckoEntityMaidRenderer geckoEntityMaidRenderer) {
             ILocationModel model = geckoEntityMaidRenderer.getGeoEntity(entity).getGeoModel();
             RenderUtils.prepMatrixForLocator(matrixStack, model.leftWaistBones());
             matrixStack.mulPose(Axis.ZP.rotationDegrees(180));
@@ -43,20 +43,19 @@ public class LayerMaidBladeRenderer<T extends Mob, M extends EntityModel<T>> ext
             if (comboRot != 0f) {
                 matrixStack.mulPose(Axis.YP.rotationDegrees(comboRot));
             }
-            super.setUserPose(matrixStack, entity, partialTicks);
-            return;
-        }
-        M model = getParentModel();
-        if (model instanceof BedrockModel bedrockModel && bedrockModel.hasWaistPositioningModel(HumanoidArm.LEFT)) {
-            bedrockModel.translateToPositioningWaist(HumanoidArm.LEFT, matrixStack);
-        } else if (model instanceof ILocationModel iLocationModel) {
-            RenderUtils.prepMatrixForLocator(matrixStack, iLocationModel.leftHandBones());
         } else {
-            matrixStack.translate(0.25F, 0.85, 0.0F);
-            matrixStack.mulPose(Axis.XP.rotationDegrees(-20.0F));
+            M model = this.getParentModel();
+            if (model instanceof BedrockModel bedrockModel && bedrockModel.hasWaistPositioningModel(HumanoidArm.LEFT)) {
+                bedrockModel.translateToPositioningWaist(HumanoidArm.LEFT, matrixStack);
+            } else if (model instanceof ILocationModel iLocationModel) {
+                RenderUtils.prepMatrixForLocator(matrixStack, iLocationModel.leftHandBones());
+            } else {
+                matrixStack.translate(0.25F, 0.85, 0.0F);
+                matrixStack.mulPose(Axis.XP.rotationDegrees(-20.0F));
+            }
+            matrixStack.translate(-0.3F, -0.2F, -0.5F);
+            matrixStack.mulPose(Axis.YP.rotationDegrees(15.0F));
         }
-        matrixStack.translate(-0.3F, -0.2F, -0.5F);
-        matrixStack.mulPose(Axis.YP.rotationDegrees(15.0F));
-        super.setUserPose(matrixStack, entity, partialTicks);
+        super.setUserPose(matrixStack, entity, partialTicks, state);
     }
 }

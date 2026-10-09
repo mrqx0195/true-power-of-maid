@@ -22,6 +22,9 @@ public abstract class MixinAttackHelper {
             boolean hasTruePower = SlashBladeMaidBauble.TruePower.checkBauble(maid);
             IConcentrationRank.ConcentrationRanks rankBonus = maid.getData(CapabilityConcentrationRank.RANK_POINT)
                 .getRank(attacker.getCommandSenderWorld().getGameTime());
+            if (rankBonus == null) {
+                return;
+            }
             double rankDamageBonus = rankBonus.level / 2.0;
             if (IConcentrationRank.ConcentrationRanks.S.level <= rankBonus.level) {
                 int refine = BladeStateAccess.of(maid.getMainHandItem())
